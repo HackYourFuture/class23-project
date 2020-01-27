@@ -1,0 +1,8 @@
+node_modules
+.next
+
+dist
+next.config.*
+now.json
+.vscode/
+.DS_Store
