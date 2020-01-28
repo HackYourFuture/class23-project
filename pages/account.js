@@ -3,13 +3,14 @@ import AccountOrders from "../components/Account/AccountOrders";
 import AccountPermissions from "../components/Account/AccountPermissions";
 import { parseCookies } from "nookies";
 import baseUrl from "../utils/baseUrl";
+import getProductsFromApi from "../utils/getProductsFromApi";
 import axios from "axios";
 
-function Account({ user, orders }) {
+function Account({ user, orders, ratings }) {
   return (
     <>
       <AccountHeader {...user} />
-      <AccountOrders orders={orders} />
+      <AccountOrders orders={orders.orders} />
       {user.role === "root" && <AccountPermissions />}
     </>
   );
@@ -23,7 +24,7 @@ Account.getInitialProps = async ctx => {
   const payload = { headers: { Authorization: token } };
   const url = `${baseUrl}/api/orders`;
   const response = await axios.get(url, payload);
-  return response.data;
+  return { orders: response.data };
 };
 
 export default Account;
