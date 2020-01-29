@@ -33,8 +33,13 @@ async function handleGetRequest(req, res) {
   const product = await Product.findOne({ _id })
     .populate({ path: 'comments.user', model: User })
     .slice('comments', startIndex, startIndex + 10);
+
+  // Get comments count
+  const [{ comments: count }] = await Product.aggregate()
+    .match({ _id: mongoose.Types.ObjectId(productId) })
+    .project({ comments: { $size: "$comments" } });
   console.log(product);
-  res.status(200).json(product);
+  res.status(200).json({ totalComments: count, product });
 }
 
 async function handlePostRequest(req, res) {
