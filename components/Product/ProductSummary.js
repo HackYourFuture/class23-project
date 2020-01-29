@@ -1,19 +1,21 @@
-import { Item, Label, Rating } from "semantic-ui-react";
-import axios from "axios";
-import cookie from "js-cookie";
-import baseUrl from "../../utils/baseUrl";
-import AddProductToCart from "./AddProductToCart";
+import React from 'react';
+import { Item, Label, Rating } from 'semantic-ui-react';
+import axios from 'axios';
+import cookie from 'js-cookie';
+import baseUrl from '../../utils/baseUrl';
+import AddProductToCart from './AddProductToCart';
 
-function ProductSummary({ name, mediaUrl, _id, price, sku, user }) {
+function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
+  const [ratingAmount, setRatingAmount] = React.useState(0);
+  React.useEffect(() => {
+    if (ratingAmount) setRatingAmount(ratings[0].star);
+  }, []);
   async function handleRate(e, { rating }) {
     const url = `${baseUrl}/api/ratings`;
-    const token = cookie.get("token");
+    const token = cookie.get('token');
     const headers = { headers: { Authorization: token } };
-    const payload = {
-      productId: _id,
-      star: rating
-    };
-    const response = await axios.put(url, payload, headers);
+    const payload = { productId: _id, rating, userId: user._id };
+    const response = await axios.post(url, payload, headers);
     console.log(response.data);
   }
   return (
@@ -34,12 +36,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user }) {
         </Item>
       </Item.Group>
       <Rating
-        clearable
         maxRating="5"
         icon="star"
-        defaultRating="0"
         size="large"
         onRate={handleRate}
+        rating={ratingAmount}
       />
     </>
   );

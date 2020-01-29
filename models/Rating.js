@@ -1,24 +1,20 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { ObjectId, Number } = mongoose.Schema.Types;
 
 const RatingSchema = new mongoose.Schema({
   user: {
     type: ObjectId,
-    ref: "User"
+    ref: 'User',
   },
-  products: [
-    {
-      product: {
-        type: ObjectId,
-        ref: "Product"
-      },
-      star: {
-        type: Number,
-        default: 0
-      }
-    }
-  ]
+
+  product: {
+    type: ObjectId,
+    ref: 'Product',
+  },
+  star: {
+    type: Number,
+  },
 });
 
-export default mongoose.models.Rating || mongoose.model("Rating", RatingSchema);
+export default mongoose.models.Rating || mongoose.model('Rating', RatingSchema);
