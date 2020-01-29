@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Segment } from "semantic-ui-react";
+import { Segment, Card, Advertisement } from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
 import cookie from "js-cookie";
-import catchErrors from '../utils/catchErrors'
+import catchErrors from "../utils/catchErrors";
 
 function Cart({ products, user }) {
   const [cartProducts, setCartProducts] = React.useState(products);
@@ -28,34 +28,41 @@ function Cart({ products, user }) {
     try {
       setLoading(true);
       const url = `${baseUrl}/api/checkout`;
-      const token = cookie.get('token');
+      const token = cookie.get("token");
       const payload = { paymentData };
       const headers = { headers: { Authorization: token } };
       await axios.post(url, payload, headers);
       setSuccess(true);
-
     } catch (error) {
-      catchErrors(error, window.alert)
+      catchErrors(error, window.alert);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <Segment loading={loading}>
-      <CartItemList
-        handleRemoveFromCart={handleRemoveFromCart}
-        user={user}
-        products={cartProducts}
-        success={success}
-      />
-      <CartSummary
-        products={cartProducts}
-        handleCheckout={handleCheckout}
-        success={success}
-
-      />
-    </Segment>
+    <>
+      <Segment loading={loading}>
+        <CartItemList
+          handleRemoveFromCart={handleRemoveFromCart}
+          user={user}
+          products={cartProducts}
+          success={success}
+        />
+        <CartSummary
+          products={cartProducts}
+          handleCheckout={handleCheckout}
+          success={success}
+        />
+      </Segment>
+      {success ? (
+        <Card.Group>
+          <Advertisement content="Rate this prodyct!" />
+        </Card.Group>
+      ) : (
+        ""
+      )}
+    </>
   );
 }
 

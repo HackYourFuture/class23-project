@@ -25,10 +25,12 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  rating: {
-    type: ObjectId,
-    ref: "Rating"
-  }
+  ratings: [
+    {
+      type: ObjectId,
+      ref: "Rating"
+    }
+  ]
 });
 
 export default mongoose.models.Product ||

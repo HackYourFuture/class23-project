@@ -6,11 +6,11 @@ import {
   Icon,
   Button,
   List,
-  Image
+  Image,
+  Rating
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
-import formateDate from '../../utils/formatDate';
-
+import formateDate from "../../utils/formatDate";
 
 function AccountOrders({ orders }) {
   const router = useRouter();
@@ -44,6 +44,7 @@ function AccountOrders({ orders }) {
                       {p.quantity} · ${p.product.price}
                     </List.Description>
                   </List.Content>
+                  <Rating icon="star" maxRating="5" size="tiny" />
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}
@@ -77,13 +78,13 @@ function AccountOrders({ orders }) {
           </div>
         </Segment>
       ) : (
-          <Accordion
-            fluid
-            styled
-            exclusive={false}
-            panels={mapOrdersToPanels(orders)}
-          />
-        )}
+        <Accordion
+          fluid
+          styled
+          exclusive={false}
+          panels={mapOrdersToPanels(orders)}
+        />
+      )}
     </>
   );
 }

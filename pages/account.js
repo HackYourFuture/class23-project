@@ -10,7 +10,7 @@ function Account({ user, orders, ratings }) {
   return (
     <>
       <AccountHeader {...user} />
-      <AccountOrders orders={orders.orders} />
+      <AccountOrders orders={orders} />
       {user.role === "root" && <AccountPermissions />}
     </>
   );
@@ -24,7 +24,7 @@ Account.getInitialProps = async ctx => {
   const payload = { headers: { Authorization: token } };
   const url = `${baseUrl}/api/orders`;
   const response = await axios.get(url, payload);
-  return { orders: response.data };
+  return response.data;
 };
 
 export default Account;

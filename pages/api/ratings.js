@@ -32,6 +32,7 @@ async function handleGetRequest(req, res) {
       path: "products.product",
       model: Product
     });
+    await Product.findOneAndUpdate();
     res.status(200).json({ ratings });
   } catch (error) {
     console.error(error);
