@@ -2,6 +2,8 @@ import Product from "../../models/Product";
 import Cart from '../../models/Cart';
 import User from '../../models/User';
 import connectDb from "../../utils/connectDb";
+import jwt from 'jsonwebtoken';
+import mongoose from "mongoose";
 
 connectDb();
 
@@ -12,6 +14,9 @@ export default async (req, res) => {
       break;
     case "POST":
       await handlePostRequest(req, res);
+      break;
+    case "PUT":
+      await handlePutRequest(req, res);
       break;
     case "DELETE":
       await handleDeleteRequest(req, res);
@@ -24,10 +29,13 @@ export default async (req, res) => {
 
 async function handleGetRequest(req, res) {
   const { _id } = req.query;
-  const product = await Product.findOne({ _id }).populate({
-    path: 'comments.user',
-    model: User
-  });
+  const product = await Product.findOne({ _id })
+    .populate({
+      path: 'comments.user',
+      model: User
+    })
+    .sort({ 'comments.createdAt': 'desc' })
+    .slice('comments', 10)
   console.log(product);
   res.status(200).json(product);
 }
@@ -48,6 +56,52 @@ async function handlePostRequest(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error in creating product");
+  }
+}
+
+async function handlePutRequest(req, res) {
+  // Check if the user is authorized
+  if (!("authorization" in req.headers)) {
+    return res.status(401).send("No authorization token");
+  }
+  // Get the required fields & check if they exist
+  const { header, content, productId } = req.body;
+  if (!header || !content || !productId) {
+    return res.status(422).send("Header, content and productId are required");
+  }
+  try {
+    // Verify the token
+    const { userId } = jwt.verify(
+      req.headers.authorization,
+      process.env.JWT_SECRET
+    );
+    // Find the user
+    const user = await User.findOne({ _id: userId });
+    // If the user exists
+    if (user) {
+      // Create the comment
+      const newComment = { user: userId, header, content };
+      // Add the comment to the Product & get new Product
+      const updatedProduct = await Product.findOneAndUpdate(
+        { _id: productId },
+        { $push: { comments: { $each: [newComment], $position: 0 } } },
+        { new: true }
+      )
+        .populate({ path: 'comments.user', model: User })
+        .slice('comments', 10)
+
+      // Get comments count
+      const [{ comments: count }] = await Product.aggregate()
+        .match({ _id: mongoose.Types.ObjectId(productId) })
+        .project({ comments: { $size: "$comments" } });
+
+      // Return comments count and the updated product 
+      res.status(200).json({ totalComments: count, product: updatedProduct });
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    res.status(403).send("Invalid token");
   }
 }
 
