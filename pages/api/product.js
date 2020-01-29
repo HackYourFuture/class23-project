@@ -28,14 +28,11 @@ export default async (req, res) => {
 };
 
 async function handleGetRequest(req, res) {
-  const { _id } = req.query;
+  const { _id, page } = req.query;
+  const startIndex = page && !Number.isNaN(Number(page)) && page > 0 ? (page - 1) * 10 : 0;
   const product = await Product.findOne({ _id })
-    .populate({
-      path: 'comments.user',
-      model: User
-    })
-    .sort({ 'comments.createdAt': 'desc' })
-    .slice('comments', 10)
+    .populate({ path: 'comments.user', model: User })
+    .slice('comments', startIndex, startIndex + 10);
   console.log(product);
   res.status(200).json(product);
 }

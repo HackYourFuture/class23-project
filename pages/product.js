@@ -12,9 +12,9 @@ function Product({ product, user }) {
   );
 }
 
-Product.getInitialProps = async ({ query: { _id } }) => {
+Product.getInitialProps = async ({ query: { _id, page } }) => {
   const url = `${baseUrl}/api/product`;
-  const payload = { params: { _id } };
+  const payload = { params: { _id, page } };
   const response = await axios.get(url, payload);
   return { product: response.data };
 };
