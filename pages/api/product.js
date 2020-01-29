@@ -80,7 +80,7 @@ async function handlePutRequest(req, res) {
     // If the user exists
     if (user) {
       // Create the comment
-      const newComment = { user: userId, header, content };
+      const newComment = { user: userId, header, content, updated_at: Date.now() };
       // Add the comment to the Product & get new Product
       const updatedProduct = await Product.findOneAndUpdate(
         { _id: productId },
@@ -96,6 +96,7 @@ async function handlePutRequest(req, res) {
         .project({ comments: { $size: "$comments" } });
 
       // Return comments count and the updated product 
+      console.log(mongoose.Types.ObjectId(updatedProduct.comments[0]._id).getTimestamp());
       res.status(200).json({ totalComments: count, product: updatedProduct });
     } else {
       res.status(404).send("User not found");
