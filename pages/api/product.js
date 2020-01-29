@@ -36,7 +36,7 @@ async function handleGetRequest(req, res) {
 
   // Get comments count
   const [{ comments: count }] = await Product.aggregate()
-    .match({ _id: mongoose.Types.ObjectId(productId) })
+    .match({ _id: mongoose.Types.ObjectId(_id) })
     .project({ comments: { $size: "$comments" } });
   console.log(product);
   res.status(200).json({ totalComments: count, product });
