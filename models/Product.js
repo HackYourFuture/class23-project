@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import shortid from "shortid";
 
-const { String, Number } = mongoose.Schema.Types;
+const { String, Number, ObjectId } = mongoose.Schema.Types;
 
 const ProductSchema = new mongoose.Schema({
   name: {
@@ -24,7 +24,25 @@ const ProductSchema = new mongoose.Schema({
   mediaUrl: {
     type: String,
     required: true
-  }
+  },
+  comments: [
+    {
+      user: {
+        type: ObjectId,
+        ref: 'User'
+      },
+      header: {
+        type: String,
+        required: true
+      },
+      content: {
+        type: String,
+        required: true
+      }
+    }, {
+      timestamps: true
+    }
+  ]
 });
 
 export default mongoose.models.Product ||

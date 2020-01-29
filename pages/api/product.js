@@ -1,5 +1,6 @@
 import Product from "../../models/Product";
 import Cart from '../../models/Cart';
+import User from '../../models/User';
 import connectDb from "../../utils/connectDb";
 
 connectDb();
@@ -23,7 +24,11 @@ export default async (req, res) => {
 
 async function handleGetRequest(req, res) {
   const { _id } = req.query;
-  const product = await Product.findOne({ _id });
+  const product = await Product.findOne({ _id }).populate({
+    path: 'comments.user',
+    model: User
+  });
+  console.log(product);
   res.status(200).json(product);
 }
 
