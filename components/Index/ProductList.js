@@ -1,4 +1,4 @@
-import { Card } from "semantic-ui-react";
+import { Card, Container } from "semantic-ui-react";
 import { Dropdown } from "semantic-ui-react";
 
 function ProductList({ products, selectCategory }) {
@@ -29,14 +29,16 @@ function ProductList({ products, selectCategory }) {
 
   return (
     <>
-      <Dropdown
-        placeholder="Select Category"
-        fluid
-        search
-        selection
-        options={categoryOptions}
-        onChange={selectCategory}
-      />
+      <Container style={{ marginBottom: "2em" }}>
+        <Dropdown
+          placeholder="Select Category"
+          fluid
+          search
+          selection
+          options={categoryOptions}
+          onChange={selectCategory}
+        />
+      </Container>
       <Card.Group
         stackable
         itemsPerRow="3"

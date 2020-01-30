@@ -131,15 +131,6 @@ function CreateProduct() {
             value={product.price}
             onChange={handleChange}
           />
-          <Form.Dropdown
-            selection
-            options={categoryOptions}
-            name="category"
-            label="Category"
-            placeholder="category"
-            value={product.category}
-            onChange={handleCategoryChange}
-          />
           <Form.Field
             control={Input}
             name="media"
@@ -150,6 +141,15 @@ function CreateProduct() {
             onChange={handleChange}
           />
         </Form.Group>
+        <Form.Dropdown
+          selection
+          options={categoryOptions}
+          name="category"
+          label="Category"
+          placeholder="category"
+          value={product.category}
+          onChange={handleCategoryChange}
+        />
         <Image src={mediaPreview} rounded centered size="small" />
         <Form.Field
           control={TextArea}
