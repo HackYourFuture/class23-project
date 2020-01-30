@@ -32,7 +32,7 @@ async function handleGetRequest(req, res) {
     console.log(userId);
     const ratings = await Rating.find({ user: userId });
 
-    res.status(200).json({ ratings });
+    res.status(200).json(ratings);
   } catch (error) {
     console.error(error);
     res.status(403).send("Please login again");

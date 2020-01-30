@@ -19,11 +19,8 @@ import formateDate from "../../utils/formatDate";
 function AccountOrders({ orders, _id }) {
   const [isClicked, setIsClicked] = React.useState(false);
   const [productId, setProductId] = React.useState("");
-  const [ratings, setRatings] = React.useState(0);
+  const [ratings, setRatings] = React.useState([]);
   const router = useRouter();
-
-  console.log(_id);
-  console.log(orders);
 
   async function getRatings() {
     const url = `${baseUrl}/api/ratings`;
@@ -32,10 +29,12 @@ function AccountOrders({ orders, _id }) {
     const response = await axios.get(url, payload);
     setRatings(response.data);
   }
+  console.log(orders);
 
   React.useEffect(() => {
     getRatings();
   }, []);
+
   function handleClick(product) {
     console.log("clicked");
     const pid = product;
@@ -58,7 +57,7 @@ function AccountOrders({ orders, _id }) {
     setIsClicked(false);
   }
 
-  function mapOrdersToPanels(orders) {
+  function mapOrdersToPanels(orders, ratings) {
     return orders.map(order => ({
       key: order._id,
       title: {
@@ -88,13 +87,12 @@ function AccountOrders({ orders, _id }) {
                     </List.Description>
                   </List.Content>
 
-                  {isClicked ? (
+                  {!isClicked ? (
                     <Rating
                       icon="star"
                       maxRating="5"
                       size="tiny"
                       onRate={handleOnRate}
-                      rating={p.product.ratings[0].star}
                     />
                   ) : (
                     <Button
@@ -140,7 +138,7 @@ function AccountOrders({ orders, _id }) {
           fluid
           styled
           exclusive={false}
-          panels={mapOrdersToPanels(orders)}
+          panels={mapOrdersToPanels(orders, ratings)}
         />
       )}
     </>
