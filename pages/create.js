@@ -13,11 +13,25 @@ import axios from "axios";
 import baseUrl from "../utils/baseUrl";
 import catchErrors from "../utils/catchErrors";
 
+const categoryOptions = [
+  { key: "acc", text: "accessories", value: "accessories" },
+  { key: "bath", text: "bathroom", value: "bathroom" },
+  { key: "bed", text: "bedroom", value: "bedroom" },
+  { key: "dec", text: "decoration", value: "decoration" },
+  { key: "kit", text: "kitchen", value: "kitchen" },
+  { key: "lig", text: "lighting", value: "lighting" },
+  { key: "liv", text: "living room", value: "living_room" },
+  { key: "off", text: "office", value: "office" },
+  { key: "tec", text: "technology", value: "technology" },
+  { key: "oth", text: "other", value: "other" }
+];
+
 const INITIAL_PRODUCT = {
   name: "",
   price: "",
   media: "",
-  description: ""
+  description: "",
+  category: ""
 };
 
 function CreateProduct() {
@@ -43,6 +57,11 @@ function CreateProduct() {
     }
   }
 
+  function handleCategoryChange(event, result) {
+    const { name, value } = result || event.target;
+    setProduct(prevState => ({ ...prevState, [name]: value }));
+  }
+
   async function handleImageUpload() {
     const data = new FormData();
     data.append("file", product.media);
@@ -60,8 +79,8 @@ function CreateProduct() {
       setError("");
       const mediaUrl = await handleImageUpload();
       const url = `${baseUrl}/api/product`;
-      const { name, price, description } = product;
-      const payload = { name, price, description, mediaUrl };
+      const { name, price, description, category } = product;
+      const payload = { name, price, description, mediaUrl, category };
       await axios.post(url, payload);
 
       setProduct(INITIAL_PRODUCT);
@@ -111,6 +130,15 @@ function CreateProduct() {
             type="number"
             value={product.price}
             onChange={handleChange}
+          />
+          <Form.Dropdown
+            selection
+            options={categoryOptions}
+            name="category"
+            label="Category"
+            placeholder="category"
+            value={product.category}
+            onChange={handleCategoryChange}
           />
           <Form.Field
             control={Input}

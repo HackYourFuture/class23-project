@@ -1,5 +1,5 @@
 import Product from "../../models/Product";
-import Cart from '../../models/Cart';
+import Cart from "../../models/Cart";
 import connectDb from "../../utils/connectDb";
 
 connectDb();
@@ -28,16 +28,17 @@ async function handleGetRequest(req, res) {
 }
 
 async function handlePostRequest(req, res) {
-  const { name, price, description, mediaUrl } = req.body;
+  const { name, price, description, mediaUrl, category } = req.body;
   try {
-    if (!name || !price || !description || !mediaUrl) {
+    if (!name || !price || !description || !mediaUrl || !category) {
       return res.status(422).send("Product missing one or more fields");
     }
     const product = await new Product({
       name,
       price,
       description,
-      mediaUrl
+      mediaUrl,
+      category
     }).save();
     res.status(201).json(product);
   } catch (error) {
@@ -46,23 +47,21 @@ async function handlePostRequest(req, res) {
   }
 }
 
-
 async function handleDeleteRequest(req, res) {
   const { _id } = req.query;
 
   try {
-    // 1) Delete product by id 
+    // 1) Delete product by id
     await Product.findOneAndDelete({ _id });
 
     // 2) Remove from all carts, referenced as "product"
     await Cart.updateMany(
       { "products.product": _id },
       { $pull: { products: { product: _id } } }
-    )
+    );
     res.status(204).json({});
-
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error deleting product")
+    res.status(500).send("Error deleting product");
   }
 }
