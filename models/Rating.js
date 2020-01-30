@@ -7,18 +7,14 @@ const RatingSchema = new mongoose.Schema({
     type: ObjectId,
     ref: "User"
   },
-  products: [
-    {
-      product: {
-        type: ObjectId,
-        ref: "Product"
-      },
-      star: {
-        type: Number,
-        default: 0
-      }
-    }
-  ]
+
+  product: {
+    type: ObjectId,
+    ref: "Product"
+  },
+  star: {
+    type: Number
+  }
 });
 
 export default mongoose.models.Rating || mongoose.model("Rating", RatingSchema);

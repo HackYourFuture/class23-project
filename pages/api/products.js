@@ -1,6 +1,7 @@
 // import products from "../../static/products.json";
 import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
+import Rating from "../../models/Rating";
 
 connectDb();
 
@@ -19,15 +20,22 @@ export default async (req, res) => {
     products = await Product.find()
       .sort({ name: "asc" })
       .limit(pageSize)
+      .populate({
+        path: "ratings",
+        model: Rating
+      });
   } else {
-    // get get the rest of pages 
-    const skips = pageSize * (pageNum - 1)
+    // get get the rest of pages
+    const skips = pageSize * (pageNum - 1);
     products = await Product.find()
       .skip(skips)
       .limit(pageSize)
+      .populate({
+        path: "ratings",
+        model: Rating
+      });
   }
 
   // const products = await Product.find();
   res.status(200).json({ products, totalPages });
 };
-

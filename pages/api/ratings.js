@@ -13,8 +13,8 @@ export default async (req, res) => {
     case "GET":
       await handleGetRequest(req, res);
       break;
-    case "PUT":
-      await handlePutRequest(req, res);
+    case "POST":
+      await handlePostRequest(req, res);
       break;
     default:
       res.status(405).send(`Method ${req.method} not allowed`);
@@ -28,6 +28,8 @@ async function handleGetRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
+
+    console.log(userId);
     const ratings = await Rating.find({ user: userId }).populate({
       path: "products.product",
       model: Product
@@ -40,40 +42,47 @@ async function handleGetRequest(req, res) {
   }
 }
 
-async function handlePutRequest(req, res) {
-  const { star, productId } = req.body;
-  console.log(req.headers);
+async function handlePostRequest(req, res) {
+  const { productId, rating, userId } = req.body;
+  // console.log(productId, rating);
+
   if (!("authorization" in req.headers)) {
     return res.status(401).send("No authorization token");
   }
-  //get user by token
-  const { userId } = jwt.verify(
-    req.headers.authorization,
-    process.env.JWT_SECRET
-  );
-  // find rating list based on userId
-  const ratingList = await Rating.findOne({ user: userId });
-  //check if product already rated and added to the list
-  const productIsRated = ratingList.products.some(doc =>
-    ObjectId(productId).equals(doc.product)
-  );
-  console.log(star);
-  // if so, update product ratings
-  if (productIsRated) {
-    await Rating.findOneAndUpdate(
+
+  try {
+    let productRating;
+
+    productRating = await Rating.findOneAndUpdate(
       {
-        _id: ratingList._id,
-        "products.product": productId
+        product: productId,
+        user: userId
       },
-      { "products.$.star": star }
+      { $set: { star: rating } },
+      { new: true }
     );
-  } else {
-    // if not add the new product
-    const newRating = { product: productId, star };
-    await Rating.findOneAndUpdate(
-      { _id: ratingList._id },
-      { $addToSet: { products: newRating } }
-    );
+    console.log("productRating", productRating);
+    if (!productRating) {
+      productRating = await new Rating({
+        user: userId,
+        product: productId,
+        star: rating
+      }).save();
+    }
+    const { ratings } = await Product.findOneAndUpdate(
+      { _id: productId },
+      { $addToSet: { ratings: productRating._id } },
+      { new: true }
+    ).populate({
+      path: "ratings",
+      model: Rating
+    });
+    // const user = await Rating.findById({
+    //   user: "ObjectId(5e30796e468c9e159451ea13)",
+    //   product: "ObjectId(5e1625f5a17e567a29619b17)"
+    // });
+    return res.status(200).json(ratings);
+  } catch (error) {
+    console.error(error);
   }
-  res.status(200).send("Cart updated");
 }

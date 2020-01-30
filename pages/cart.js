@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Segment, Card, Advertisement } from "semantic-ui-react";
+import { useRouter } from "next/router";
+import { Segment, Sticky, Modal, Container, Button } from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
@@ -9,9 +10,11 @@ import cookie from "js-cookie";
 import catchErrors from "../utils/catchErrors";
 
 function Cart({ products, user }) {
+  const router = useRouter();
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   async function handleRemoveFromCart(productId) {
     const url = `${baseUrl}/api/cart`;
@@ -55,12 +58,26 @@ function Cart({ products, user }) {
           success={success}
         />
       </Segment>
-      {success ? (
-        <Card.Group>
-          <Advertisement content="Rate this prodyct!" />
-        </Card.Group>
-      ) : (
-        ""
+      {!success && (
+        <Modal
+          basic
+          defaultOpen
+          centered
+          closeIcon
+          size="small"
+          style={{ display: "block", height: "200px" }}
+        >
+          <Modal.Header as="h2">
+            Hi thank you for shopping from us! Would you like to rate your
+            products? <br />
+            You can rate from your order history!
+          </Modal.Header>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button color="green" onClick={() => router.push("/account")}>
+              YES!
+            </Button>
+          </div>
+        </Modal>
       )}
     </>
   );

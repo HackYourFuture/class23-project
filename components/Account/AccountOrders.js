@@ -10,10 +10,32 @@ import {
   Rating
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
+import baseUrl from "../../utils/baseUrl";
+import cookie from "js-cookie";
+import axios from "axios";
 import formateDate from "../../utils/formatDate";
 
-function AccountOrders({ orders }) {
+function AccountOrders({ orders, _id }) {
+  const [productId, setProductId] = React.useState("");
   const router = useRouter();
+
+  console.log(_id);
+
+  function handleClick(product) {
+    console.log("clicked");
+    const pid = product;
+    setProductId(pid);
+  }
+
+  async function handleOnRate(e, { rating }) {
+    console.log("i ran!");
+    const url = `${baseUrl}/api/ratings`;
+    const token = cookie.get("token");
+    const headers = { headers: { Authorization: token } };
+    const payload = { productId: productId, rating, userId: _id };
+    const response = await axios.post(url, payload, headers);
+    console.log(response.data);
+  }
 
   function mapOrdersToPanels(orders) {
     return orders.map(order => ({
@@ -44,7 +66,13 @@ function AccountOrders({ orders }) {
                       {p.quantity} · ${p.product.price}
                     </List.Description>
                   </List.Content>
-                  <Rating icon="star" maxRating="5" size="tiny" />
+                  <Rating
+                    icon="star"
+                    maxRating="5"
+                    size="tiny"
+                    onClick={() => handleClick(p.product._id)}
+                    onRate={handleOnRate}
+                  />
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}
