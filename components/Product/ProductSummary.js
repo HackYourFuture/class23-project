@@ -1,10 +1,10 @@
-import React from "react";
-import { Item, Label, Rating, Segment } from "semantic-ui-react";
-import axios from "axios";
-import cookie from "js-cookie";
-import baseUrl from "../../utils/baseUrl";
-import calculateRatingMedian from "../../utils/calculateRatingMedian";
-import AddProductToCart from "./AddProductToCart";
+import React from 'react';
+import { Item, Label, Rating, Segment } from 'semantic-ui-react';
+import axios from 'axios';
+import cookie from 'js-cookie';
+import baseUrl from '../../utils/baseUrl';
+import calculateRatingMedian from '../../utils/calculateRatingMedian';
+import AddProductToCart from './AddProductToCart';
 
 function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   const [ratingAmount, setRatingAmount] = React.useState(0);
@@ -42,7 +42,13 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
           </Item.Content>
         </Item>
       </Item.Group>
-      <Rating maxRating="5" icon="star" size="large" rating={ratingAmount} />
+      <Rating
+        maxRating="5"
+        disabled
+        icon="star"
+        size="large"
+        rating={ratingAmount}
+      />
       <span>{`${ratings.length} users rated this!`}</span>
     </>
   );
