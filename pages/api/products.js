@@ -5,7 +5,7 @@ import connectDb from "../../utils/connectDb";
 connectDb();
 
 export default async (req, res) => {
-  const { page, size } = req.query;
+  const { page, size, category } = req.query;
 
   // convert query string value to numbers:
   const pageNum = Number(page);
@@ -16,18 +16,17 @@ export default async (req, res) => {
 
   // get number of product in page 1:
   if (pageNum === 1) {
-    products = await Product.find()
+    products = await Product.find({ category: category })
       .sort({ name: "asc" })
-      .limit(pageSize)
+      .limit(pageSize);
   } else {
-    // get get the rest of pages 
-    const skips = pageSize * (pageNum - 1)
-    products = await Product.find()
+    // get get the rest of pages
+    const skips = pageSize * (pageNum - 1);
+    products = await Product.find({ category: category })
       .skip(skips)
-      .limit(pageSize)
+      .limit(pageSize);
   }
 
   // const products = await Product.find();
   res.status(200).json({ products, totalPages });
 };
-

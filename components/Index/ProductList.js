@@ -1,6 +1,20 @@
 import { Card } from "semantic-ui-react";
+import { Dropdown } from "semantic-ui-react";
 
-function ProductList({ products }) {
+function ProductList({ products, selectCategory }) {
+  const categoryOptions = [
+    { key: "acc", text: "Accessories", value: "accessories" },
+    { key: "bath", text: "Bathroom", value: "bathroom" },
+    { key: "bed", text: "Bedroom", value: "bedroom" },
+    { key: "dec", text: "Decoration", value: "decoration" },
+    { key: "kit", text: "Kitchen", value: "kitchen" },
+    { key: "lig", text: "Lighting", value: "lighting" },
+    { key: "liv", text: "Living Room", value: "living_room" },
+    { key: "off", text: "Office", value: "office" },
+    { key: "tec", text: "Technology", value: "technology" },
+    { key: "oth", text: "Other", value: "other" }
+  ];
+
   function mapProductsToItems(products) {
     return products.map(product => ({
       header: product.name,
@@ -14,12 +28,22 @@ function ProductList({ products }) {
   }
 
   return (
-    <Card.Group
-      stackable
-      itemsPerRow="3"
-      centered
-      items={mapProductsToItems(products)}
-    />
+    <>
+      <Dropdown
+        placeholder="Select Category"
+        fluid
+        search
+        selection
+        options={categoryOptions}
+        onChange={selectCategory}
+      />
+      <Card.Group
+        stackable
+        itemsPerRow="3"
+        centered
+        items={mapProductsToItems(products)}
+      />
+    </>
   );
 }
 
