@@ -19,16 +19,30 @@ import formateDate from "../../utils/formatDate";
 function AccountOrders({ orders, _id }) {
   const [isClicked, setIsClicked] = React.useState(false);
   const [productId, setProductId] = React.useState("");
-  const [rate, setRate] = React.useState(0);
+  const [ratings, setRatings] = React.useState(0);
   const router = useRouter();
 
   console.log(_id);
+  console.log(orders);
 
+  async function getRatings() {
+    const url = `${baseUrl}/api/ratings`;
+    const token = cookie.get("token");
+    const payload = { headers: { Authorization: token } };
+    const response = await axios.get(url, payload);
+    setRatings(response.data);
+  }
+
+  React.useEffect(() => {
+    getRatings();
+  }, []);
   function handleClick(product) {
     console.log("clicked");
     const pid = product;
     setProductId(pid);
-    setIsClicked(true);
+    if (product == pid) {
+      setIsClicked(true);
+    }
   }
 
   console.log(productId);
@@ -80,6 +94,7 @@ function AccountOrders({ orders, _id }) {
                       maxRating="5"
                       size="tiny"
                       onRate={handleOnRate}
+                      rating={p.product.ratings[0].star}
                     />
                   ) : (
                     <Button

@@ -30,11 +30,8 @@ async function handleGetRequest(req, res) {
     );
 
     console.log(userId);
-    const ratings = await Rating.find({ user: userId }).populate({
-      path: "products.product",
-      model: Product
-    });
-    await Product.findOneAndUpdate();
+    const ratings = await Rating.find({ user: userId });
+
     res.status(200).json({ ratings });
   } catch (error) {
     console.error(error);
