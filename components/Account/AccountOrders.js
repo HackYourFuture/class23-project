@@ -7,7 +7,8 @@ import {
   Button,
   List,
   Image,
-  Rating
+  Rating,
+  Modal
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import baseUrl from "../../utils/baseUrl";
@@ -16,7 +17,9 @@ import axios from "axios";
 import formateDate from "../../utils/formatDate";
 
 function AccountOrders({ orders, _id }) {
+  const [isClicked, setIsClicked] = React.useState(false);
   const [productId, setProductId] = React.useState("");
+  const [rate, setRate] = React.useState(0);
   const router = useRouter();
 
   console.log(_id);
@@ -25,16 +28,20 @@ function AccountOrders({ orders, _id }) {
     console.log("clicked");
     const pid = product;
     setProductId(pid);
+    setIsClicked(true);
   }
 
+  console.log(productId);
+
   async function handleOnRate(e, { rating }) {
-    console.log("i ran!");
     const url = `${baseUrl}/api/ratings`;
     const token = cookie.get("token");
     const headers = { headers: { Authorization: token } };
     const payload = { productId: productId, rating, userId: _id };
     const response = await axios.post(url, payload, headers);
     console.log(response.data);
+    console.log("i ran");
+    setIsClicked(false);
   }
 
   function mapOrdersToPanels(orders) {
@@ -66,13 +73,21 @@ function AccountOrders({ orders, _id }) {
                       {p.quantity} · ${p.product.price}
                     </List.Description>
                   </List.Content>
-                  <Rating
-                    icon="star"
-                    maxRating="5"
-                    size="tiny"
-                    onClick={() => handleClick(p.product._id)}
-                    onRate={handleOnRate}
-                  />
+
+                  {isClicked ? (
+                    <Rating
+                      icon="star"
+                      maxRating="5"
+                      size="tiny"
+                      onRate={handleOnRate}
+                    />
+                  ) : (
+                    <Button
+                      onClick={() => handleClick(p.product._id)}
+                      content="click to rate"
+                    />
+                  )}
+
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}

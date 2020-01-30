@@ -58,7 +58,7 @@ function Cart({ products, user }) {
           success={success}
         />
       </Segment>
-      {!success && (
+      {success && (
         <Modal
           basic
           defaultOpen
