@@ -8,10 +8,6 @@ const CommentSchema = new mongoose.Schema({
     type: ObjectId,
     ref: 'User'
   },
-  header: {
-    type: String,
-    required: true
-  },
   content: {
     type: String,
     required: true

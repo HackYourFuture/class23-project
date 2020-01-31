@@ -7,6 +7,8 @@ import mongoose from "mongoose";
 
 connectDb();
 
+const COMMENTS_PER_PAGE = 5;
+
 export default async (req, res) => {
   switch (req.method) {
     case "GET":
@@ -29,16 +31,16 @@ export default async (req, res) => {
 
 async function handleGetRequest(req, res) {
   const { _id, page } = req.query;
-  const startIndex = page && !Number.isNaN(Number(page)) && page > 0 ? (page - 1) * 10 : 0;
+  const startIndex = page && !Number.isNaN(Number(page)) && page > 0 ? (page - 1) * COMMENTS_PER_PAGE : 0;
   const product = await Product.findOne({ _id })
     .populate({ path: 'comments.user', model: User })
-    .slice('comments', startIndex, startIndex + 10);
+    .slice('comments', startIndex, startIndex + COMMENTS_PER_PAGE);
 
   // Get comments count
   const [{ comments: count }] = await Product.aggregate()
     .match({ _id: mongoose.Types.ObjectId(_id) })
     .project({ comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: "$comments" }, 0] } });
-  res.status(200).json({ totalComments: count, product });
+  res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product });
 }
 
 async function handlePostRequest(req, res) {
@@ -66,9 +68,9 @@ async function handlePutRequest(req, res) {
     return res.status(401).send("No authorization token");
   }
   // Get the required fields & check if they exist
-  const { header, content, productId } = req.body;
-  if (!header || !content || !productId) {
-    return res.status(422).send("Header, content and productId are required");
+  const { comment, productId } = req.body;
+  if (!comment || !productId) {
+    return res.status(422).send("Comment and productId are required");
   }
   try {
     // Verify the token
@@ -81,7 +83,7 @@ async function handlePutRequest(req, res) {
     // If the user exists
     if (user) {
       // Create the comment
-      const newComment = { user: userId, header, content, updated_at: Date.now() };
+      const newComment = { user: userId, content: comment, updated_at: Date.now() };
       // Add the comment to the Product & get new Product
       const updatedProduct = await Product.findOneAndUpdate(
         { _id: productId },
@@ -89,7 +91,7 @@ async function handlePutRequest(req, res) {
         { new: true }
       )
         .populate({ path: 'comments.user', model: User })
-        .slice('comments', 10)
+        .slice('comments', COMMENTS_PER_PAGE)
 
       // Get comments count
       const [{ comments: count }] = await Product.aggregate()
@@ -97,12 +99,12 @@ async function handlePutRequest(req, res) {
         .project({ comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: "$comments" }, 0] } });
 
       // Return comments count and the updated product 
-      res.status(200).json({ totalComments: count, product: updatedProduct });
+      res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product: updatedProduct });
     } else {
       res.status(404).send("User not found");
     }
   } catch (error) {
-    res.status(403).send("Invalid token");
+    res.status(403).send(`Please login to add comments!`);
   }
 }
 
