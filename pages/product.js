@@ -15,12 +15,17 @@ function Product({ product, user, totalComments }) {
     setDisplayedTotalComments(newTotalComments);
   }
 
+  useEffect(() => {
+    setDisplayedProduct(product);
+    setDisplayedTotalComments(totalComments);
+  }, [product, totalComments])
+
   return (
     <>
       <ProductSummary user={user} {...displayedProduct} />
       <ProductAttributes user={user} {...displayedProduct} />
       <AddCommentToProduct user={user} product={displayedProduct} handleNewComment={handleNewComment} />
-      <CommentPagination productId={product._id} totalPages={displayedTotalComments} />
+      {displayedTotalComments > 0 && <CommentPagination productId={product._id} totalPages={displayedTotalComments} />}
     </>
   );
 }
