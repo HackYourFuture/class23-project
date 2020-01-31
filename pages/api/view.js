@@ -29,6 +29,9 @@ async function handlePostRequest(req, res) {
 }
 
 async function handleGetRequest(req, res) {
+  if (!('authorization' in req.headers)) {
+    return res.status(401).send('No authorization token');
+  }
   try {
     // group products by their categories and create an array of products for each category.
     const groupedProducts = await Product.aggregate([
@@ -49,7 +52,6 @@ async function handleGetRequest(req, res) {
       };
     });
 
-    // results.map(result => console.log(result._id + '   ' + `${result.products}`));
     res.status(200).json(results);
   } catch (error) {
     console.error(error);
