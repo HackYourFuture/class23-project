@@ -37,18 +37,16 @@ function AccountOrders({ orders, _id }) {
 
   async function handleOnRate(e, { rating }, productId) {
     console.log(e.target);
-    console.log("i ran!");
     const url = `${baseUrl}/api/ratings`;
     const token = cookie.get("token");
     const headers = { headers: { Authorization: token } };
     const payload = { productId: productId, rating, userId: _id };
     const response = await axios.post(url, payload, headers);
     console.log(response.data);
-    console.log("i ran");
     setIsClicked(false);
   }
 
-  function mapOrdersToPanels(orders, ratings) {
+  function mapOrdersToPanels(orders) {
     return orders.map(order => ({
       key: order._id,
       title: {
@@ -82,8 +80,13 @@ function AccountOrders({ orders, _id }) {
                     maxRating="5"
                     size="tiny"
                     onRate={(e, data) => handleOnRate(e, data, p.product._id)}
-                    rating={p.product.ratings[0].star}
+                    rating={
+                      p.product.ratings.length === 0
+                        ? "0"
+                        : p.product.ratings[0].star
+                    }
                   />
+
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}
@@ -121,7 +124,7 @@ function AccountOrders({ orders, _id }) {
           fluid
           styled
           exclusive={false}
-          panels={mapOrdersToPanels(orders, ratings)}
+          panels={mapOrdersToPanels(orders)}
         />
       )}
     </>
