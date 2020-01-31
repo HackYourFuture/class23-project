@@ -22,6 +22,10 @@ export default function AddCommentToProduct({ user, product, handleNewComment })
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
 
     try {
       setLoading(true);
