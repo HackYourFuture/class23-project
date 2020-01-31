@@ -4,7 +4,7 @@ const connection = {};
 async function connectDb() {
   if (connection.isConnected) {
     // Use existing database connection
-    // console.log("Using existing connection");
+    console.log("Using existing connection");
     return;
   }
   // Use new database connection
