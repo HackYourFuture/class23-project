@@ -14,20 +14,14 @@ export default async (req, res) => {
     );
     const orders = await Order.find({ user: userId })
       .sort({ createdAt: "desc" })
-      .populate([
-        {
-          path: "products.product",
-          model: Product
-        },
-        {
-          path: "products.product",
-          populate: {
-            path: "ratings",
-            model: Rating,
-            match: { user: userId }
-          }
+      .populate({
+        path: "products.product",
+        populate: {
+          path: "ratings",
+          model: Rating,
+          match: { user: userId }
         }
-      ]);
+      });
 
     res.status(200).json({ orders });
   } catch (error) {

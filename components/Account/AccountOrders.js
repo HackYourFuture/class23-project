@@ -86,7 +86,6 @@ function AccountOrders({ orders, _id }) {
                         : p.product.ratings[0].star
                     }
                   />
-
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}

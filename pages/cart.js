@@ -1,13 +1,7 @@
 import { useState } from "react";
+import { logEvent } from "../utils/analytics";
 import { useRouter } from "next/router";
-import {
-  Segment,
-  Sticky,
-  Modal,
-  Image,
-  Button,
-  Header
-} from "semantic-ui-react";
+import { Segment, Modal, Image, Button, Header } from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
@@ -32,6 +26,7 @@ function Cart({ products, user }) {
     };
     const response = await axios.delete(url, payload);
     setCartProducts(response.data);
+    logEvent("User", `User removed product ${productId} from their cart`);
   }
 
   async function handleCheckout(paymentData) {

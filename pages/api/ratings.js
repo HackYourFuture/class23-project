@@ -4,8 +4,6 @@ import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
 import mongoose from "mongoose";
 
-const { ObjectId } = mongoose.Types;
-
 connectDb();
 
 export default async (req, res) => {
@@ -74,10 +72,6 @@ async function handlePostRequest(req, res) {
       path: "ratings",
       model: Rating
     });
-    // const user = await Rating.findById({
-    //   user: "ObjectId(5e30796e468c9e159451ea13)",
-    //   product: "ObjectId(5e1625f5a17e567a29619b17)"
-    // });
     return res.status(200).json(ratings);
   } catch (error) {
     console.error(error);

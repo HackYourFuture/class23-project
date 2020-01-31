@@ -1,4 +1,5 @@
 import React from "react";
+import { logEvent } from "../../utils/analytics";
 import { Input } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -24,6 +25,12 @@ function AddProductToCart({ user, productId }) {
 
   async function handleAddProductToCart() {
     try {
+      logEvent(
+        "User",
+        `User ${user._id} added product ${productId} to their cart`,
+        "Product"
+      );
+
       setLoading(true);
       const url = `${baseUrl}/api/cart`;
       const payload = { quantity, productId };
