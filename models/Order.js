@@ -20,6 +20,14 @@ const OrderSchema = new mongoose.Schema(
         }
       }
     ],
+    ratings: [
+      {
+        star: {
+          type: ObjectId,
+          ref: "Rating"
+        }
+      }
+    ],
     email: {
       type: String,
       required: true

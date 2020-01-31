@@ -22,31 +22,22 @@ function AccountOrders({ orders, _id }) {
   const [ratings, setRatings] = React.useState([]);
   const router = useRouter();
 
-  async function getRatings() {
-    const url = `${baseUrl}/api/ratings`;
-    const token = cookie.get("token");
-    const payload = { headers: { Authorization: token } };
-    const response = await axios.get(url, payload);
-    setRatings(response.data);
-  }
+  // async function getRatings() {
+  //   const url = `${baseUrl}/api/ratings`;
+  //   const token = cookie.get("token");
+  //   const payload = { headers: { Authorization: token } };
+  //   const response = await axios.get(url, payload);
+  //   console.log(response.data);
+  // }
   console.log(orders);
 
-  React.useEffect(() => {
-    getRatings();
-  }, []);
+  // React.useEffect(() => {
+  //   getRatings();
+  // }, []);
 
-  function handleClick(product) {
-    console.log("clicked");
-    const pid = product;
-    setProductId(pid);
-    if (product == pid) {
-      setIsClicked(true);
-    }
-  }
-
-  console.log(productId);
-
-  async function handleOnRate(e, { rating }) {
+  async function handleOnRate(e, { rating }, productId) {
+    console.log(e.target);
+    console.log("i ran!");
     const url = `${baseUrl}/api/ratings`;
     const token = cookie.get("token");
     const headers = { headers: { Authorization: token } };
@@ -86,21 +77,13 @@ function AccountOrders({ orders, _id }) {
                       {p.quantity} · ${p.product.price}
                     </List.Description>
                   </List.Content>
-
-                  {!isClicked ? (
-                    <Rating
-                      icon="star"
-                      maxRating="5"
-                      size="tiny"
-                      onRate={handleOnRate}
-                    />
-                  ) : (
-                    <Button
-                      onClick={() => handleClick(p.product._id)}
-                      content="click to rate"
-                    />
-                  )}
-
+                  <Rating
+                    icon="star"
+                    maxRating="5"
+                    size="tiny"
+                    onRate={(e, data) => handleOnRate(e, data, p.product._id)}
+                    rating={p.product.ratings[0].star}
+                  />
                   <List.Content floated="right">
                     <Label tag color="red" size="tiny">
                       {p.product.sku}

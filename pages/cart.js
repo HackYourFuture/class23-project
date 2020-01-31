@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { Segment, Sticky, Modal, Container, Button } from "semantic-ui-react";
+import {
+  Segment,
+  Sticky,
+  Modal,
+  Image,
+  Button,
+  Header
+} from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
@@ -60,23 +67,28 @@ function Cart({ products, user }) {
       </Segment>
       {success && (
         <Modal
-          basic
-          defaultOpen
-          centered
+          centered={false}
           closeIcon
-          size="small"
-          style={{ display: "block", height: "200px" }}
+          open={isOpen}
+          size="large"
+          style={{
+            marginTop: "0px !important",
+            position: "relative",
+            top: "20px"
+          }}
         >
-          <Modal.Header as="h2">
-            Hi thank you for shopping from us! Would you like to rate your
-            products? <br />
-            You can rate from your order history!
-          </Modal.Header>
-          <div style={{ display: "flex", justifyContent: "center" }}>
+          <Header content="You can rate your products from your order list now!" />
+          <Modal.Content image>
+            <Image floated="left" src="../static/click-to-rate.png" />
+          </Modal.Content>
+          <Modal.Actions>
             <Button color="green" onClick={() => router.push("/account")}>
-              YES!
+              I'd love to!
             </Button>
-          </div>
+            <Button color="red" onClick={() => setIsOpen(false)}>
+              Nah..Maybe later.
+            </Button>
+          </Modal.Actions>
         </Modal>
       )}
     </>
