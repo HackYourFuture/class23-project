@@ -11,8 +11,8 @@ function CommentPagination({ productId, totalPages }) {
         totalPages={totalPages}
         onPageChange={(event, data) => {
           data.activePage === 1
-            ? router.push(`/product?_id=${productId}`)
-            : router.push(`/product?_id=${productId}&page=${data.activePage}`);
+            ? router.push({ pathname: '/product', query: { _id: productId } })
+            : router.push({ pathname: '/product', query: { _id: productId, page: data.activePage } });
         }}
       />
     </Container>
