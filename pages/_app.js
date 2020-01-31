@@ -5,6 +5,7 @@ import { redirectUser } from "../utils/auth";
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 import Router from "next/router";
+import '../static/dummy.css';
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
