@@ -26,7 +26,7 @@ function Cart({ products, user }) {
     };
     const response = await axios.delete(url, payload);
     setCartProducts(response.data);
-    logEvent("User", `User removed product ${productId} from their cart`);
+    logEvent("User", `User ${user.name} removed product from their cart`);
   }
 
   async function handleCheckout(paymentData) {
@@ -38,6 +38,7 @@ function Cart({ products, user }) {
       const headers = { headers: { Authorization: token } };
       await axios.post(url, payload, headers);
       setSuccess(true);
+      logEvent("User", `User ${user.name} made a payment! `);
     } catch (error) {
       catchErrors(error, window.alert);
     } finally {

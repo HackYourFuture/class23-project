@@ -24,7 +24,7 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
               <Label>SKU: {sku}</Label>
             </Item.Description>
             <Item.Extra>
-              <AddProductToCart user={user} productId={_id} />
+              <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
           </Item.Content>
         </Item>

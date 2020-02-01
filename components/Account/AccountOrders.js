@@ -7,18 +7,19 @@ import {
   Button,
   List,
   Image,
-  Rating,
-} from 'semantic-ui-react';
-import { useRouter } from 'next/router';
-import baseUrl from '../../utils/baseUrl';
-import cookie from 'js-cookie';
-import axios from 'axios';
-import formateDate from '../../utils/formatDate';
+  Rating
+} from "semantic-ui-react";
+import { useRouter } from "next/router";
+import baseUrl from "../../utils/baseUrl";
+import cookie from "js-cookie";
+import axios from "axios";
+import formateDate from "../../utils/formatDate";
 
 function AccountOrders({ orders, _id }) {
   const initialStars = orders.reduce((starObj, order) => {
     starObj[order._id] = order.products.reduce((prodObj, p) => {
-      prodObj[p.product._id] = p.product.ratings[0].star;
+      prodObj[p.product._id] =
+        p.product.ratings[0] === undefined ? "0" : p.product.ratings[0].star;
       return prodObj;
     }, {});
     return starObj;
@@ -29,14 +30,14 @@ function AccountOrders({ orders, _id }) {
 
   async function handleOnRate(e, { rating }, productId, orderId) {
     const url = `${baseUrl}/api/ratings`;
-    const token = cookie.get('token');
+    const token = cookie.get("token");
     const headers = { headers: { Authorization: token } };
     const payload = { productId: productId, rating, userId: _id };
     const response = await axios.post(url, payload, headers);
 
     setStar({
       ...star,
-      [orderId]: { ...star[orderId][productId], [productId]: rating },
+      [orderId]: { ...star[orderId][productId], [productId]: rating }
     });
   }
 
@@ -45,9 +46,7 @@ function AccountOrders({ orders, _id }) {
       return {
         key: order._id,
         title: {
-          content: (
-            <Label color="blue" content={formateDate(order.createdAt)} />
-          ),
+          content: <Label color="blue" content={formateDate(order.createdAt)} />
         },
         content: {
           content: (
@@ -59,7 +58,7 @@ function AccountOrders({ orders, _id }) {
                   icon="mail"
                   basic
                   horizontal
-                  style={{ marginLeft: '1em' }}
+                  style={{ marginLeft: "1em" }}
                 />
               </List.Header>
               <List>
@@ -90,8 +89,8 @@ function AccountOrders({ orders, _id }) {
                 ))}
               </List>
             </>
-          ),
-        },
+          )
+        }
       };
     });
   }
@@ -109,7 +108,7 @@ function AccountOrders({ orders, _id }) {
             No past orders.
           </Header>
           <div>
-            <Button onClick={() => router.push('/')} color="orange">
+            <Button onClick={() => router.push("/")} color="orange">
               View Products
             </Button>
           </div>

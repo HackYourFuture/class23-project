@@ -7,7 +7,7 @@ import baseUrl from "../../utils/baseUrl";
 import catchErrors from "../../utils/catchErrors";
 import cookie from "js-cookie";
 
-function AddProductToCart({ user, productId }) {
+function AddProductToCart({ user, productId, name }) {
   const [quantity, setQuantity] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -27,7 +27,7 @@ function AddProductToCart({ user, productId }) {
     try {
       logEvent(
         "User",
-        `User ${user._id} added product ${productId} to their cart`,
+        `User ${user.name} added product ${name} to their cart`,
         "Product"
       );
 
