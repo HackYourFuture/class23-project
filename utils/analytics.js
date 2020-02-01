@@ -4,9 +4,12 @@ export const initGA = () => {
   ReactGA.initialize("UA-114127926-3");
 };
 export const logPageView = () => {
-  console.log(`Logging pageview for ${window.location.pathname}`);
+  console.log(
+    `Logging pageview for ${window.location.pathname +
+      window.location.search}  `
+  );
   ReactGA.set({ page: window.location.pathname });
-  ReactGA.pageview(window.location.pathname);
+  ReactGA.pageview(window.location.pathname + window.location.search);
 };
 export const logEvent = (category = "", action = "", label = "") => {
   if (category && action) {
