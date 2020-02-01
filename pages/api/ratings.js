@@ -1,17 +1,14 @@
-import jwt from "jsonwebtoken";
-import Rating from "../../models/Rating";
-import Product from "../../models/Product";
-import connectDb from "../../utils/connectDb";
-import mongoose from "mongoose";
+import jwt from 'jsonwebtoken';
+import Rating from '../../models/Rating';
+import Product from '../../models/Product';
+import connectDb from '../../utils/connectDb';
+import mongoose from 'mongoose';
 
 connectDb();
 
 export default async (req, res) => {
   switch (req.method) {
-    case "GET":
-      await handleGetRequest(req, res);
-      break;
-    case "POST":
+    case 'POST':
       await handlePostRequest(req, res);
       break;
     default:
@@ -20,29 +17,12 @@ export default async (req, res) => {
   }
 };
 
-async function handleGetRequest(req, res) {
-  try {
-    const { userId } = jwt.verify(
-      req.headers.authorization,
-      process.env.JWT_SECRET
-    );
-
-    console.log(userId);
-    const ratings = await Rating.find({ user: userId });
-
-    res.status(200).json(ratings);
-  } catch (error) {
-    console.error(error);
-    res.status(403).send("Please login again");
-  }
-}
-
 async function handlePostRequest(req, res) {
   const { productId, rating, userId } = req.body;
   // console.log(productId, rating);
 
-  if (!("authorization" in req.headers)) {
-    return res.status(401).send("No authorization token");
+  if (!('authorization' in req.headers)) {
+    return res.status(401).send('No authorization token');
   }
 
   try {
@@ -51,26 +31,26 @@ async function handlePostRequest(req, res) {
     productRating = await Rating.findOneAndUpdate(
       {
         product: productId,
-        user: userId
+        user: userId,
       },
       { $set: { star: rating } },
-      { new: true }
+      { new: true },
     );
-    console.log("productRating", productRating);
+    console.log('productRating', productRating);
     if (!productRating) {
       productRating = await new Rating({
         user: userId,
         product: productId,
-        star: rating
+        star: rating,
       }).save();
     }
     const { ratings } = await Product.findOneAndUpdate(
       { _id: productId },
       { $addToSet: { ratings: productRating._id } },
-      { new: true }
+      { new: true },
     ).populate({
-      path: "ratings",
-      model: Rating
+      path: 'ratings',
+      model: Rating,
     });
     return res.status(200).json(ratings);
   } catch (error) {
