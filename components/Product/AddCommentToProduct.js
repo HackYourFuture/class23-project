@@ -56,7 +56,7 @@ export default function AddCommentToProduct({ user, product, handleNewComment })
           <Form.TextArea name="content" onChange={handleChange} value={comment} />
           {
             user ?
-              <Button type="submit" content='Add Comment' labelPosition='left' icon='edit' primary disabled={loading || !comment} />
+              <Button type="submit" content='Add Comment' labelPosition='left' icon='edit' primary disabled={loading || !comment.trim()} />
               :
               <Button color='orange' content="Login to Add Comments" icon='sign in' onClick={() => router.push('/login')} />
           }
