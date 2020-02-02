@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import shortid from "shortid";
 
-const { String, Number } = mongoose.Schema.Types;
+const { String, Number, ObjectId } = mongoose.Schema.Types;
 
 const ProductSchema = new mongoose.Schema({
   name: {
@@ -15,7 +15,7 @@ const ProductSchema = new mongoose.Schema({
   sku: {
     type: String,
     unique: true,
-    default: shortid.generate()
+    default: shortid.generate
   },
   description: {
     type: String,
@@ -24,7 +24,13 @@ const ProductSchema = new mongoose.Schema({
   mediaUrl: {
     type: String,
     required: true
-  }
+  },
+  ratings: [
+    {
+      type: ObjectId,
+      ref: "Rating"
+    }
+  ]
 });
 
 export default mongoose.models.Product ||
