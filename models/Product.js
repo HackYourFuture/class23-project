@@ -43,7 +43,7 @@ const ProductSchema = new mongoose.Schema({
   comments: [CommentSchema],
   category: {
     type: String,
-    //required: true
+    required: true,
   },
   numberOfViews: {
     type: Number,
