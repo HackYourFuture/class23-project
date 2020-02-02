@@ -1,11 +1,10 @@
-import React from "react";
-import { Item, Label, Rating, Icon } from "semantic-ui-react";
-import calculateRatingMedian from "../../utils/calculateRatingMedian";
-import AddProductToCart from "./AddProductToCart";
+import React from 'react';
+import { Item, Label, Rating, Icon } from 'semantic-ui-react';
+import calculateRatingMedian from '../../utils/calculateRatingMedian';
+import AddProductToCart from './AddProductToCart';
 
 function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   const [ratingAmount, setRatingAmount] = React.useState(0);
-  console.log(ratings);
 
   React.useEffect(() => {
     const avrRating = calculateRatingMedian(ratings);
@@ -37,7 +36,7 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
         rating={ratingAmount}
       />
       <Label>
-        {`${ratings.length} users rated this!`}{" "}
+        {`${ratings.length} users rated this!`}{' '}
         <Icon name="star" color="yellow" />
       </Label>
     </>

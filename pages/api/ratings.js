@@ -19,7 +19,6 @@ export default async (req, res) => {
 
 async function handlePostRequest(req, res) {
   const { productId, rating, userId } = req.body;
-  // console.log(productId, rating);
 
   if (!('authorization' in req.headers)) {
     return res.status(401).send('No authorization token');
@@ -36,7 +35,7 @@ async function handlePostRequest(req, res) {
       { $set: { star: rating } },
       { new: true },
     );
-    console.log('productRating', productRating);
+
     if (!productRating) {
       productRating = await new Rating({
         user: userId,
