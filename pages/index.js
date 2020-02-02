@@ -25,7 +25,7 @@ function Home({ products, totalPages }) {
 Home.getInitialProps = async ctx => {
   const page = ctx.query.page ? ctx.query.page : "1";
   const category = ctx.query.category;
-  const size = 9;
+  const size = 6;
   const url = `${baseUrl}/api/products`;
   const payload = { params: { page, size, category } };
   // fetch data on server

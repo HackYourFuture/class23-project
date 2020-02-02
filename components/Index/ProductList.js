@@ -33,8 +33,10 @@ function ProductList({ products, selectCategory }) {
         <Dropdown
           placeholder="Select Category"
           fluid
-          search
           selection
+          multiple
+          closeOnChange
+          closeOnEscape
           options={categoryOptions}
           onChange={selectCategory}
         />

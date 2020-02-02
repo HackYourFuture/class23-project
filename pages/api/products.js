@@ -11,22 +11,17 @@ export default async (req, res) => {
   const pageNum = Number(page);
   const pageSize = Number(size);
   let products = [];
-  const totalDocs = await Product.countDocuments();
-  const totalPages = Math.ceil(totalDocs / pageSize);
 
-  // get number of product in page 1:
-  if (pageNum === 1) {
-    products = await Product.find({ category: category })
-      .sort({ name: "asc" })
-      .limit(pageSize);
-  } else {
-    // get get the rest of pages
-    const skips = pageSize * (pageNum - 1);
-    products = await Product.find({ category: category })
-      .skip(skips)
-      .limit(pageSize);
-  }
+  let query = category ? { category: category } : {};
 
-  // const products = await Product.find();
+  let totalDocs = await Product.countDocuments(query);
+  let totalPages = Math.ceil(totalDocs / pageSize);
+
+  const skips = pageSize * (pageNum - 1);
+  products = await Product.find(query)
+    .sort({ name: "asc" })
+    .skip(skips)
+    .limit(pageSize);
+
   res.status(200).json({ products, totalPages });
 };
