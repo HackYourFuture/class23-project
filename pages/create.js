@@ -17,7 +17,8 @@ const INITIAL_PRODUCT = {
   name: "",
   price: "",
   media: "",
-  description: ""
+  description: "",
+  rating: []
 };
 
 function CreateProduct() {
@@ -60,8 +61,8 @@ function CreateProduct() {
       setError("");
       const mediaUrl = await handleImageUpload();
       const url = `${baseUrl}/api/product`;
-      const { name, price, description } = product;
-      const payload = { name, price, description, mediaUrl };
+      const { name, price, description, rating } = product;
+      const payload = { name, price, description, mediaUrl, rating };
       await axios.post(url, payload);
 
       setProduct(INITIAL_PRODUCT);

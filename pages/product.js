@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from "axios";
-import ProductSummary from "../components/Product/ProductSummary";
-import ProductAttributes from "../components/Product/ProductAttributes";
+import axios from 'axios';
+import ProductSummary from '../components/Product/ProductSummary';
+import ProductAttributes from '../components/Product/ProductAttributes';
 import AddCommentToProduct from '../components/Product/AddCommentToProduct';
 import CommentPagination from '../components/Product/CommentPagination';
-import baseUrl from "../utils/baseUrl";
+import baseUrl from '../utils/baseUrl';
 
 function Product({ product, user, totalComments }) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
@@ -16,16 +16,29 @@ function Product({ product, user, totalComments }) {
   }
 
   useEffect(() => {
+    async function incrementProductView() {
+      const url = `${baseUrl}/api/view`;
+      const payload = { productId: product._id };
+      await axios.post(url, payload);
+    }
+    incrementProductView();
+
     setDisplayedProduct(product);
     setDisplayedTotalComments(totalComments);
-  }, [product, totalComments])
+  }, [product, totalComments]);
 
   return (
     <>
       <ProductSummary user={user} {...displayedProduct} />
       <ProductAttributes user={user} {...displayedProduct} />
-      <AddCommentToProduct user={user} product={displayedProduct} handleNewComment={handleNewComment} />
-      {displayedTotalComments > 0 && <CommentPagination productId={product._id} totalPages={displayedTotalComments} />}
+      <AddCommentToProduct
+        user={user}
+        product={displayedProduct}
+        handleNewComment={handleNewComment}
+      />
+      {displayedTotalComments > 0 && (
+        <CommentPagination productId={product._id} totalPages={displayedTotalComments} />
+      )}
     </>
   );
 }

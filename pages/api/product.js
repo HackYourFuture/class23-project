@@ -1,9 +1,10 @@
-import Product from "../../models/Product";
+import Product from '../../models/Product';
 import Cart from '../../models/Cart';
 import User from '../../models/User';
-import connectDb from "../../utils/connectDb";
+import connectDb from '../../utils/connectDb';
 import jwt from 'jsonwebtoken';
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import Rating from '../../models/Rating';
 
 connectDb();
 
@@ -11,16 +12,16 @@ const COMMENTS_PER_PAGE = 5;
 
 export default async (req, res) => {
   switch (req.method) {
-    case "GET":
+    case 'GET':
       await handleGetRequest(req, res);
       break;
-    case "POST":
+    case 'POST':
       await handlePostRequest(req, res);
       break;
-    case "PUT":
+    case 'PUT':
       await handlePutRequest(req, res);
       break;
-    case "DELETE":
+    case 'DELETE':
       await handleDeleteRequest(req, res);
       break;
     default:
@@ -31,15 +32,22 @@ export default async (req, res) => {
 
 async function handleGetRequest(req, res) {
   const { _id, page } = req.query;
-  const startIndex = page && !Number.isNaN(Number(page)) && page > 0 ? (page - 1) * COMMENTS_PER_PAGE : 0;
+  const startIndex =
+    page && !Number.isNaN(Number(page)) && page > 0 ? (page - 1) * COMMENTS_PER_PAGE : 0;
   const product = await Product.findOne({ _id })
     .populate({ path: 'comments.user', model: User })
+    .populate({
+      path: 'ratings',
+      model: Rating,
+    })
     .slice('comments', startIndex, startIndex + COMMENTS_PER_PAGE);
 
   // Get comments count
   const [{ comments: count }] = await Product.aggregate()
     .match({ _id: mongoose.Types.ObjectId(_id) })
-    .project({ comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: "$comments" }, 0] } });
+    .project({
+      comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: '$comments' }, 0] },
+    });
   res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product });
 }
 
@@ -47,37 +55,34 @@ async function handlePostRequest(req, res) {
   const { name, price, description, mediaUrl } = req.body;
   try {
     if (!name || !price || !description || !mediaUrl) {
-      return res.status(422).send("Product missing one or more fields");
+      return res.status(422).send('Product missing one or more fields');
     }
     const product = await new Product({
       name,
       price,
       description,
-      mediaUrl
+      mediaUrl,
     }).save();
     res.status(201).json(product);
   } catch (error) {
     console.error(error);
-    res.status(500).send("Server error in creating product");
+    res.status(500).send('Server error in creating product');
   }
 }
 
 async function handlePutRequest(req, res) {
   // Check if the user is authorized
-  if (!("authorization" in req.headers)) {
-    return res.status(401).send("No authorization token");
+  if (!('authorization' in req.headers)) {
+    return res.status(401).send('No authorization token');
   }
   // Get the required fields & check if they exist
   const { comment, productId } = req.body;
   if (!comment || !productId) {
-    return res.status(422).send("Comment and productId are required");
+    return res.status(422).send('Comment and productId are required');
   }
   try {
     // Verify the token
-    const { userId } = jwt.verify(
-      req.headers.authorization,
-      process.env.JWT_SECRET
-    );
+    const { userId } = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
     // Find the user
     const user = await User.findOne({ _id: userId });
     // If the user exists
@@ -88,43 +93,42 @@ async function handlePutRequest(req, res) {
       const updatedProduct = await Product.findOneAndUpdate(
         { _id: productId },
         { $push: { comments: { $each: [newComment], $position: 0 } } },
-        { new: true }
+        { new: true },
       )
         .populate({ path: 'comments.user', model: User })
-        .slice('comments', COMMENTS_PER_PAGE)
+        .slice('comments', COMMENTS_PER_PAGE);
 
       // Get comments count
       const [{ comments: count }] = await Product.aggregate()
         .match({ _id: mongoose.Types.ObjectId(productId) })
-        .project({ comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: "$comments" }, 0] } });
+        .project({
+          comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: '$comments' }, 0] },
+        });
 
-      // Return comments count and the updated product 
-      res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product: updatedProduct });
+      // Return comments count and the updated product
+      res
+        .status(200)
+        .json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product: updatedProduct });
     } else {
-      res.status(404).send("User not found");
+      res.status(404).send('User not found');
     }
   } catch (error) {
     res.status(403).send(`Please login to add comments!`);
   }
 }
 
-
 async function handleDeleteRequest(req, res) {
   const { _id } = req.query;
 
   try {
-    // 1) Delete product by id 
+    // 1) Delete product by id
     await Product.findOneAndDelete({ _id });
 
     // 2) Remove from all carts, referenced as "product"
-    await Cart.updateMany(
-      { "products.product": _id },
-      { $pull: { products: { product: _id } } }
-    )
+    await Cart.updateMany({ 'products.product': _id }, { $pull: { products: { product: _id } } });
     res.status(204).json({});
-
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error deleting product")
+    res.status(500).send('Error deleting product');
   }
 }
