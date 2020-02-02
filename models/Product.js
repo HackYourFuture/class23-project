@@ -3,6 +3,21 @@ import shortid from 'shortid';
 
 const { String, Number, ObjectId } = mongoose.Schema.Types;
 
+const CommentSchema = new mongoose.Schema({
+  user: {
+    type: ObjectId,
+    ref: 'User',
+  },
+  content: {
+    type: String,
+    required: true,
+  },
+  updated_at: {
+    type: mongoose.Schema.Types.Date,
+    required: true,
+  },
+});
+
 const ProductSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -25,6 +40,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  comments: [CommentSchema],
   category: {
     type: String,
     //required: true
