@@ -1,10 +1,11 @@
 import Product from "../../models/Product";
 import Cart from "../../models/Cart";
 import User from "../../models/User";
+import Rating from "../../models/Rating";
+import shuffle from "../../utils/shuffle";
 import connectDb from "../../utils/connectDb";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import Rating from "../../models/Rating";
 
 connectDb();
 
@@ -45,17 +46,17 @@ async function handleGetRequest(req, res) {
     })
     .slice("comments", startIndex, startIndex + COMMENTS_PER_PAGE);
 
-  //get three the products that matches with the category
-  const products = await Product.aggregate()
-    .match({
-      $and: [
-        { _id: { $ne: product._id } },
-        {
-          category: product.category
-        }
-      ]
-    })
-    .limit(3);
+  //get the three products that matches with the category
+  const products = await Product.aggregate().match({
+    $and: [
+      { _id: { $ne: product._id } },
+      {
+        category: product.category
+      }
+    ]
+  });
+
+  const shuffledList = shuffle(products, 3);
 
   // Get comments count
   const [{ comments: count }] = await Product.aggregate()
@@ -68,7 +69,7 @@ async function handleGetRequest(req, res) {
   res.status(200).json({
     totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
     product,
-    allProducts: products
+    allProducts: shuffledList
   });
 }
 
