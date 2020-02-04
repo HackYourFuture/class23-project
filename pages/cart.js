@@ -17,6 +17,7 @@ function Cart({ products, user }) {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
 
+  console.log(products);
   async function handleRemoveFromCart(productId) {
     const url = `${baseUrl}/api/cart`;
     const token = cookie.get("token");
