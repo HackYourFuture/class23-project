@@ -26,6 +26,7 @@
     "react-dom": "^16.8.6",
     "react-ga": "^2.7.0",
     "react-stripe-checkout": "^2.6.3",
+    "reactfire": "^2.0.0-alpha.3",
     "semantic-ui-react": "^0.87.3",
     "shortid": "^2.2.14",
     "stripe": "^7.5.0",
