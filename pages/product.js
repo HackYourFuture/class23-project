@@ -5,7 +5,6 @@ import ProductAttributes from '../components/Product/ProductAttributes';
 import AddCommentToProduct from '../components/Product/AddCommentToProduct';
 import CommentPagination from '../components/Product/CommentPagination';
 import baseUrl from '../utils/baseUrl';
-import { parseCookies } from 'nookies';
 import AddProductSuggestions from '../components/Product/AddProductSuggestions'
 
 
