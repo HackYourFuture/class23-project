@@ -6,7 +6,6 @@ import { logEvent } from '../utils/analytics';
 import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
 import { handleLogin } from '../utils/auth';
-import { logEvent } from '../utils/analytics';
 
 const INITIAL_USER = {
   name: '',
