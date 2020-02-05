@@ -2,10 +2,8 @@ import React from 'react';
 import { Button, Form, Icon, Message, Segment } from 'semantic-ui-react';
 import Link from 'next/link';
 import axios from 'axios';
-import { logEvent } from '../utils/analytics';
 import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
-import { handleLogin } from '../utils/auth';
 import { logEvent } from '../utils/analytics';
 
 const INITIAL_USER = {
@@ -19,6 +17,7 @@ function Signup() {
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [emailSent, setEmailSent] = React.useState('');
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -39,7 +38,9 @@ function Signup() {
       const url = `${baseUrl}/api/signup`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
-      handleLogin(response.data);
+
+      setEmailSent(response.data);
+
       logEvent('User', 'Created an Account');
     } catch (error) {
       catchErrors(error, setError);
@@ -59,6 +60,7 @@ function Signup() {
       />
       <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
         <Message error header="Oops!" content={error} />
+        {Boolean(emailSent) && <Message positive header="Success" content={emailSent} />}
         <Segment>
           <Form.Input
             fluid
