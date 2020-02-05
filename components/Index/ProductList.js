@@ -15,8 +15,6 @@ function ProductList({ products, selectCategory }) {
     { key: "oth", text: "Other", value: "other" }
   ];
 
-  console.log(products);
-
   function mapProductsToItems(products) {
     return products.map(product => {
       const averageRating = calculateRatingMedian(product.ratings);

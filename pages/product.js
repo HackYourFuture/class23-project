@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductSummary from '../components/Product/ProductSummary';
-import ProductAttributes from '../components/Product/ProductAttributes';
-import AddCommentToProduct from '../components/Product/AddCommentToProduct';
-import CommentPagination from '../components/Product/CommentPagination';
-import baseUrl from '../utils/baseUrl';
-import AddProductSuggestions from '../components/Product/AddProductSuggestions'
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ProductSummary from "../components/Product/ProductSummary";
+import ProductAttributes from "../components/Product/ProductAttributes";
+import AddCommentToProduct from "../components/Product/AddCommentToProduct";
+import CommentPagination from "../components/Product/CommentPagination";
+import baseUrl from "../utils/baseUrl";
+import AddProductSuggestions from "../components/Product/AddProductSuggestions";
 
-
-function Product({ product, user, totalComments, topSuggestedProducts}) {
+function Product({ product, user, totalComments, topSuggestedProducts }) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
-  const [displayedTotalComments, setDisplayedTotalComments] = useState(totalComments);
- 
+  const [displayedTotalComments, setDisplayedTotalComments] = useState(
+    totalComments
+  );
 
-  function handleNewComment({ totalComments: newTotalComments, product: newProduct }) {
+  function handleNewComment({
+    totalComments: newTotalComments,
+    product: newProduct
+  }) {
     setDisplayedProduct(newProduct);
     setDisplayedTotalComments(newTotalComments);
   }
@@ -34,14 +37,20 @@ function Product({ product, user, totalComments, topSuggestedProducts}) {
     <>
       <ProductSummary user={user} {...displayedProduct} />
       <ProductAttributes user={user} {...displayedProduct} />
-      <AddProductSuggestions topSuggestedProducts = {topSuggestedProducts} />
+      <AddProductSuggestions
+        topSuggestedProducts={topSuggestedProducts}
+        {...displayedProduct}
+      />
       <AddCommentToProduct
         user={user}
         product={displayedProduct}
         handleNewComment={handleNewComment}
       />
       {displayedTotalComments > 0 && (
-        <CommentPagination productId={product._id} totalPages={displayedTotalComments} />
+        <CommentPagination
+          productId={product._id}
+          totalPages={displayedTotalComments}
+        />
       )}
     </>
   );
