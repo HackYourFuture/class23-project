@@ -18,6 +18,28 @@ const CommentSchema = new mongoose.Schema({
   },
 });
 
+const SuggestionSchema = new mongoose.Schema({
+  mediaUrl: {
+    type: String,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  ratings: [
+    {
+      type: ObjectId,
+      ref: 'Rating',
+    },
+  ]
+
+})
+
 const ProductSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -40,6 +62,7 @@ const ProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  suggestions: [SuggestionSchema],
   comments: [CommentSchema],
   category: {
     type: String,

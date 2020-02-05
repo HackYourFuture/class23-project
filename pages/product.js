@@ -5,10 +5,14 @@ import ProductAttributes from '../components/Product/ProductAttributes';
 import AddCommentToProduct from '../components/Product/AddCommentToProduct';
 import CommentPagination from '../components/Product/CommentPagination';
 import baseUrl from '../utils/baseUrl';
+import { parseCookies } from 'nookies';
+import AddProductSuggestions from '../components/Product/AddProductSuggestions'
 
-function Product({ product, user, totalComments }) {
+
+function Product({ product, user, totalComments, topSuggestedProducts}) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
   const [displayedTotalComments, setDisplayedTotalComments] = useState(totalComments);
+ 
 
   function handleNewComment({ totalComments: newTotalComments, product: newProduct }) {
     setDisplayedProduct(newProduct);
@@ -31,6 +35,7 @@ function Product({ product, user, totalComments }) {
     <>
       <ProductSummary user={user} {...displayedProduct} />
       <ProductAttributes user={user} {...displayedProduct} />
+      <AddProductSuggestions topSuggestedProducts = {topSuggestedProducts} />
       <AddCommentToProduct
         user={user}
         product={displayedProduct}
@@ -51,3 +56,4 @@ Product.getInitialProps = async ({ query: { _id, page } }) => {
 };
 
 export default Product;
+//<AddProductSuggestions products={products} />

@@ -8,6 +8,8 @@ import Rating from '../../models/Rating';
 
 connectDb();
 
+
+
 const COMMENTS_PER_PAGE = 5;
 
 export default async (req, res) => {
@@ -27,7 +29,7 @@ export default async (req, res) => {
     default:
       res.status(405).send(`Method ${req.method} not allowed`);
       break;
-  }
+  } 
 };
 
 async function handleGetRequest(req, res) {
@@ -48,7 +50,27 @@ async function handleGetRequest(req, res) {
     .project({
       comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: '$comments' }, 0] },
     });
-  res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product });
+
+  // Top Products
+  const groupedProducts = await Product.aggregate([
+    {
+      $group: {
+        _id: '$category',
+        products: { $push: '$$ROOT' },
+      },
+    },
+  ]);
+ 
+
+   const topProducts = groupedProducts.filter(p=> {
+     return p._id === product.category;
+   })
+   const topSuggestedProducts = topProducts[0].products.sort((a, b) => b.numberOfViews - a.numberOfViews)
+   .filter(product => product._id.toString() !== _id.toString() )
+   .slice(0,5)
+   ;
+
+  res.status(200).json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product, topSuggestedProducts });
 }
 
 async function handlePostRequest(req, res) {
