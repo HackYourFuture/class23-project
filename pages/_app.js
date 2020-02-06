@@ -5,23 +5,23 @@ import { redirectUser } from '../utils/auth';
 import baseUrl from '../utils/baseUrl';
 import axios from 'axios';
 import Router from 'next/router';
-import {
-  FirebaseAppProvider
-} from 'reactfire';
+// import {
+//   FirebaseAppProvider
+// } from 'reactfire';
 
-import 'firebase/performance';
+// import 'firebase/performance';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAwetJdspqx4bHuzmZEQwci16vVOANP28Y",
-  authDomain: "hackyourshop.firebaseapp.com",
-  databaseURL: "https://hackyourshop.firebaseio.com",
-  projectId: "hackyourshop",
-  storageBucket: "hackyourshop.appspot.com",
-  messagingSenderId: "240606796761",
-  appId: "1:240606796761:web:398f12631e6094e92b97c8",
-  measurementId: "G-0F00SEDTYK"
+// const firebaseConfig = {
+//   apiKey: "AIzaSyAwetJdspqx4bHuzmZEQwci16vVOANP28Y",
+//   authDomain: "hackyourshop.firebaseapp.com",
+//   databaseURL: "https://hackyourshop.firebaseio.com",
+//   projectId: "hackyourshop",
+//   storageBucket: "hackyourshop.appspot.com",
+//   messagingSenderId: "240606796761",
+//   appId: "1:240606796761:web:398f12631e6094e92b97c8",
+//   measurementId: "G-0F00SEDTYK"
 
-};
+// };
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
@@ -35,7 +35,9 @@ class MyApp extends App {
 
     if (!token) {
       const isProtectedRoute =
-        ctx.pathname === '/account' || ctx.pathname === '/create' || ctx.pathname === '/dashboard';
+        ctx.pathname === '/account' ||
+        ctx.pathname === '/create' ||
+        ctx.pathname === '/dashboard';
       if (isProtectedRoute) {
         redirectUser(ctx, '/login');
       }
@@ -48,7 +50,8 @@ class MyApp extends App {
         const isRoot = user.role === 'root';
         const isAdmin = user.role === 'admin';
         // if authenticated, but not of role 'admin' or 'root', redirect from '/create' page
-        const isNotPermitted = !(isRoot || isAdmin) && ctx.pathname === '/create';
+        const isNotPermitted =
+          !(isRoot || isAdmin) && ctx.pathname === '/create';
         if (isNotPermitted) {
           redirectUser(ctx, '/');
         }
@@ -78,11 +81,11 @@ class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
-      <FirebaseAppProvider firebaseConfig={firebaseConfig} initPerformance>
-        <Layout {...pageProps}>
-          <Component {...pageProps} />
-        </Layout>
-      </FirebaseAppProvider>
+      // <FirebaseAppProvider firebaseConfig={firebaseConfig} initPerformance>
+      <Layout {...pageProps}>
+        <Component {...pageProps} />
+      </Layout>
+      // </FirebaseAppProvider>
     );
   }
 }
