@@ -29,6 +29,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       default: "email",
       enum: ['email', 'google', 'facebook']
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     }
   },
   {
