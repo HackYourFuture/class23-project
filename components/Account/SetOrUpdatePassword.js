@@ -8,6 +8,7 @@ import {
   Button,
   Accordion,
 } from 'semantic-ui-react';
+import cookies from 'js-cookie';
 
 const PASSWORDS = {
   current: '',
@@ -18,6 +19,7 @@ const PASSWORDS = {
 function SetOrUpdatePassword({ email, name }) {
   const [passwords, setPasswords] = React.useState(PASSWORDS);
   const [disabled, setDisabled] = React.useState(true);
+  const [success, setSuccess] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -43,14 +45,16 @@ function SetOrUpdatePassword({ email, name }) {
 
     try {
       setLoading(true);
-      // setError('');
-      const url = `${baseUrl}/api/password`;
+      setError('');
+      setSuccess('');
+      const token = cookies.get('token');
+      const headers = { headers: { Authorization: token } };
       const payload = { ...passwords };
-      console.log(payload);
-      const response = await axios.post(url, payload);
-      handleLogin(response.data);
-      // logEvent('User', 'Created an Account');
+      const url = `${baseUrl}/api/password`;
+      const response = await axios.post(url, payload, headers);
+      setSuccess(response.data);
     } catch (error) {
+      setSuccess('');
       catchErrors(error, setError);
     } finally {
       setLoading(false);
@@ -84,14 +88,12 @@ function SetOrUpdatePassword({ email, name }) {
         <Accordion.Content active={activeIndex === 1}>
           <Form
             error={Boolean(error)}
+            success={Boolean(success)}
             loading={loading}
             onSubmit={handleSubmit}
           >
-            <Message
-              error
-              header="Oops!"
-              // content
-            />
+            <Message error header="Oops!" content={error} />
+            <Message success header="Success!" content={success} />
             <Segment>
               <Form.Input
                 fluid

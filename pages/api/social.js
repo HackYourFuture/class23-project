@@ -1,12 +1,12 @@
-import connectDb from "../../utils/connectDb";
-import User from "../../models/User";
-import jwt from "jsonwebtoken";
+import connectDb from '../../utils/connectDb';
+import User from '../../models/User';
+import jwt from 'jsonwebtoken';
 import * as admin from 'firebase-admin';
 import serviceAccount from '../../hackyourshoplets-firebase-adminsdk.json';
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://hackyourshoplets.firebaseio.com"
+  databaseURL: 'https://hackyourshoplets.firebaseio.com',
 });
 
 connectDb();
@@ -17,7 +17,11 @@ export default async (req, res) => {
   }
   const { idToken, username: name, email, provider } = req.body;
   if (!idToken || !name || !email || !provider) {
-    return res.status(422).send('Can not sign in without one of these parameters: idToken, username, email, provider');
+    return res
+      .status(422)
+      .send(
+        'Can not sign in without one of these parameters: idToken, username, email, provider',
+      );
   }
   try {
     // ------ Check if the idToken is valid ------
@@ -33,7 +37,7 @@ export default async (req, res) => {
         name,
         email,
         signInMethod: provider.substring(0, provider.indexOf('.')),
-        password: ''
+        password: '',
       }).save();
 
       // 4) create cart for new user
@@ -47,13 +51,13 @@ export default async (req, res) => {
     } else {
       // 2) if exists, create token for the user
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "7d"
+        expiresIn: '7d',
       });
       // 3) send that token to the client
       res.status(200).json(token);
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error signing in user");
+    res.status(500).send('Error signing in user');
   }
 };

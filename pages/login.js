@@ -20,14 +20,6 @@ const INITIAL_USER = {
   password: '',
 };
 
-// HackYourShop icin
-// if (!firebase.apps.length) {
-//   firebase.initializeApp({
-//     apiKey: 'AIzaSyCnwkw27zHkVHcwGlcylQvAKW_BQfsyyzo',
-//     authDomain: 'hackyourshop-267318.firebaseapp.com',
-//   });
-// }
-//hackyourshoplets icin
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: 'AIzaSyBRM75TC1eGfRlN6jguGv3jReDF-1orzVM',
@@ -40,7 +32,6 @@ function Login() {
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
-  const [isEmail, setIsEmail] = React.useState(true);
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -69,10 +60,9 @@ function Login() {
     }
   }
   async function handleSocialLogin(event) {
-    console.log('event', event);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
-    // let result;
+
     let payload;
     if (event.target.title === 'google') {
       try {
@@ -82,17 +72,15 @@ function Login() {
         const { displayName, email } = user;
         const { idToken, providerId } = credential;
         payload = {
-          displayName,
+          username: displayName,
           email,
           idToken,
           provider: providerId,
         };
         console.log('google');
-        // post request api/social ++
-        // refreshToken,idToken,username,email,provider ++
-        //
       } catch (error) {
         console.error(error);
+        return;
       }
     }
     if (event.target.title === 'facebook') {
@@ -100,11 +88,11 @@ function Login() {
         const { user, credential } = await firebase
           .auth()
           .signInWithPopup(facebookProvider);
-        const idToken = await user.getIdToken();
+        const idToken = user.getIdToken();
         const { displayName, email } = user;
         const { providerId } = credential;
         payload = {
-          displayName,
+          username: displayName,
           email,
           idToken,
           provider: providerId,
@@ -113,15 +101,16 @@ function Login() {
         console.log('facebook');
       } catch (error) {
         console.error(error);
+        return;
       }
     }
-    // try {
-    //   const url = `${baseUrl}/api/social`;
-    //   const response = await axios.post(url, payload);
-    //   handleLogin(response.data);
-    // } catch (error) {
-    //   catchErrors(error, setError);
-    // }
+    try {
+      const url = `${baseUrl}/api/social`;
+      const response = await axios.post(url, payload);
+      handleLogin(response.data);
+    } catch (error) {
+      catchErrors(error, setError);
+    }
     console.log('payload', payload);
   }
 
