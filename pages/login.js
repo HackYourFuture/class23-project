@@ -69,27 +69,60 @@ function Login() {
     }
   }
   async function handleSocialLogin(event) {
+    console.log('event', event);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
-    let result;
-    if (event.target.innerText === 'Sign In with Google') {
+    // let result;
+    let payload;
+    if (event.target.title === 'google') {
       try {
-        result = await firebase.auth().signInWithPopup(googleProvider);
+        const { user, credential } = await firebase
+          .auth()
+          .signInWithPopup(googleProvider);
+        const { displayName, email } = user;
+        const { idToken, providerId } = credential;
+        payload = {
+          displayName,
+          email,
+          idToken,
+          provider: providerId,
+        };
         console.log('google');
-        console.log('result.user', result.user);
-        console.log('result', result);
-        // post request api/social
-        // refreshToken,idToken,username,email,provider
+        // post request api/social ++
+        // refreshToken,idToken,username,email,provider ++
         //
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     }
-    if (event.target.innerText === 'Sign In with Facebook') {
+    if (event.target.title === 'facebook') {
       try {
-        result = await firebase.auth().signInWithPopup(facebookProvider);
+        const { user, credential } = await firebase
+          .auth()
+          .signInWithPopup(facebookProvider);
+        const idToken = await user.getIdToken();
+        const { displayName, email } = user;
+        const { providerId } = credential;
+        payload = {
+          displayName,
+          email,
+          idToken,
+          provider: providerId,
+        };
+        console.log(idToken);
         console.log('facebook');
-        console.log('result.user', result.user);
-      } catch (error) {}
+      } catch (error) {
+        console.error(error);
+      }
     }
+    // try {
+    //   const url = `${baseUrl}/api/social`;
+    //   const response = await axios.post(url, payload);
+    //   handleLogin(response.data);
+    // } catch (error) {
+    //   catchErrors(error, setError);
+    // }
+    console.log('payload', payload);
   }
 
   return (
@@ -101,59 +134,42 @@ function Login() {
         content="Log in with email and password or social accounts"
         color="blue"
       />
-      {isEmail ? (
-        <div>
+      <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
+        <Message error header="Oops!" content={error} />
+        <Segment>
+          <Form.Input
+            fluid
+            icon="envelope"
+            iconPosition="left"
+            label="Email"
+            placeholder="Email"
+            name="email"
+            type="email"
+            value={user.email}
+            onChange={handleChange}
+          />
+          <Form.Input
+            fluid
+            icon="lock"
+            iconPosition="left"
+            label="Password"
+            placeholder="Password"
+            name="password"
+            type="password"
+            value={user.password}
+            onChange={handleChange}
+          />
           <Button
-            attached
-            style={{
-              margin: '1em',
-              padding: '11px 45px',
-            }}
+            disabled={disabled || loading}
+            icon="sign in"
+            type="submit"
             color="orange"
-            onClick={() => setIsEmail(false)}
-          >
-            <Icon name="mail" />
-            Login with Email
-          </Button>
-        </div>
-      ) : (
-        <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
-          <Message error header="Oops!" content={error} />
-          <Segment>
-            <Form.Input
-              fluid
-              icon="envelope"
-              iconPosition="left"
-              label="Email"
-              placeholder="Email"
-              name="email"
-              type="email"
-              value={user.email}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="Password"
-              placeholder="Password"
-              name="password"
-              type="password"
-              value={user.password}
-              onChange={handleChange}
-            />
-            <Button
-              disabled={disabled || loading}
-              icon="sign in"
-              type="submit"
-              color="orange"
-              content="Login"
-            />
-          </Segment>
-        </Form>
-      )}
+            content="Login"
+          />
+        </Segment>
+      </Form>
       <Button
-        name="google"
+        title="google"
         attached
         style={{
           margin: '1em',
@@ -166,7 +182,7 @@ function Login() {
         Sign In with Google
       </Button>
       <Button
-        name="facebook"
+        title="facebook"
         attached
         style={{
           margin: '1em',

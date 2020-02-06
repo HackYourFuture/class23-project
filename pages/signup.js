@@ -33,7 +33,6 @@ function Signup() {
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
-  const [isEmail, setIsEmail] = React.useState(true);
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -67,14 +66,14 @@ function Signup() {
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
     let result;
-    if (event.target.innerText === 'Google') {
+    if (event.target.innerText === 'Sign In with Google') {
       try {
         result = await firebase.auth().signInWithPopup(googleProvider);
         console.log('google');
         console.log('result.user', result.user);
       } catch (error) {}
     }
-    if (event.target.innerText === 'Facebook') {
+    if (event.target.innerText === 'Sign In with Facebook') {
       try {
         result = await firebase.auth().signInWithPopup(facebookProvider);
         console.log('facebook');
@@ -91,95 +90,76 @@ function Signup() {
         content="Create a new account"
         color="teal"
       />
-      {isEmail ? (
-        <div>
+      <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
+        <Message error header="Oops!" content={error} />
+        <Segment>
+          <Form.Input
+            fluid
+            icon="user"
+            iconPosition="left"
+            label="Name"
+            placeholder="Name"
+            name="name"
+            value={user.name}
+            onChange={handleChange}
+          />
+          <Form.Input
+            fluid
+            icon="envelope"
+            iconPosition="left"
+            label="Email"
+            placeholder="Email"
+            name="email"
+            type="email"
+            value={user.email}
+            onChange={handleChange}
+          />
+          <Form.Input
+            fluid
+            icon="lock"
+            iconPosition="left"
+            label="Password"
+            placeholder="Password"
+            name="password"
+            type="password"
+            value={user.password}
+            onChange={handleChange}
+          />
           <Button
-            attached
-            style={{
-              margin: '1em',
-              padding: '11px 45px',
-            }}
+            disabled={disabled || loading}
+            icon="signup"
+            type="submit"
             color="orange"
-            onClick={() => setIsEmail(false)}
-          >
-            <Icon name="mail" />
-            Email
-          </Button>
-        </div>
-      ) : (
-        <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
-          <Message error header="Oops!" content={error} />
-          <Segment>
-            <Form.Input
-              fluid
-              icon="user"
-              iconPosition="left"
-              label="Name"
-              placeholder="Name"
-              name="name"
-              value={user.name}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="envelope"
-              iconPosition="left"
-              label="Email"
-              placeholder="Email"
-              name="email"
-              type="email"
-              value={user.email}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="Password"
-              placeholder="Password"
-              name="password"
-              type="password"
-              value={user.password}
-              onChange={handleChange}
-            />
-            <Button
-              disabled={disabled || loading}
-              icon="signup"
-              type="submit"
-              color="orange"
-              content="Signup"
-            />
-          </Segment>
-        </Form>
-      )}
-      <div>
-        <Button
-          attached
-          style={{
-            margin: '1em',
-            padding: '11px 40px',
-          }}
-          color="google plus"
-          onClick={() => handleSocialSignup(event)}
-        >
-          <Icon name="google" />
-          Google
-        </Button>
-      </div>
-      <div>
-        <Button
-          attached
-          style={{
-            margin: '1em',
-            padding: '12px 32px',
-          }}
-          color="facebook"
-          onClick={() => handleSocialSignup(event)}
-        >
-          <Icon name="facebook" />
-          Facebook
-        </Button>
-      </div>
+            content="Signup"
+          />
+        </Segment>
+      </Form>
+      <Button
+        className="facebook"
+        attached
+        style={{
+          margin: '1em',
+          padding: '11px 40px',
+        }}
+        color="google plus"
+        onClick={() => handleSocialSignup(event)}
+      >
+        <Icon name="google" />
+        Sign In with Google
+      </Button>
+      <Button
+        className="facebook"
+        attached
+        style={{
+          margin: '1em',
+          padding: '12px 32px',
+        }}
+        color="facebook"
+        onClick={() => handleSocialSignup(event)}
+      >
+        <Icon name="facebook" />
+        Sign In with Facebook
+      </Button>
       <Message attached="bottom" warning>
         <Icon name="help" />
         Existing user?{' '}
