@@ -33,10 +33,12 @@ function AddProductSuggestions({ topSuggestedProducts, ratings }) {
   }
   return (
     <>
-      <Card.Header centered>Similar products</Card.Header>
+      <Card.Header as="h2" centered>
+        You may also like..
+      </Card.Header>
       <Card.Group
         stackable
-        itemsPerRow="3"
+        itemsPerRow="5"
         centered
         items={mapProductsToItems(topSuggestedProducts)}
       />

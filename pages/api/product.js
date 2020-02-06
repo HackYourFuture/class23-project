@@ -6,6 +6,7 @@ import connectDb from "../../utils/connectDb";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Rating from "../../models/Rating";
+import cookie from "js-cookie";
 
 connectDb();
 
