@@ -13,6 +13,7 @@ function Product({ product, user, totalComments, topSuggestedProducts }) {
     totalComments
   );
 
+  console.log(topSuggestedProducts);
   function handleNewComment({
     totalComments: newTotalComments,
     product: newProduct

@@ -117,7 +117,7 @@ export default function AddCommentToProduct({
                     <Comment.Metadata>
                       <span>{formatDate(comment.updated_at)}</span>
                     </Comment.Metadata>
-                    {comment.user._id === user._id ? (
+                    {user && comment.user._id === user._id ? (
                       <Button.Group floated="right" size="tiny">
                         <Button icon>
                           <Icon name="edit" />

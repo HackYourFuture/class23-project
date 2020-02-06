@@ -1,14 +1,7 @@
 import { Card, Rating } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
-function AddProductSuggestions({ topSuggestedProducts, ratings }) {
-  const [ratingAmount, setRatingAmount] = React.useState(0);
-
-  React.useEffect(() => {
-    const avrRating = calculateRatingMedian(ratings);
-    setRatingAmount(avrRating);
-  }, [ratings]);
-
+function AddProductSuggestions({ topSuggestedProducts }) {
   function mapProductsToItems(products) {
     return products.map(product => {
       return {
@@ -25,7 +18,9 @@ function AddProductSuggestions({ topSuggestedProducts, ratings }) {
             icon="star"
             disabled
             maxRating={5}
-            rating={ratingAmount || 0}
+            rating={
+              product.ratings ? calculateRatingMedian(product.ratings) : 0
+            }
           />
         )
       };
