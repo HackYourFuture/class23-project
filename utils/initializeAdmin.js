@@ -1,22 +1,19 @@
 import * as admin from 'firebase-admin';
 import serviceAccount from '../hackyourshoplets-firebase-adminsdk.json';
 
-const app = {};
-
 function initializeAdmin() {
-  if (app.isInitialized) {
+  if (admin.apps.length > 0) {
     // Use existing admin 
     console.log('Using existing admin');
-    return app.admin;
+    return admin;
   }
-  // Use new admin
-  app.admin = admin.initializeApp({
+  // Initialize admin
+  admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://hackyourshoplets.firebaseio.com',
   });
   console.log('Admin Initialized');
-  app.isInitialized = true;
-  return app.admin;
+  return admin;
 }
 
 export default initializeAdmin;

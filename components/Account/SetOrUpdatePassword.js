@@ -9,6 +9,9 @@ import {
   Accordion,
 } from 'semantic-ui-react';
 import cookies from 'js-cookie';
+import catchErrors from '../../utils/catchErrors';
+import baseUrl from '../../utils/baseUrl';
+import axios from 'axios';
 
 const PASSWORDS = {
   current: '',
