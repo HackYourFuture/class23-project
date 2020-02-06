@@ -12,20 +12,22 @@ async function Confirmation(req, res) {
     if (!tokenMatched) {
       return res.status(400).send({
         type: 'not-verified',
-        msg: 'Unable to find a valid token. Your token may have expired.',
+        msg: 'Activation link has expired.',
       });
     }
 
     const user = await User.findOne({ _id: tokenMatched.user });
 
     if (!user) {
-      return res.status(400).send({ msg: 'Unable to find a user for this token. Please signup again.' });
+      return res
+        .status(400)
+        .send({ msg: 'Unable to find a user. Please signup again.' });
     }
 
     if (user.isVerified) {
       return res
         .status(404)
-        .send({ msg: 'This user has already been verified.', type: 'verified' });
+        .send({ msg: 'Account has already been verified.', type: 'verified' });
     }
 
     user.isVerified = true;
@@ -33,10 +35,10 @@ async function Confirmation(req, res) {
       if (err) {
         return res.status(500).send({ msg: err.message });
       }
-      res.status(200).send({ msg: 'The account has been verified.', type: 'verified' });
+      res.status(200).send({ msg: 'Account has been verified.', type: 'verified' });
     });
   } catch (error) {
-    res.status(500).send({ msg: 'Error confirming user' });
+    res.status(500).send({ msg: 'Error activating account' });
   }
 }
 
