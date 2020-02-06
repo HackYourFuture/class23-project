@@ -15,7 +15,7 @@ const UserSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false,
       select: false
     },
     role: {
@@ -23,6 +23,12 @@ const UserSchema = new mongoose.Schema(
       required: true,
       default: "user",
       enum: ["user", "admin", "root"]
+    },
+    signInMethod: {
+      type: String,
+      required: true,
+      default: "email",
+      enum: ['email', 'google', 'facebook']
     }
   },
   {
