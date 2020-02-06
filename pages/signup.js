@@ -6,20 +6,13 @@ import { logEvent } from '../utils/analytics';
 import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
 import { handleLogin } from '../utils/auth';
-import firebase from 'firebase';
+import handleSocialSignIn from '../utils/socialSignIn';
 
 const INITIAL_USER = {
   name: '',
   email: '',
   password: '',
 };
-
-if (!firebase.apps.length) {
-  firebase.initializeApp({
-    apiKey: 'AIzaSyBRM75TC1eGfRlN6jguGv3jReDF-1orzVM',
-    authDomain: 'hackyourshoplets.firebaseapp.com',
-  });
-}
 
 function Signup() {
   const [user, setUser] = React.useState(INITIAL_USER);
@@ -39,7 +32,6 @@ function Signup() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     try {
       setLoading(true);
       setError('');
@@ -52,25 +44,6 @@ function Signup() {
       catchErrors(error, setError);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleSocialSignup(event) {
-    const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const facebookProvider = new firebase.auth.FacebookAuthProvider();
-    let result;
-    if (event.target.innerText === 'Sign In with Google') {
-      try {
-        result = await firebase.auth().signInWithPopup(googleProvider);
-        console.log('google');
-        console.log('result.user', result.user);
-      } catch (error) { }
-    }
-    if (event.target.innerText === 'Sign In with Facebook') {
-      try {
-        result = await firebase.auth().signInWithPopup(facebookProvider);
-        console.log('facebook');
-      } catch (error) { }
     }
   }
 
@@ -126,33 +99,33 @@ function Signup() {
             content="Signup"
           />
         </Segment>
+        <Button
+          title="google"
+          attached
+          style={{
+            margin: '1em',
+            padding: '11px 40px',
+          }}
+          color="google plus"
+          onClick={() => handleSocialSignIn(event, setError, setLoading)}
+        >
+          <Icon name="google" />
+          Sign In with Google
+      </Button>
+        <Button
+          title="facebook"
+          attached
+          style={{
+            margin: '1em',
+            padding: '12px 32px',
+          }}
+          color="facebook"
+          onClick={() => handleSocialSignIn(event, setError, setLoading)}
+        >
+          <Icon name="facebook" />
+          Sign In with Facebook
+      </Button>
       </Form>
-      <Button
-        className="facebook"
-        attached
-        style={{
-          margin: '1em',
-          padding: '11px 40px',
-        }}
-        color="google plus"
-        onClick={() => handleSocialSignup(event)}
-      >
-        <Icon name="google" />
-        Sign In with Google
-      </Button>
-      <Button
-        className="facebook"
-        attached
-        style={{
-          margin: '1em',
-          padding: '12px 32px',
-        }}
-        color="facebook"
-        onClick={() => handleSocialSignup(event)}
-      >
-        <Icon name="facebook" />
-        Sign In with Facebook
-      </Button>
       <Message attached="bottom" warning>
         <Icon name="help" />
         Existing user?{' '}
