@@ -66,41 +66,34 @@ function Login() {
     let payload;
     if (event.target.title === 'google') {
       try {
-        const { user, credential } = await firebase
+        const { user: { displayName, email }, credential: { providerId } } = await firebase
           .auth()
           .signInWithPopup(googleProvider);
-        const { displayName, email } = user;
-        const { idToken, providerId } = credential;
+        const idToken = await firebase.auth().currentUser.getIdToken(true);
         payload = {
           username: displayName,
           email,
           idToken,
           provider: providerId,
         };
-        console.log('google');
       } catch (error) {
-        console.error(error);
+        catchErrors(error, setError);
         return;
       }
-    }
-    if (event.target.title === 'facebook') {
+    } else if (event.target.title === 'facebook') {
       try {
-        const { user, credential } = await firebase
+        const { user: { displayName, email }, credential: { providerId } } = await firebase
           .auth()
           .signInWithPopup(facebookProvider);
-        const idToken = user.getIdToken();
-        const { displayName, email } = user;
-        const { providerId } = credential;
+        const idToken = await firebase.auth().currentUser.getIdToken(true);
         payload = {
           username: displayName,
           email,
           idToken,
           provider: providerId,
         };
-        console.log(idToken);
-        console.log('facebook');
       } catch (error) {
-        console.error(error);
+        catchErrors(error, setError);
         return;
       }
     }
@@ -111,7 +104,6 @@ function Login() {
     } catch (error) {
       catchErrors(error, setError);
     }
-    console.log('payload', payload);
   }
 
   return (

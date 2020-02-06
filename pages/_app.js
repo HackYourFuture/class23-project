@@ -5,23 +5,6 @@ import { redirectUser } from '../utils/auth';
 import baseUrl from '../utils/baseUrl';
 import axios from 'axios';
 import Router from 'next/router';
-// import {
-//   FirebaseAppProvider
-// } from 'reactfire';
-
-// import 'firebase/performance';
-
-// const firebaseConfig = {
-//   apiKey: "AIzaSyAwetJdspqx4bHuzmZEQwci16vVOANP28Y",
-//   authDomain: "hackyourshop.firebaseapp.com",
-//   databaseURL: "https://hackyourshop.firebaseio.com",
-//   projectId: "hackyourshop",
-//   storageBucket: "hackyourshop.appspot.com",
-//   messagingSenderId: "240606796761",
-//   appId: "1:240606796761:web:398f12631e6094e92b97c8",
-//   measurementId: "G-0F00SEDTYK"
-
-// };
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
@@ -81,11 +64,9 @@ class MyApp extends App {
   render() {
     const { Component, pageProps } = this.props;
     return (
-      // <FirebaseAppProvider firebaseConfig={firebaseConfig} initPerformance>
       <Layout {...pageProps}>
         <Component {...pageProps} />
       </Layout>
-      // </FirebaseAppProvider>
     );
   }
 }

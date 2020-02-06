@@ -13,14 +13,7 @@ const INITIAL_USER = {
   email: '',
   password: '',
 };
-// HackYourShop icin
-// if (!firebase.apps.length) {
-//   firebase.initializeApp({
-//     apiKey: 'AIzaSyCnwkw27zHkVHcwGlcylQvAKW_BQfsyyzo',
-//     authDomain: 'hackyourshop-267318.firebaseapp.com',
-//   });
-// }
-//hackyourshoplets icin
+
 if (!firebase.apps.length) {
   firebase.initializeApp({
     apiKey: 'AIzaSyBRM75TC1eGfRlN6jguGv3jReDF-1orzVM',
@@ -71,13 +64,13 @@ function Signup() {
         result = await firebase.auth().signInWithPopup(googleProvider);
         console.log('google');
         console.log('result.user', result.user);
-      } catch (error) {}
+      } catch (error) { }
     }
     if (event.target.innerText === 'Sign In with Facebook') {
       try {
         result = await firebase.auth().signInWithPopup(facebookProvider);
         console.log('facebook');
-      } catch (error) {}
+      } catch (error) { }
     }
   }
 

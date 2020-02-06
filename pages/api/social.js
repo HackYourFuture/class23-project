@@ -1,15 +1,11 @@
 import connectDb from '../../utils/connectDb';
 import User from '../../models/User';
 import jwt from 'jsonwebtoken';
-import * as admin from 'firebase-admin';
-import serviceAccount from '../../hackyourshoplets-firebase-adminsdk.json';
+import initializeAdmin from '../../utils/initializeAdmin';
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: 'https://hackyourshoplets.firebaseio.com',
-});
 
 connectDb();
+const admin = initializeAdmin();
 
 export default async (req, res) => {
   if (req.method !== 'POST') {

@@ -26,9 +26,6 @@ function Layout({ children, user }) {
           href="//cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css"
         />
         <title>ReactReserve</title>
-        {/* Google API */}
-        <meta name="google-signin-client_id" content="240606796761-gehlflbh6jb1bsatth7vbm536svls43e.apps.googleusercontent.com.apps.googleusercontent.com"></meta>
-        <script src="https://apis.google.com/js/platform.js" async defer></script>
       </Head>
       <Header user={user} />
       <Container text style={{ paddingTop: "1em" }}>
