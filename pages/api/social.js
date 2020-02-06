@@ -32,7 +32,8 @@ export default async (req, res) => {
       const newUser = await new User({
         name,
         email,
-        signInMethod: provider.substring(0, provider.indexOf('.'))
+        signInMethod: provider.substring(0, provider.indexOf('.')),
+        password: ''
       }).save();
 
       // 4) create cart for new user
