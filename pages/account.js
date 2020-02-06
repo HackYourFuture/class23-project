@@ -1,16 +1,18 @@
-import AccountHeader from "../components/Account/AccountHeader";
-import AccountOrders from "../components/Account/AccountOrders";
-import AccountPermissions from "../components/Account/AccountPermissions";
-import { parseCookies } from "nookies";
-import baseUrl from "../utils/baseUrl";
-import axios from "axios";
+import AccountHeader from '../components/Account/AccountHeader';
+import AccountOrders from '../components/Account/AccountOrders';
+import AccountPermissions from '../components/Account/AccountPermissions';
+import SetOrUpdatePassword from '../components/Account/SetOrUpdatePassword';
+import { parseCookies } from 'nookies';
+import baseUrl from '../utils/baseUrl';
+import axios from 'axios';
 
 function Account({ user, orders, ratings }) {
   return (
     <>
       <AccountHeader {...user} />
+      <SetOrUpdatePassword {...user} />
       <AccountOrders orders={orders} {...user} />
-      {user.role === "root" && <AccountPermissions />}
+      {user.role === 'root' && <AccountPermissions />}
     </>
   );
 }
