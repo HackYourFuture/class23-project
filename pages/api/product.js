@@ -1,12 +1,10 @@
 import Product from "../../models/Product";
 import Cart from "../../models/Cart";
 import User from "../../models/User";
-import shuffle from "../../utils/shuffle";
 import connectDb from "../../utils/connectDb";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Rating from "../../models/Rating";
-import cookie from "js-cookie";
 
 connectDb();
 
@@ -56,42 +54,29 @@ async function handleGetRequest(req, res) {
     });
 
   // Top Products
-  const products = await Product.aggregate().match({
-    $and: [
-      { _id: { $ne: product._id } },
-      {
-        category: product.category
+  const groupedProducts = await Product.aggregate([
+    {
+      $group: {
+        _id: "$category",
+        products: { $push: "$$ROOT" }
       }
-    ]
+    }
+  ]);
+
+  const topProducts = groupedProducts.filter(p => {
+    return p._id === product.category;
   });
-
-  const shuffledList = shuffle(products, 5);
-  const topSuggestedProducts = shuffledList.sort(
-    (a, b) => b.numberOfViews - a.numberOfViews
-  );
-
-  // const groupedProducts = await Product.aggregate([
-  //   {
-  //     $group: {
-  //       _id: '$category',
-  //       products: { $push: '$$ROOT' },
-  //     },
-  //   },
-  // ])
-
-  //  const topProducts = groupedProducts.filter(p=> {
-  //    return p._id === product.category;
-  //  })
-  //  const topSuggestedProducts = topProducts[0].products.sort((a, b) => b.numberOfViews - a.numberOfViews)
-  //  .filter(product => product._id.toString() !== _id.toString() )
-  //  .slice(0,5)
-  //  ;
-
-  res.status(200).json({
-    totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
-    product,
-    topSuggestedProducts
-  });
+  const topSuggestedProducts = topProducts[0].products
+    .sort((a, b) => b.numberOfViews - a.numberOfViews)
+    .filter(product => product._id.toString() !== _id.toString())
+    .slice(0, 5);
+  res
+    .status(200)
+    .json({
+      totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
+      product,
+      topSuggestedProducts
+    });
 }
 
 async function handlePostRequest(req, res) {
@@ -163,10 +148,12 @@ async function handlePutRequest(req, res) {
         });
 
       // Return comments count and the updated product
-      res.status(200).json({
-        totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
-        product: updatedProduct
-      });
+      res
+        .status(200)
+        .json({
+          totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
+          product: updatedProduct
+        });
     } else {
       res.status(404).send("User not found");
     }

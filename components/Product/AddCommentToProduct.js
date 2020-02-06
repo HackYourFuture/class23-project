@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Button, Comment, Form, Header, Message } from "semantic-ui-react";
+import {
+  Button,
+  Comment,
+  Form,
+  Header,
+  Message,
+  Icon
+} from "semantic-ui-react";
 import formatDate from "../../utils/formatDate";
 import catchErrors from "../../utils/catchErrors";
 import baseUrl from "../../utils/baseUrl";
@@ -52,6 +59,8 @@ export default function AddCommentToProduct({
   }
 
   console.log(product.comments);
+  const filteredUsers = product.comments.filter(c => c.user !== null);
+  console.log(filteredUsers);
 
   return (
     <>
@@ -97,18 +106,34 @@ export default function AddCommentToProduct({
             <Header as="h3" dividing>
               Comments
             </Header>
-            {product.comments.map(comment => (
-              <Comment key={`comment_id ${comment._id}`}>
-                <Comment.Content>
-                  <Comment.Author as="span">{comment.user.name}</Comment.Author>
-                  <Comment.Metadata>
-                    <span>{formatDate(comment.updated_at)}</span>
-                  </Comment.Metadata>
+            {product.comments
+              .filter(c => c.user !== null)
+              .map(comment => (
+                <Comment key={`comment_id ${comment._id}`}>
+                  <Comment.Content>
+                    <Comment.Author as="span">
+                      {comment.user.name}
+                    </Comment.Author>
+                    <Comment.Metadata>
+                      <span>{formatDate(comment.updated_at)}</span>
+                    </Comment.Metadata>
+                    {comment.user._id === user._id ? (
+                      <Button.Group floated="right" size="tiny">
+                        <Button icon>
+                          <Icon name="edit" />
+                        </Button>
+                        <Button icon>
+                          <Icon name="delete" />
+                        </Button>
+                      </Button.Group>
+                    ) : (
+                      ""
+                    )}
 
-                  <Comment.Text>{comment.content}</Comment.Text>
-                </Comment.Content>
-              </Comment>
-            ))}
+                    <Comment.Text>{comment.content}</Comment.Text>
+                  </Comment.Content>
+                </Comment>
+              ))}
           </>
         )}
       </Comment.Group>

@@ -64,3 +64,4 @@ Product.getInitialProps = async ({ query: { _id, page } }) => {
 };
 
 export default Product;
+//<AddProductSuggestions products={products} />

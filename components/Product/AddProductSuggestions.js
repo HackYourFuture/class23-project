@@ -31,6 +31,7 @@ function AddProductSuggestions({ topSuggestedProducts, ratings }) {
       };
     });
   }
+
   return (
     <>
       <Card.Header as="h2" centered>
