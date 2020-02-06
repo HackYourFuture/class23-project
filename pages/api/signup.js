@@ -35,8 +35,10 @@ export default async (req, res) => {
 
     await new Cart({ user: newUser._id }).save();
 
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    await new Token({ user: newUser._id, token: token }).save();
+    const temporaryToken = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: 43200,
+    });
+    await new Token({ user: newUser._id, token: temporaryToken }).save();
 
     const transporter = nodemailer.createTransport({
       service: 'Sendgrid',
@@ -46,20 +48,17 @@ export default async (req, res) => {
     const mailOptions = {
       from: 'no-reply@hackyourshop.com',
       to: newUser.email,
-      subject: 'Account Verification Token',
-      text:
-        'Hello,\n\n' +
-        'Please verify your account by clicking the link: \nhttp://' +
-        req.headers.host +
-        '/confirmation?token=' +
-        token,
+      subject: 'Account activation',
+      text: `Hello,\n\n Please activate your account by clicking the link: \nhttp://${req.headers.host}/confirmation/${temporaryToken}`,
     };
 
     transporter.sendMail(mailOptions, err => {
       if (err) {
         return res.status(500).send(err.message);
       }
-      res.status(200).send('A verification email has been sent to ' + newUser.email + '.');
+      res
+        .status(200)
+        .send('Account registered. Please check ' + newUser.email + ' for activation email.');
     });
   } catch (error) {
     res.status(500).send('Error signing up user. Please try again later.');
