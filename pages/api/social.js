@@ -35,6 +35,7 @@ export default async (req, res) => {
         email,
         signInMethod: provider.substring(0, provider.indexOf('.')),
         password: '',
+        isVerified: true,
       }).save();
 
       // 4) create cart for new user
