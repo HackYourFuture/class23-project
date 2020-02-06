@@ -23,12 +23,34 @@ export default function AddCommentToProduct({
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = React.useState("");
+  const [commentCol, setCommentCol] = React.useState(product.comments);
 
   const router = useRouter();
 
   function handleChange(event) {
     const { value } = event.target;
     setComment(value);
+  }
+
+  async function handleDelete(id) {
+    const filteredComments = product.comments.filter(c => id !== c._id);
+    setCommentCol(filteredComments);
+    try {
+      setLoading(true);
+      setError("");
+      const token = cookie.get("token");
+      const url = `${baseUrl}/api/product`;
+      const headers = { Authorization: token };
+      const payload = { comment, commentId: id };
+      const response = await axios.delete(url, payload, { headers });
+      handleNewComment(response.data);
+      setSuccess(true);
+    } catch (error) {
+      catchErrors(error, setError);
+      setSuccess(false);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleSubmit(event) {
@@ -57,10 +79,6 @@ export default function AddCommentToProduct({
       setLoading(false);
     }
   }
-
-  console.log(product.comments);
-  const filteredUsers = product.comments.filter(c => c.user !== null);
-  console.log(filteredUsers);
 
   return (
     <>
@@ -106,7 +124,7 @@ export default function AddCommentToProduct({
             <Header as="h3" dividing>
               Comments
             </Header>
-            {product.comments
+            {commentCol
               .filter(c => c.user !== null)
               .map(comment => (
                 <Comment key={`comment_id ${comment._id}`}>
@@ -118,14 +136,14 @@ export default function AddCommentToProduct({
                       <span>{formatDate(comment.updated_at)}</span>
                     </Comment.Metadata>
                     {user && comment.user._id === user._id ? (
-                      <Button.Group floated="right" size="tiny">
-                        <Button icon>
-                          <Icon name="edit" />
-                        </Button>
-                        <Button icon>
+                      <Comment.Actions>
+                        <Comment.Action
+                          onClick={() => handleDelete(comment._id)}
+                        >
                           <Icon name="delete" />
-                        </Button>
-                      </Button.Group>
+                          Delete
+                        </Comment.Action>
+                      </Comment.Actions>
                     ) : (
                       ""
                     )}
