@@ -1,9 +1,20 @@
-import React from 'react';
-import { Item, Label, Rating, Icon } from 'semantic-ui-react';
-import calculateRatingMedian from '../../utils/calculateRatingMedian';
-import AddProductToCart from './AddProductToCart';
+import React from "react";
+import { Item, Label, Rating, Icon } from "semantic-ui-react";
+import calculateRatingMedian from "../../utils/calculateRatingMedian";
+import AddProductToCart from "./AddProductToCart";
 
-function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
+function ProductSummary({
+  name,
+  mediaUrl,
+  _id,
+  price,
+  priceEuro,
+  sku,
+  user,
+  ratings,
+  currency
+}) {
+  console.log(currency);
   const [ratingAmount, setRatingAmount] = React.useState(0);
 
   React.useEffect(() => {
@@ -19,7 +30,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
           <Item.Content>
             <Item.Header>{name}</Item.Header>
             <Item.Description>
-              <p>${price}</p>
+              {currency === "" || currency === "usd" ? (
+                <p>${price}</p>
+              ) : (
+                <p>&euro;{priceEuro}</p>
+              )}
               <Label>SKU: {sku}</Label>
             </Item.Description>
             <Item.Extra>
@@ -36,7 +51,7 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
         rating={ratingAmount}
       />
       <Label>
-        {`${ratings.length} users rated this!`}{' '}
+        {`${ratings.length} users rated this!`}{" "}
         <Icon name="star" color="yellow" />
       </Label>
     </>

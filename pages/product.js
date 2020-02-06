@@ -1,16 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductSummary from '../components/Product/ProductSummary';
-import ProductAttributes from '../components/Product/ProductAttributes';
-import AddCommentToProduct from '../components/Product/AddCommentToProduct';
-import CommentPagination from '../components/Product/CommentPagination';
-import baseUrl from '../utils/baseUrl';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ProductSummary from "../components/Product/ProductSummary";
+import ProductAttributes from "../components/Product/ProductAttributes";
+import AddCommentToProduct from "../components/Product/AddCommentToProduct";
+import CommentPagination from "../components/Product/CommentPagination";
+import baseUrl from "../utils/baseUrl";
 
-function Product({ product, user, totalComments }) {
+function Product({ product, user, totalComments, currency }) {
+  console.log(currency);
   const [displayedProduct, setDisplayedProduct] = useState(product);
-  const [displayedTotalComments, setDisplayedTotalComments] = useState(totalComments);
+  const [displayedTotalComments, setDisplayedTotalComments] = useState(
+    totalComments
+  );
 
-  function handleNewComment({ totalComments: newTotalComments, product: newProduct }) {
+  function handleNewComment({
+    totalComments: newTotalComments,
+    product: newProduct
+  }) {
     setDisplayedProduct(newProduct);
     setDisplayedTotalComments(newTotalComments);
   }
@@ -29,7 +35,7 @@ function Product({ product, user, totalComments }) {
 
   return (
     <>
-      <ProductSummary user={user} {...displayedProduct} />
+      <ProductSummary user={user} {...displayedProduct} currency={currency} />
       <ProductAttributes user={user} {...displayedProduct} />
       <AddCommentToProduct
         user={user}
@@ -37,7 +43,10 @@ function Product({ product, user, totalComments }) {
         handleNewComment={handleNewComment}
       />
       {displayedTotalComments > 0 && (
-        <CommentPagination productId={product._id} totalPages={displayedTotalComments} />
+        <CommentPagination
+          productId={product._id}
+          totalPages={displayedTotalComments}
+        />
       )}
     </>
   );

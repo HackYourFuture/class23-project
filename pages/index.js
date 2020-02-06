@@ -4,18 +4,33 @@ import ProductList from "../components/Index/ProductList";
 import ProductPagination from "../components/Index/ProductPagination";
 import baseUrl from "../utils/baseUrl";
 import { useRouter } from "next/router";
+import { Select } from "semantic-ui-react";
 
-function Home({ products, totalPages }) {
+const currencyOptions = [
+  { key: "usd", value: "usd", text: "USD" },
+  { key: "euro", value: "euro", text: "Euro" }
+];
+
+function Home({ products, totalPages, currency }) {
+  const [isCurrency, setIsCurrency] = useState("usd");
+  console.log({ currency });
   const router = useRouter();
-  const [category, setcategory] = useState("");
-
+  const [category, setCategory] = useState("");
   function selectCategory(e, data) {
-    setcategory(data.value);
+    setCategory(data.value);
     router.push(`/?category=${data.value}`);
   }
+  const handleChange = (e, { value }) => {
+    window.localStorage.setItem("currency", value);
+  };
 
   return (
     <>
+      <Select
+        placeholder="Currency"
+        options={currencyOptions}
+        onChange={handleChange}
+      />
       <ProductList products={products} selectCategory={selectCategory} />
       <ProductPagination totalPages={totalPages} category={category} />
     </>
