@@ -8,7 +8,14 @@ import {
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
 
-function CartItemList({ products, user, handleRemoveFromCart, success }) {
+function CartItemList({
+  products,
+  user,
+  handleRemoveFromCart,
+  success,
+  currency
+}) {
+  console.log(currency);
   const router = useRouter();
 
   function mapCartProductsToItems(products) {
@@ -60,10 +67,10 @@ function CartItemList({ products, user, handleRemoveFromCart, success }) {
               View Products
             </Button>
           ) : (
-              <Button color="blue" onClick={() => router.push("/login")}>
-                Login to Add Products
+            <Button color="blue" onClick={() => router.push("/login")}>
+              Login to Add Products
             </Button>
-            )}
+          )}
         </div>
       </Segment>
     );

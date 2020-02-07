@@ -54,12 +54,15 @@ class MyApp extends App {
       currency: window.localStorage.getItem("currency")
     });
   }
-  // componentDidUpdate(nextState, previousState) {
-  //   if (nextState !== this.state.currency) {
-  //     this.setState({
-  //       currency: window.localStorage.getItem('currency'),
-  //     });
-  //   }
+
+  componentDidUpdate() {
+    if (window.localStorage.getItem("currency") !== this.state.currency) {
+      this.setState({
+        currency: window.localStorage.getItem("currency")
+      });
+    }
+  }
+
   syncLogout = event => {
     if (event.key === "logout") {
       Router.push("/login");

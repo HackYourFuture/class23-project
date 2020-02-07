@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductList from "../components/Index/ProductList";
 import ProductPagination from "../components/Index/ProductPagination";
@@ -12,7 +12,7 @@ const currencyOptions = [
 ];
 
 function Home({ products, totalPages, currency }) {
-  const [isCurrency, setIsCurrency] = useState("usd");
+  // const [isCurrency, setIsCurrency] = useState("");
   console.log({ currency });
   const router = useRouter();
   const [category, setCategory] = useState("");
@@ -20,8 +20,11 @@ function Home({ products, totalPages, currency }) {
     setCategory(data.value);
     router.push(`/?category=${data.value}`);
   }
-  const handleChange = (e, { value }) => {
+
+  const handleChange = async (e, { value }) => {
     window.localStorage.setItem("currency", value);
+    // await router.push("/cart");
+    await router.push("/");
   };
 
   return (
@@ -31,7 +34,13 @@ function Home({ products, totalPages, currency }) {
         options={currencyOptions}
         onChange={handleChange}
       />
-      <ProductList products={products} selectCategory={selectCategory} />
+
+      <ProductList
+        products={products}
+        selectCategory={selectCategory}
+        currency={currency}
+      />
+
       <ProductPagination totalPages={totalPages} category={category} />
     </>
   );

@@ -3,7 +3,8 @@ import StripeCheckout from "react-stripe-checkout";
 import { Button, Segment, Divider } from "semantic-ui-react";
 import calculateCartTotal from "../../utils/calculateCartTotal";
 
-function CartSummary({ products, handleCheckout, success }) {
+function CartSummary({ products, handleCheckout, success, currency }) {
+  console.log(currency);
   const [cartAmount, setCartAmount] = React.useState(0);
   const [stripeAmount, setStripeAmount] = React.useState(0);
   const [isCartEmpty, setCartEmpty] = React.useState(false);

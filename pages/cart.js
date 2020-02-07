@@ -10,7 +10,7 @@ import baseUrl from "../utils/baseUrl";
 import cookie from "js-cookie";
 import catchErrors from "../utils/catchErrors";
 
-function Cart({ products, user }) {
+function Cart({ products, user, currency }) {
   const router = useRouter();
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
@@ -54,11 +54,13 @@ function Cart({ products, user }) {
           user={user}
           products={cartProducts}
           success={success}
+          currency={currency}
         />
         <CartSummary
           products={cartProducts}
           handleCheckout={handleCheckout}
           success={success}
+          currency={currency}
         />
       </Segment>
       {success && (

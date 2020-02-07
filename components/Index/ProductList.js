@@ -2,6 +2,7 @@ import { Card, Container, Rating, Dropdown } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
 function ProductList({ products, selectCategory, currency }) {
+  console.log(currency);
   const categoryOptions = [
     { key: "acc", text: "Accessories", value: "accessories" },
     { key: "bath", text: "Bathroom", value: "bathroom" },
@@ -19,24 +20,47 @@ function ProductList({ products, selectCategory, currency }) {
     return products.map(product => {
       const averageRating = calculateRatingMedian(product.ratings);
 
-      return {
-        header: product.name,
-        image: product.mediaUrl,
-        meta: `$${product.price}`,
-        color: "teal",
-        fluid: true,
-        childKey: product._id,
-        href: `/product?_id=${product._id}`,
-        extra: (
-          <Rating
-            size="tiny"
-            icon="star"
-            disabled
-            maxRating={5}
-            rating={averageRating || 0}
-          />
-        )
-      };
+      if (currency === "" || currency === "usd") {
+        return {
+          header: product.name,
+          image: product.mediaUrl,
+          meta: `$${product.price}`,
+
+          color: "teal",
+          fluid: true,
+          childKey: product._id,
+          href: `/product?_id=${product._id}`,
+          extra: (
+            <Rating
+              size="tiny"
+              icon="star"
+              disabled
+              maxRating={5}
+              rating={averageRating || 0}
+            />
+          )
+        };
+      } else {
+        return {
+          header: product.name,
+          image: product.mediaUrl,
+          meta: `€${product.priceEuro}`,
+
+          color: "teal",
+          fluid: true,
+          childKey: product._id,
+          href: `/product?_id=${product._id}`,
+          extra: (
+            <Rating
+              size="tiny"
+              icon="star"
+              disabled
+              maxRating={5}
+              rating={averageRating || 0}
+            />
+          )
+        };
+      }
     });
   }
 
