@@ -39,7 +39,7 @@ function Resend() {
       <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
         <Message error header="Oops!" content={error} />
         {Boolean(emailSent) ? (
-          <Message positive header="Success" content={emailSent} />
+          <Message positive header="Success" content={emailSent} size='large' />
         ) : (
           <Segment>
             <Form.Input
