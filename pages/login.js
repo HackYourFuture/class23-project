@@ -1,10 +1,14 @@
 import React from 'react';
+import { useRouter } from 'next/router';
 import {
   Button,
   Form,
   Icon,
   Message,
   Segment,
+  Breadcrumb,
+  Modal,
+  Header,
 } from 'semantic-ui-react';
 import Link from 'next/link';
 import axios from 'axios';
@@ -12,17 +16,29 @@ import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
 import { handleLogin } from '../utils/auth';
 import handleSocialSignIn from '../utils/socialSignIn';
+import { event } from 'react-ga';
 
 const INITIAL_USER = {
   email: '',
   password: '',
 };
+const INITIAL_EMAIL = {
+  confirmEmail: '',
+};
 
 function Login() {
+  const router = useRouter();
+
   const [user, setUser] = React.useState(INITIAL_USER);
+  const [confirmEmail, setConfirmEmail] = React.useState(INITIAL_EMAIL);
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
+  const [success, setSuccess] = React.useState('');
   const [error, setError] = React.useState('');
+  const [isOpen, setIsOpen] = React.useState(false);
+  const sections = [
+    { key: 'Forget password?', content: 'Forget password?', link: true },
+  ];
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -32,6 +48,7 @@ function Login() {
   function handleChange(event) {
     const { name, value } = event.target;
     setUser(prevState => ({ ...prevState, [name]: value }));
+    setConfirmEmail(prevState => ({ ...prevState, [name]: value }));
   }
 
   async function handleSubmit(event) {
@@ -50,6 +67,24 @@ function Login() {
     }
   }
 
+  async function handleSubmitEmail(event) {
+    event.preventDefault();
+    try {
+      setLoading(true);
+      setError('');
+      const payload = { ...confirmEmail };
+      const url = `${baseUrl}/api/reset-password`;
+      const response = await axios.post(url, payload);
+      setSuccess(response.data);
+    } catch (error) {
+      setSuccess('');
+      catchErrors(error, setError);
+    } finally {
+      setLoading(false);
+      setIsOpen(false);
+    }
+  }
+
   return (
     <>
       <Message
@@ -59,8 +94,14 @@ function Login() {
         content="Log in with email and password or social accounts"
         color="blue"
       />
-      <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
+      <Form
+        error={Boolean(error)}
+        success={Boolean(success)}
+        loading={loading}
+        onSubmit={handleSubmit}
+      >
         <Message error header="Oops!" content={error} />
+        <Message success header="Success!" content={success} />
         <Segment>
           <Form.Input
             fluid
@@ -91,6 +132,13 @@ function Login() {
             color="orange"
             content="Login"
           />
+          <Breadcrumb
+            style={{ marginTop: '10px', float: 'right' }}
+            sections={sections}
+            onClick={() => {
+              setIsOpen(true);
+            }}
+          ></Breadcrumb>
         </Segment>
         <Button
           title="google"
@@ -104,7 +152,7 @@ function Login() {
         >
           <Icon name="google" />
           Sign In with Google
-      </Button>
+        </Button>
         <Button
           title="facebook"
           attached
@@ -117,10 +165,8 @@ function Login() {
         >
           <Icon name="facebook" />
           Sign In with Facebook
-      </Button>
+        </Button>
       </Form>
-
-
       <Message attached="bottom" warning>
         <Icon name="help" />
         New user?{' '}
@@ -129,6 +175,41 @@ function Login() {
         </Link>{' '}
         instead.
       </Message>
+      {isOpen && (
+        <Modal
+          centered
+          closeIcon
+          onClose={() => {
+            setIsOpen(false);
+            setConfirmEmail('');
+          }}
+          dimmer="blurring"
+          open={isOpen}
+          size="mini"
+        >
+          <Header content="Please put your email here!" />
+          <Form loading={loading} onSubmit={handleSubmitEmail}>
+            <Modal.Content>
+              <Segment>
+                <Form.Input
+                  fluid
+                  icon="envelope"
+                  iconPosition="left"
+                  label="Email"
+                  name="confirmEmail"
+                  value={confirmEmail.email}
+                  onChange={handleChange}
+                />
+              </Segment>
+            </Modal.Content>
+            <Modal.Actions>
+              <Button color="blue" type="submit">
+                Send!
+              </Button>
+            </Modal.Actions>
+          </Form>
+        </Modal>
+      )}
     </>
   );
 }
