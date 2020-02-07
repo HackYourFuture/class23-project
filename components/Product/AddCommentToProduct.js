@@ -31,7 +31,7 @@ export default function AddCommentToProduct({ user, product, handleNewComment })
       setLoading(true);
       setError("");
       const url = `${baseUrl}/api/product`;
-      const token = cookie.get('token');
+      const token = cookie.get('token');x
       const payload = { comment, productId: product._id };
       const headers = { Authorization: token };
       const response = await axios.put(url, payload, { headers });
