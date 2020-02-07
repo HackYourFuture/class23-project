@@ -52,59 +52,59 @@ function ResetPassword({ message, token, error: propError }) {
         <Message
           error={Boolean(propError)}
           header="Oops!"
-          content={propError}
+          content={message}
         />
       ) : (
-        <Form
-          error={Boolean(error)}
-          success={Boolean(success)}
-          loading={loading}
-          onSubmit={handleSubmit}
-        >
-          <Message error header="Oops!" content={error} />
-          <Message success header="Success!" content={success} />
-          <Segment>
-            <Form.Input
-              fluid
-              icon="envelope"
-              iconPosition="left"
-              label="Email"
-              name="name"
-              disabled
-              value={message}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="New password"
-              placeholder="New password"
-              name="requested"
-              type="password"
-              value={passwords.requested}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="Re-new password"
-              placeholder="Re-new password"
-              name="repeated"
-              type="password"
-              value={passwords.repeated}
-              onChange={handleChange}
-            />
-            <Button
-              disabled={disabled || loading}
-              type="submit"
-              color="orange"
-              content="Reset Password"
-            />
-          </Segment>
-        </Form>
-      )}
+          <Form
+            error={Boolean(error)}
+            success={Boolean(success)}
+            loading={loading}
+            onSubmit={handleSubmit}
+          >
+            <Message error header="Oops!" content={error} />
+            <Message success header="Success!" content={success} />
+            <Segment>
+              <Form.Input
+                fluid
+                icon="envelope"
+                iconPosition="left"
+                label="Email"
+                name="name"
+                disabled
+                value={message}
+                onChange={handleChange}
+              />
+              <Form.Input
+                fluid
+                icon="lock"
+                iconPosition="left"
+                label="New password"
+                placeholder="New password"
+                name="requested"
+                type="password"
+                value={passwords.requested}
+                onChange={handleChange}
+              />
+              <Form.Input
+                fluid
+                icon="lock"
+                iconPosition="left"
+                label="Re-new password"
+                placeholder="Re-new password"
+                name="repeated"
+                type="password"
+                value={passwords.repeated}
+                onChange={handleChange}
+              />
+              <Button
+                disabled={disabled || loading}
+                type="submit"
+                color="orange"
+                content="Reset Password"
+              />
+            </Segment>
+          </Form>
+        )}
     </>
   );
 }

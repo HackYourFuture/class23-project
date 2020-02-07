@@ -197,16 +197,15 @@ function Login() {
                   iconPosition="left"
                   label="Email"
                   name="confirmEmail"
-                  value={confirmEmail.email}
+                  value={confirmEmail.confirmEmail}
                   onChange={handleChange}
                 />
+                <Button color="blue" type="submit">
+                  Send!
+                </Button>
               </Segment>
+
             </Modal.Content>
-            <Modal.Actions>
-              <Button color="blue" type="submit">
-                Send!
-              </Button>
-            </Modal.Actions>
           </Form>
         </Modal>
       )}
