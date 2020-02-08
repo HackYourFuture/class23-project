@@ -21,7 +21,7 @@ export default function AddCommentToProduct({
 }) {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState('');
   const [error, setError] = React.useState("");
   const [commentCol, setCommentCol] = React.useState(product.comments);
 
@@ -38,16 +38,17 @@ export default function AddCommentToProduct({
     try {
       setLoading(true);
       setError("");
+      setSuccess('');
       const token = cookie.get("token");
       const url = `${baseUrl}/api/product`;
       const headers = { Authorization: token };
-      const payload = { comment, commentId: id };
-      const response = await axios.delete(url, payload, { headers });
-      handleNewComment(response.data);
-      setSuccess(true);
+      const params = { _id: product._id, commentId: id };
+      const response = await axios.delete(url, { params, headers });
+      setSuccess(response.data);
+      console.log(response.data);
     } catch (error) {
       catchErrors(error, setError);
-      setSuccess(false);
+      setSuccess('');
     } finally {
       setLoading(false);
     }
@@ -63,22 +64,20 @@ export default function AddCommentToProduct({
     try {
       setLoading(true);
       setError("");
+      setSuccess('');
       const url = `${baseUrl}/api/product`;
-<<<<<<< HEAD
-      const token = cookie.get('token');x
-=======
       const token = cookie.get("token");
->>>>>>> 75cd362f14c2b7ed34ffa4e1ff47fc498933b34d
       const payload = { comment, productId: product._id };
       const headers = { Authorization: token };
       const response = await axios.put(url, payload, { headers });
       // { totalComments, product }
       setComment("");
       handleNewComment(response.data);
-      setSuccess(true);
+      setCommentCol(response.data.product.comments);
+      setSuccess('Thank you for comment!');
     } catch (error) {
       catchErrors(error, setError);
-      setSuccess(false);
+      setSuccess('');
     } finally {
       setLoading(false);
     }
@@ -92,13 +91,13 @@ export default function AddCommentToProduct({
           onSubmit={handleSubmit}
           loading={loading}
           error={Boolean(error)}
-          success={success}
+          success={Boolean(success)}
         >
           <Message error header="Oops!" content={error} />
           <Message
             success
             header="Success"
-            content="Thank you for your precious comment!"
+            content={success}
           />
           <Form.TextArea
             name="content"
@@ -115,13 +114,13 @@ export default function AddCommentToProduct({
               disabled={loading || !comment.trim()}
             />
           ) : (
-            <Button
-              color="orange"
-              content="Login to Add Comments"
-              icon="sign in"
-              onClick={() => router.push("/login")}
-            />
-          )}
+              <Button
+                color="orange"
+                content="Login to Add Comments"
+                icon="sign in"
+                onClick={() => router.push("/login")}
+              />
+            )}
         </Form>
         {product.comments && product.comments.length > 0 && (
           <>
@@ -149,8 +148,8 @@ export default function AddCommentToProduct({
                         </Comment.Action>
                       </Comment.Actions>
                     ) : (
-                      ""
-                    )}
+                        ""
+                      )}
 
                     <Comment.Text>{comment.content}</Comment.Text>
                   </Comment.Content>
