@@ -1,21 +1,22 @@
-import React from "react";
-import { Button, Form, Icon, Message, Segment } from "semantic-ui-react";
-import Link from "next/link";
-import axios from "axios";
-import catchErrors from "../utils/catchErrors";
-import baseUrl from "../utils/baseUrl";
-import { handleLogin } from "../utils/auth";
+import React from 'react';
+import { Button, Form, Icon, Message, Segment } from 'semantic-ui-react';
+import Link from 'next/link';
+import axios from 'axios';
+import catchErrors from '../utils/catchErrors';
+import baseUrl from '../utils/baseUrl';
+import { handleLogin } from '../utils/auth';
 
 const INITIAL_USER = {
-  email: "",
-  password: ""
+  email: '',
+  password: '',
 };
 
 function Signup() {
   const [user, setUser] = React.useState(INITIAL_USER);
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [error, setError] = React.useState('');
+  const [verificationError, setVerificationError] = React.useState('');
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -32,13 +33,19 @@ function Signup() {
 
     try {
       setLoading(true);
-      setError("");
+      setError('');
+      setVerificationError('');
       const url = `${baseUrl}/api/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data);
     } catch (error) {
-      catchErrors(error, setError);
+      if (typeof error.response.data === 'object') {
+        setVerificationError(error.response.data.msg);
+        setDisabled(true);
+      } else {
+        catchErrors(error, setError);
+      }
     } finally {
       setLoading(false);
     }
@@ -53,8 +60,20 @@ function Signup() {
         content="Log in with email and password"
         color="blue"
       />
-      <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
-        <Message error header="Oops!" content={error} />
+      <Form
+        error={Boolean(error) || Boolean(verificationError)}
+        loading={loading}
+        onSubmit={handleSubmit}
+      >
+        {error && <Message error header="Oops!" content={error} />}
+        {verificationError && (
+          <Message error size='big'>
+            {verificationError}
+            <Link href="/resend">
+              <a> Resend activation email.</a>
+            </Link>
+          </Message>
+        )}
         <Segment>
           <Form.Input
             fluid
@@ -89,10 +108,10 @@ function Signup() {
       </Form>
       <Message attached="bottom" warning>
         <Icon name="help" />
-        New user?{" "}
+        New user?{' '}
         <Link href="/signup">
           <a>Sign up here</a>
-        </Link>{" "}
+        </Link>{' '}
         instead.
       </Message>
     </>

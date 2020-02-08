@@ -23,6 +23,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       default: "user",
       enum: ["user", "admin", "root"]
+    },
+    isVerified: {
+      type: Boolean,
+      default: false
     }
   },
   {
