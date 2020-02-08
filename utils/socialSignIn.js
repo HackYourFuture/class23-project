@@ -12,6 +12,9 @@ if (!firebase.apps.length) {
 }
 
 export default async function handleSocialLogin(event, errorHandler, loadingHandler) {
+  if (firebase.auth().currentUser) {
+    return catchErrors(new Error('You are already signed in!'), errorHandler);
+  }
   try {
     loadingHandler(true);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
