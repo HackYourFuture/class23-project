@@ -6,9 +6,6 @@ import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 import Router from "next/router";
 class MyApp extends App {
-  state = {
-    currency: ""
-  };
   static async getInitialProps({ Component, ctx }) {
     const { token } = parseCookies(ctx);
     let pageProps = {};
@@ -48,6 +45,10 @@ class MyApp extends App {
     }
     return { pageProps };
   }
+
+  state = {
+    currency: ""
+  };
   componentDidMount() {
     window.addEventListener("storage", this.syncLogout);
     this.setState({

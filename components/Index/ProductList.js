@@ -1,8 +1,8 @@
 import { Card, Container, Rating, Dropdown } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
+import { useState } from "react";
 
 function ProductList({ products, selectCategory, currency }) {
-  console.log(currency);
   const categoryOptions = [
     { key: "acc", text: "Accessories", value: "accessories" },
     { key: "bath", text: "Bathroom", value: "bathroom" },
@@ -20,47 +20,28 @@ function ProductList({ products, selectCategory, currency }) {
     return products.map(product => {
       const averageRating = calculateRatingMedian(product.ratings);
 
-      if (currency === "" || currency === "usd") {
-        return {
-          header: product.name,
-          image: product.mediaUrl,
-          meta: `$${product.price}`,
+      return {
+        header: product.name,
+        image: product.mediaUrl,
+        meta:
+          currency === "" || currency === "usd"
+            ? `$${product.price}`
+            : `€${product.priceEuro}`,
 
-          color: "teal",
-          fluid: true,
-          childKey: product._id,
-          href: `/product?_id=${product._id}`,
-          extra: (
-            <Rating
-              size="tiny"
-              icon="star"
-              disabled
-              maxRating={5}
-              rating={averageRating || 0}
-            />
-          )
-        };
-      } else {
-        return {
-          header: product.name,
-          image: product.mediaUrl,
-          meta: `€${product.priceEuro}`,
-
-          color: "teal",
-          fluid: true,
-          childKey: product._id,
-          href: `/product?_id=${product._id}`,
-          extra: (
-            <Rating
-              size="tiny"
-              icon="star"
-              disabled
-              maxRating={5}
-              rating={averageRating || 0}
-            />
-          )
-        };
-      }
+        color: "teal",
+        fluid: true,
+        childKey: product._id,
+        href: `/product?_id=${product._id}`,
+        extra: (
+          <Rating
+            size="tiny"
+            icon="star"
+            disabled
+            maxRating={5}
+            rating={averageRating || 0}
+          />
+        )
+      };
     });
   }
 

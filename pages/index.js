@@ -4,36 +4,53 @@ import ProductList from "../components/Index/ProductList";
 import ProductPagination from "../components/Index/ProductPagination";
 import baseUrl from "../utils/baseUrl";
 import { useRouter } from "next/router";
-import { Select } from "semantic-ui-react";
-
-const currencyOptions = [
-  { key: "usd", value: "usd", text: "USD" },
-  { key: "euro", value: "euro", text: "Euro" }
-];
+import {
+  Select,
+  Flag,
+  Container,
+  Checkbox,
+  Button,
+  Icon
+} from "semantic-ui-react";
 
 function Home({ products, totalPages, currency }) {
-  // const [isCurrency, setIsCurrency] = useState("");
-  console.log({ currency });
+  const [newCurrency, setNewCurrency] = useState(false);
   const router = useRouter();
   const [category, setCategory] = useState("");
+
   function selectCategory(e, data) {
     setCategory(data.value);
     router.push(`/?category=${data.value}`);
   }
 
-  const handleChange = async (e, { value }) => {
-    window.localStorage.setItem("currency", value);
-    // await router.push("/cart");
+  const handleChange = async () => {
+    setNewCurrency(prevState => !prevState);
     await router.push("/");
   };
+  useEffect(() => {
+    newCurrency
+      ? window.localStorage.setItem("currency", "euro")
+      : window.localStorage.setItem("currency", "usd");
+  }, [newCurrency]);
 
   return (
     <>
-      <Select
-        placeholder="Currency"
-        options={currencyOptions}
-        onChange={handleChange}
-      />
+      <Container style={{ marginBottom: "1em" }}>
+        <Flag name="us" style={{ marginRight: "1em" }} />
+        <Checkbox
+          checked={currency === "usd" ? false : true}
+          onChange={handleChange}
+          toggle
+        />
+        <Flag name="eu" style={{ marginLeft: "1em" }} />
+        <Button
+          icon={currency === "usd" ? "dollar" : "euro"}
+          content={currency === "usd" ? "dollar" : "euro"}
+          color={currency === "usd" ? "green" : "blue"}
+          onClick={handleChange}
+          style={{ marginLeft: "1em" }}
+        />
+      </Container>
 
       <ProductList
         products={products}

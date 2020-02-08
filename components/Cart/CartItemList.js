@@ -30,7 +30,10 @@ function CartItemList({
         </Item.Header>
       ),
       image: p.product.mediaUrl,
-      meta: `${p.quantity} x $${p.product.price}`,
+      meta:
+        currency === "" || currency === "usd"
+          ? `${p.quantity} x $${p.product.price}`
+          : `${p.quantity} x €${p.product.priceEuro}`,
       fluid: "true",
       extra: (
         <Button

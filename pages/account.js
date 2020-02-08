@@ -5,11 +5,11 @@ import { parseCookies } from "nookies";
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 
-function Account({ user, orders, ratings }) {
+function Account({ user, orders, ratings, currency }) {
   return (
     <>
       <AccountHeader {...user} />
-      <AccountOrders orders={orders} {...user} />
+      <AccountOrders orders={orders} {...user} currency={currency} />
       {user.role === "root" && <AccountPermissions />}
     </>
   );

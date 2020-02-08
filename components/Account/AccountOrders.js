@@ -15,7 +15,7 @@ import cookie from "js-cookie";
 import axios from "axios";
 import formateDate from "../../utils/formatDate";
 
-function AccountOrders({ orders, _id }) {
+function AccountOrders({ orders, _id, currency }) {
   const initialStars = orders.reduce((starObj, order) => {
     starObj[order._id] = order.products.reduce((prodObj, p) => {
       prodObj[p.product._id] =
@@ -51,16 +51,30 @@ function AccountOrders({ orders, _id }) {
         content: {
           content: (
             <>
-              <List.Header as="h3">
-                Total: ${order.total}
-                <Label
-                  content={order.email}
-                  icon="mail"
-                  basic
-                  horizontal
-                  style={{ marginLeft: "1em" }}
-                />
-              </List.Header>
+              {currency === "usd" || currency === "" ? (
+                <List.Header as="h3">
+                  Total: ${order.total}
+                  <Label
+                    content={order.email}
+                    icon="mail"
+                    basic
+                    horizontal
+                    style={{ marginLeft: "1em" }}
+                  />
+                </List.Header>
+              ) : (
+                <List.Header as="h3">
+                  Total: €{(order.total / 1.2).toFixed(2)}
+                  <Label
+                    content={order.email}
+                    icon="mail"
+                    basic
+                    horizontal
+                    style={{ marginLeft: "1em" }}
+                  />
+                </List.Header>
+              )}
+
               <List>
                 {order.products.map(p => (
                   <List.Item key={p.product._id}>
@@ -68,7 +82,9 @@ function AccountOrders({ orders, _id }) {
                     <List.Content>
                       <List.Header>{p.product.name}</List.Header>
                       <List.Description>
-                        {p.quantity} · ${p.product.price}
+                        {currency === "" || currency === "usd"
+                          ? `${p.quantity} · $${p.product.price}`
+                          : `${p.quantity} · €${p.product.priceEuro}`}
                       </List.Description>
                     </List.Content>
                     <Rating
