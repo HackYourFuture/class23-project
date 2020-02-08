@@ -8,7 +8,7 @@ import calculateCartTotal from "../../utils/calculateCartTotal";
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async (req, res) => {
-  const { paymentData } = req.body;
+  const { paymentData, currency } = req.body;
 
   try {
     // 1) Verify and get user id from token

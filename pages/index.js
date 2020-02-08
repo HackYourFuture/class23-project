@@ -35,7 +35,7 @@ function Home({ products, totalPages, currency }) {
 
   return (
     <>
-      <Container style={{ marginBottom: "1em" }}>
+      <Container style={{ marginBottom: "1.5em" }}>
         <Flag name="us" style={{ marginRight: "1em" }} />
         <Checkbox
           checked={currency === "usd" ? false : true}
@@ -44,11 +44,11 @@ function Home({ products, totalPages, currency }) {
         />
         <Flag name="eu" style={{ marginLeft: "1em" }} />
         <Button
+          circular
           icon={currency === "usd" ? "dollar" : "euro"}
-          content={currency === "usd" ? "dollar" : "euro"}
           color={currency === "usd" ? "green" : "blue"}
           onClick={handleChange}
-          style={{ marginLeft: "1em" }}
+          style={{ marginLeft: "1em", padding: "0.5em" }}
         />
       </Container>
 
