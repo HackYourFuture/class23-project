@@ -148,7 +148,7 @@ function Login() {
             padding: '11px 40px',
           }}
           color="google plus"
-          onClick={(event) => handleSocialSignIn(event, setError, setLoading)}
+          onClick={event => handleSocialSignIn(event, setError, setLoading)}
         >
           <Icon name="google" />
           Sign In with Google
@@ -161,7 +161,7 @@ function Login() {
             padding: '12px 32px',
           }}
           color="facebook"
-          onClick={(event) => handleSocialSignIn(event, setError, setLoading)}
+          onClick={event => handleSocialSignIn(event, setError, setLoading)}
         >
           <Icon name="facebook" />
           Sign In with Facebook
@@ -177,7 +177,7 @@ function Login() {
       </Message>
       {isOpen && (
         <Modal
-          centered
+          // centered
           closeIcon
           onClose={() => {
             setIsOpen(false);
@@ -186,6 +186,7 @@ function Login() {
           dimmer="blurring"
           open={isOpen}
           size="mini"
+          style={{ transform: 'translateY(-50%)' }}
         >
           <Header content="Please put your email here!" />
           <Form loading={loading} onSubmit={handleSubmitEmail}>
@@ -204,7 +205,6 @@ function Login() {
                   Send!
                 </Button>
               </Segment>
-
             </Modal.Content>
           </Form>
         </Modal>
