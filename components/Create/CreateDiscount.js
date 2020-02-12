@@ -6,7 +6,9 @@ import {
   Message,
   Header,
   Icon,
-  Image
+  Image,
+  Menu,
+  Dropdown
 } from "semantic-ui-react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -51,10 +53,22 @@ function CreateDiscount({ products }) {
   const [success, setSuccess] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
+  const productSelection = products.map(p => ({
+    id: p._id,
+    text: p.name,
+    value: p._id,
+    img: p.mediaUrl
+  }));
+
+  console.log(productSelection);
 
   function handleChange(event) {
     const { name, value } = event.target;
     setNewDiscount(prevState => ({ ...prevState, [name]: value }));
+  }
+
+  function handleProductChange(id) {
+    setNewDiscount(prevState => ({ ...prevState, productId: id }));
   }
 
   async function handleSubmit(event) {
@@ -114,17 +128,17 @@ function CreateDiscount({ products }) {
           header="Success!"
           content="You created a new discount!"
         />
+
+        <Dropdown
+          selection
+          name="productId"
+          placeholder="Select Product"
+          fluid
+          options={productSelection}
+          onChange={e => handleProductChange(e.target.id)}
+        />
+
         <Form.Group widths="equal">
-          <Form.Field control={Input} label="Product">
-            <Input list="product" name="productId" onChange={handleChange} />
-            <datalist id="product">
-              {products.map(p => (
-                <div onChange={() => console.log("hello")}>
-                  <option key={p._id} value={p.name} id={p._id} />
-                </div>
-              ))}
-            </datalist>
-          </Form.Field>
           <Form.Field control={Input} label="Discount Type">
             <Input
               list="discountType"
@@ -180,7 +194,7 @@ function CreateDiscount({ products }) {
             width={4}
           />
         </Form.Group>
-        <form className={classes.container}>
+        <div className={classes.container}>
           <TextField
             name="startDate"
             id="date"
@@ -208,7 +222,7 @@ function CreateDiscount({ products }) {
             onChange={handleChange}
             value={newDiscount.endDate}
           />
-        </form>
+        </div>
         <Form.Field
           control={Button}
           // disabled={disabled || loading}
