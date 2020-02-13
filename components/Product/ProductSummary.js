@@ -1,11 +1,22 @@
-import React from 'react';
-import { Item, Label, Rating, Icon, Button, Modal, Input, Message, Image } from 'semantic-ui-react';
-import calculateRatingMedian from '../../utils/calculateRatingMedian';
-import AddProductToCart from './AddProductToCart';
-import axios from 'axios';
-import cookie from 'js-cookie';
-import baseUrl from '../../utils/baseUrl';
-import catchErrors from '../../utils/catchErrors';
+import React from "react";
+import {
+  Item,
+  Label,
+  Rating,
+  Icon,
+  Button,
+  Modal,
+  Input,
+  Message,
+  Image,
+  Segment
+} from "semantic-ui-react";
+import calculateRatingMedian from "../../utils/calculateRatingMedian";
+import AddProductToCart from "./AddProductToCart";
+import axios from "axios";
+import cookie from "js-cookie";
+import baseUrl from "../../utils/baseUrl";
+import catchErrors from "../../utils/catchErrors";
 
 function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   const [ratingAmount, setRatingAmount] = React.useState(0);
@@ -15,8 +26,8 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   const [newName, setNewName] = React.useState({});
   const [newPrice, setNewPrice] = React.useState({});
   const [newMediaUrl, setNewMediaUrl] = React.useState({});
-  const [mediaPreview, setMediaPreview] = React.useState('');
-  const [error, setError] = React.useState('');
+  const [mediaPreview, setMediaPreview] = React.useState("");
+  const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState(false);
 
   React.useEffect(() => {
@@ -25,9 +36,9 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   }, [ratings]);
 
   const setUpdateFields = (updateField, updatedProduct) => {
-    if ('name' in updateField) {
+    if ("name" in updateField) {
       setProductName(updatedProduct.name);
-    } else if ('price' in updateField) {
+    } else if ("price" in updateField) {
       setProductPrice(updatedProduct.price);
     } else {
       setProductMediaUrl(updatedProduct.mediaUrl);
@@ -37,15 +48,15 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
   const handleUpdate = async updatedField => {
     try {
       if (Object.keys(updatedField).length === 0) {
-        throw new Error('Please enter new/valid value');
+        throw new Error("Please enter new/valid value");
       } else {
         const url = `${baseUrl}/api/product`;
         const payload = { updateField: updatedField, productId: _id };
-        const token = cookie.get('token');
+        const token = cookie.get("token");
         const headers = { Authorization: token };
         const response = await axios.put(url, payload, { headers });
         const { updatedProduct } = response.data;
-        setError('');
+        setError("");
         setSuccess(true);
         setUpdateFields(updatedField, updatedProduct);
       }
@@ -57,16 +68,16 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
 
   async function handleImageUpload(imageFile) {
     const data = new FormData();
-    data.append('file', imageFile);
-    data.append('upload_preset', 'reactreserve');
-    data.append('cloud_name', 'reedbargercodes');
+    data.append("file", imageFile);
+    data.append("upload_preset", "reactreserve");
+    data.append("cloud_name", "reedbargercodes");
     const response = await axios.post(process.env.CLOUDINARY_URL, data);
     const mediaUrl = response.data.url;
     return mediaUrl;
   }
 
   async function handleChange(event) {
-    setError('');
+    setError("");
     const { files } = event.target;
     const mediaUrl = await handleImageUpload(files[0]);
     setNewMediaUrl({ mediaUrl });
@@ -78,32 +89,39 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
       <Item.Group>
         <Item>
           <div>
-            {user && (user.role === 'admin' || user.role === 'root') && (
+            {user && (user.role === "admin" || user.role === "root") && (
               <Modal
                 size="tiny"
-                trigger={<Button icon="image" circular color="teal" floated="left" />}
+                trigger={
+                  <Button icon="image" circular color="teal" floated="left" />
+                }
                 closeOnDimmerClick={false}
                 closeIcon
                 onClose={() => {
                   setSuccess(false);
-                  setError('');
-                  setMediaPreview('');
+                  setError("");
+                  setMediaPreview("");
                   setNewMediaUrl({});
                 }}
               >
                 <Modal.Content>
                   {!success && (
                     <>
-                      <Label as="label" basic htmlFor="upload" style={{ padding: '0' }}>
+                      <Label
+                        as="label"
+                        basic
+                        htmlFor="upload"
+                        style={{ padding: "0" }}
+                      >
                         <Button
                           color="teal"
                           icon="upload"
                           label={{
                             basic: true,
-                            content: 'Upload image',
+                            content: "Upload image"
                           }}
                           labelPosition="right"
-                          style={{ margin: '0' }}
+                          style={{ margin: "0" }}
                         />
                         <input
                           hidden
@@ -121,7 +139,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
                       <Image src={mediaPreview} rounded centered size="tiny" />
                     </>
                   )}
-                  {success && <Message color="green">Product picture updated successfully</Message>}
+                  {success && (
+                    <Message color="green">
+                      Product picture updated successfully
+                    </Message>
+                  )}
                 </Modal.Content>
                 <Modal.Actions>
                   {!success && (
@@ -140,11 +162,10 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
           <Item.Content>
             <Item.Header>
               {productName}
-              {user && (user.role === 'admin' || user.role === 'root') && (
+              {user && (user.role === "admin" || user.role === "root") && (
                 <Modal
-                  size="tiny"
                   trigger={
-                    <Button style={{ background: 'white' }}>
+                    <Button style={{ background: "white" }}>
                       <Icon name="pencil" />
                     </Button>
                   }
@@ -152,7 +173,7 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
                   closeIcon
                   onClose={() => {
                     setSuccess(false);
-                    setError('');
+                    setError("");
                     setNewName({});
                   }}
                 >
@@ -171,7 +192,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
                         {error}
                       </Label>
                     )}
-                    {success && <Message color="green">Product name updated successfully</Message>}
+                    {success && (
+                      <Message color="green">
+                        Product name updated successfully
+                      </Message>
+                    )}
                   </Modal.Content>
                   <Modal.Actions>
                     {!success && (
@@ -189,11 +214,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
             <Item.Description>
               <div>
                 ${productPrice}
-                {user && (user.role === 'admin' || user.role === 'root') && (
+                {user && (user.role === "admin" || user.role === "root") && (
                   <Modal
                     size="tiny"
                     trigger={
-                      <Button style={{ background: 'white' }}>
+                      <Button style={{ background: "white" }}>
                         <Icon name="pencil" />
                       </Button>
                     }
@@ -201,7 +226,7 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
                     closeIcon
                     onClose={() => {
                       setSuccess(false);
-                      setError('');
+                      setError("");
                       setNewPrice({});
                     }}
                   >
@@ -224,7 +249,9 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
                         </Label>
                       )}
                       {success && (
-                        <Message color="green">Product price updated successfully</Message>
+                        <Message color="green">
+                          Product price updated successfully
+                        </Message>
                       )}
                     </Modal.Content>
                     <Modal.Actions>
@@ -248,9 +275,16 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
           </Item.Content>
         </Item>
       </Item.Group>
-      <Rating maxRating="5" disabled icon="star" size="large" rating={ratingAmount} />
+      <Rating
+        maxRating="5"
+        disabled
+        icon="star"
+        size="large"
+        rating={ratingAmount}
+      />
       <Label>
-        {`${ratings.length} users rated this!`} <Icon name="star" color="yellow" />
+        {`${ratings.length} users rated this!`}{" "}
+        <Icon name="star" color="yellow" />
       </Label>
     </>
   );
