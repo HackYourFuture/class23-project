@@ -10,7 +10,8 @@ import {
   Menu,
   Dropdown,
   Label,
-  Container
+  Container,
+  Item
 } from "semantic-ui-react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -26,7 +27,7 @@ const discountOptions = [
 
 console.log(categoryOptions);
 const NEW_DISCOUNT = {
-  productId: "",
+  productId: [],
   discountType: "",
   discountPercentage: 0,
   requiredAmount: 0,
@@ -69,8 +70,26 @@ function CreateDiscount({ products }) {
     setNewDiscount(prevState => ({ ...prevState, [name]: value }));
   }
 
-  function handleProductChange(id) {
-    setNewDiscount(prevState => ({ ...prevState, productId: id }));
+  function handleProductChange(e, { value }) {
+    if (newDiscount.productId.length > value.length) {
+      // an item has been removed
+      const difference = newDiscount.productId.filter(
+        x => !value.includes(x._id)
+      );
+      console.log(difference);
+      const newArray = newDiscount.productId.filter(
+        p => p._id !== difference[0]._id
+      );
+      setNewDiscount(prevState => ({
+        ...prevState,
+        productId: [...newArray]
+      }));
+      return;
+    }
+    setNewDiscount(prevState => ({
+      ...prevState,
+      productId: [...newDiscount.productId, { _id: value[value.length - 1] }]
+    }));
   }
 
   async function handleSubmit(event) {
@@ -100,7 +119,8 @@ function CreateDiscount({ products }) {
         endDate,
         category
       };
-      await axios.post(url, payload);
+      const response = await axios.post(url, payload);
+      console.log(response.data);
       setNewDiscount(NEW_DISCOUNT);
       setSuccess(true);
     } catch (error) {
@@ -134,11 +154,12 @@ function CreateDiscount({ products }) {
         <Form.Group widths="equal">
           <Dropdown
             selection
+            multiple
             name="productId"
             placeholder="Select Product"
             fluid
             options={productSelection}
-            onChange={e => handleProductChange(e.target.id)}
+            onChange={handleProductChange}
           />
           <Form.Field control={Input} label="Discount Type">
             <Input
