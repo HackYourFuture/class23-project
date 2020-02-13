@@ -8,7 +8,9 @@ import {
   Icon,
   Image,
   Menu,
-  Dropdown
+  Dropdown,
+  Label,
+  Container
 } from "semantic-ui-react";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -129,16 +131,15 @@ function CreateDiscount({ products }) {
           content="You created a new discount!"
         />
 
-        <Dropdown
-          selection
-          name="productId"
-          placeholder="Select Product"
-          fluid
-          options={productSelection}
-          onChange={e => handleProductChange(e.target.id)}
-        />
-
         <Form.Group widths="equal">
+          <Dropdown
+            selection
+            name="productId"
+            placeholder="Select Product"
+            fluid
+            options={productSelection}
+            onChange={e => handleProductChange(e.target.id)}
+          />
           <Form.Field control={Input} label="Discount Type">
             <Input
               list="discountType"
@@ -194,13 +195,12 @@ function CreateDiscount({ products }) {
             width={4}
           />
         </Form.Group>
-        <div className={classes.container}>
+        <form className={classes.container}>
           <TextField
             name="startDate"
             id="date"
             label="Start Date"
             type="date"
-            defaultValue={new Date()}
             className={classes.textField}
             InputLabelProps={{
               shrink: true
@@ -214,7 +214,6 @@ function CreateDiscount({ products }) {
             id="date"
             label="End Date"
             type="date"
-            defaultValue={new Date()}
             className={classes.textField}
             InputLabelProps={{
               shrink: true
@@ -222,7 +221,7 @@ function CreateDiscount({ products }) {
             onChange={handleChange}
             value={newDiscount.endDate}
           />
-        </div>
+        </form>
         <Form.Field
           control={Button}
           // disabled={disabled || loading}
