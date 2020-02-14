@@ -3,17 +3,18 @@ import StripeCheckout from "react-stripe-checkout";
 import { Button, Segment, Divider } from "semantic-ui-react";
 import calculateCartTotal from "../../utils/calculateCartTotal";
 
-function CartSummary({ products, handleCheckout, success }) {
+function CartSummary({ products, handleCheckout, success, code }) {
+  console.log("summary", code);
   const [cartAmount, setCartAmount] = React.useState(0);
   const [stripeAmount, setStripeAmount] = React.useState(0);
   const [isCartEmpty, setCartEmpty] = React.useState(false);
 
   React.useEffect(() => {
-    const { cartTotal, stripeTotal } = calculateCartTotal(products);
+    const { cartTotal, stripeTotal } = calculateCartTotal(products, code);
     setCartAmount(cartTotal);
     setStripeAmount(stripeTotal);
     setCartEmpty(products.length === 0);
-  }, [products]);
+  }, [code]);
 
   return (
     <>
