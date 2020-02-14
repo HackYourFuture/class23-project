@@ -4,6 +4,7 @@ import axios from "axios";
 import baseUrl from "../../utils/baseUrl";
 import catchErrors from "../../utils/catchErrors";
 import { handleLogout } from "../../utils/auth";
+import cookie from "js-cookie";
 
 function AccountDelete({ _id }) {
   const [modal, setModal] = React.useState(false);
@@ -12,9 +13,10 @@ function AccountDelete({ _id }) {
 
   async function handleDeleteAccount() {
     try {
-      //   const url = `${baseUrl}/api/account`;
-      //   const payload = { params: { _id } };
-      //   await axios.delete(url, payload);
+      const url = `${baseUrl}/api/account`;
+      const token = cookie.get("token");
+      const payload = { params: { _id }, headers: { Authorization: token } };
+      await axios.delete(url, payload);
       setError("");
       setSuccess(true);
     } catch (error) {
