@@ -33,6 +33,25 @@ export default async (req, res) => {
   }
 };
 
+// Finds & returns all discounts by product, by category or with-no-condition (all of them)
+async function handleGetRequest(req, res) {
+  const { productId, category } = req.query;
+  try {
+    if (productId) { // discounts for product
+      const discounts = await Discount.find({ $or: [{ 'product._id': productId }, { 'products._id': productId }] });
+      return res.status(200).json(discounts);
+    } else if (category) { // discounts for category
+      const discounts = await Discount.find({ $or: [{ category: category }, { categories: category }] });
+      return res.status(200).json(discounts);
+    } else { // all
+      const discounts = await Discount.find({});
+      return res.status(200).json(discounts);
+    }
+  } catch (error) {
+    return res.status(500).send(`Error occurred while fetching discounts: ${error.message}`);
+  }
+}
+
 // Creates new discount & updates related products
 async function handlePostRequest(req, res) {
   // Check if the user is authorized
