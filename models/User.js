@@ -1,33 +1,38 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const { String } = mongoose.Schema.Types;
+const { String, Boolean } = mongoose.Schema.Types;
 
 const UserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     email: {
       type: String,
       required: true,
-      unique: true
+      unique: true,
     },
     password: {
       type: String,
       required: true,
-      select: false
+      select: false,
     },
     role: {
       type: String,
       required: true,
-      default: "user",
-      enum: ["user", "admin", "root"]
-    }
+      default: 'user',
+      enum: ['user', 'admin', 'root'],
+    },
+    isActive: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-export default mongoose.models.User || mongoose.model("User", UserSchema);
+export default mongoose.models.User || mongoose.model('User', UserSchema);
