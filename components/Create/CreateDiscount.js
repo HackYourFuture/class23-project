@@ -307,6 +307,7 @@ function CreateDiscount({ products }) {
           icon="pencil alternate"
           content="Submit"
           type="submit"
+          style={{ marginBottom: 20 }}
         />
       </Form>
     </>

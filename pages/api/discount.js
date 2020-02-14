@@ -34,19 +34,42 @@ export default async (req, res) => {
 };
 
 // Finds & returns all discounts by product, by category or with-no-condition (all of them)
+// And also if active parameter is provided as true, returns just the active ones
 async function handleGetRequest(req, res) {
-  const { productId, category } = req.query;
+  const { productId, category, isActive } = req.query;
+  let discounts;
+  const isActiveQuery = { $and: [{ isActive }, { startDate: { $lte: new Date() } }, { endDate: { $gte: new Data() } }] };
   try {
     if (productId) { // discounts for product
-      const discounts = await Discount.find({ $or: [{ 'product._id': productId }, { 'products._id': productId }] });
-      return res.status(200).json(discounts);
+      if (isActive) {
+        discounts = await Discount.find({
+          $and: [
+            { $or: [{ 'product._id': productId }, { 'products._id': productId }] },
+            { ...isActiveQuery }
+          ]
+        });
+      } else {
+        discounts = await Discount.find({ $or: [{ 'product._id': productId }, { 'products._id': productId }] });
+      }
     } else if (category) { // discounts for category
-      const discounts = await Discount.find({ $or: [{ category: category }, { categories: category }] });
-      return res.status(200).json(discounts);
+      if (isActive) {
+        discounts = await Discount.find({
+          $and: [
+            { $or: [{ category: category }, { categories: category }] },
+            { ...isActiveQuery }
+          ]
+        });
+      } else {
+        discounts = await Discount.find({ $or: [{ category: category }, { categories: category }] });
+      }
     } else { // all
-      const discounts = await Discount.find({});
-      return res.status(200).json(discounts);
+      if (isActive) {
+        discounts = await Discount.find({ ...isActiveQuery });
+      } else {
+        discounts = await Discount.find({});
+      }
     }
+    return res.status(200).json(discounts);
   } catch (error) {
     return res.status(500).send(`Error occurred while fetching discounts: ${error.message}`);
   }
