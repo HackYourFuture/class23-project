@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
 import connectDb from "../../utils/connectDb";
+import Product from "../../models/Product";
+import Discount from "../../models/Discount";
 
 connectDb();
 
@@ -54,8 +56,16 @@ async function handlePutRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
+    //Get the product
+    const newProduct = await Product.findById(productId);
+
     // Get user cart based on userId
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId }).populate({
+      path: "discountedProducts",
+      model: Discount,
+      populate: { path: "products", model: Product }
+    });
+
     // Check if product already exists in cart
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product)
@@ -74,7 +84,7 @@ async function handlePutRequest(req, res) {
         { $addToSet: { products: newProduct } }
       );
     }
-    res.status(200).send("Cart updated");
+    res.status(200).json({ cart });
   } catch (error) {
     console.error(error);
     res.status(403).send("Please login again");

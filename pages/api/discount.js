@@ -1,8 +1,13 @@
 import connectDb from "../../utils/connectDb";
 import Discount from "../../models/Discount";
+import Product from "../../models/Product";
+import Cart from "../../models/Cart";
 
 export default async (req, res) => {
   switch (req.method) {
+    case "GET":
+      await handleGetRequest(req, res);
+      break;
     case "POST":
       await handlePostRequest(req, res);
       break;
@@ -11,6 +16,21 @@ export default async (req, res) => {
       break;
   }
 };
+
+async function handleGetRequest(req, res) {
+  try {
+    const amountBased = await Discount.find({
+      discountType: { $eq: "amountBased" }
+    }).populate({
+      path: "products",
+      model: Product
+    });
+
+    res.status(200).json({ amountBased });
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 async function handlePostRequest(req, res) {
   const {
@@ -30,7 +50,7 @@ async function handlePostRequest(req, res) {
       discountType: discountType,
       isActive: isActive,
       discountPercentage: discountPercentage,
-      requiredAmount: requiredAmount,
+      amountRequired: requiredAmount,
       startDate: startDate,
       endDate: endDate,
       categories: [category]
