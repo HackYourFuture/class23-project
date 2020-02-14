@@ -1,6 +1,8 @@
 import AccountHeader from "../components/Account/AccountHeader";
 import AccountOrders from "../components/Account/AccountOrders";
 import AccountPermissions from "../components/Account/AccountPermissions";
+import AccountDelete from "../components/Account/AccountDelete";
+
 import { parseCookies } from "nookies";
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
@@ -11,6 +13,7 @@ function Account({ user, orders, ratings }) {
       <AccountHeader {...user} />
       <AccountOrders orders={orders} {...user} />
       {user.role === "root" && <AccountPermissions />}
+      {!(user.role === "root") && <AccountDelete {...user} />}
     </>
   );
 }
