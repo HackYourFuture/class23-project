@@ -208,7 +208,7 @@ function CreateDiscount({ products }) {
         </Form.Group>
 
         <Form.Group widths="equal">
-          {newDiscount.discountType === DISCOUNT_TYPES.amountBased && (
+          {!newDiscount.multipleUnits && (
             <Form.Field
               control={Input}
               name="requiredAmount"
