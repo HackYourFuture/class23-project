@@ -13,7 +13,7 @@ function CreateProduct({ products }) {
   );
 }
 
-CreateProduct.getInitialProps = async () => {
+CreateProduct.getInitialProps = async ctx => {
   const url = `${baseUrl}/api/products`;
 
   const response = await axios.get(url);

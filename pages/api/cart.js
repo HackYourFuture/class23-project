@@ -3,8 +3,6 @@ import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
 import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
-import Product from "../../models/Product";
-import Discount from "../../models/Discount";
 
 connectDb();
 
@@ -93,7 +91,7 @@ async function handlePutRequest(req, res) {
         { $addToSet: { products: newProduct } }
       );
     }
-    res.status(200).json({ cart });
+    res.status(200).send("Cart updated");
   } catch (error) {
     console.error(error);
     res.status(403).send("Please login again");

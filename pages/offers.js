@@ -7,11 +7,8 @@ import {
   Label,
   Segment
 } from "semantic-ui-react";
-import baseUrl from "../utils/baseUrl";
-import axios from "axios";
 
-function Offers({ amountBased }) {
-  console.log(amountBased);
+function Offers() {
   return (
     <>
       <Header as="h1" textAlign="center">
@@ -92,13 +89,5 @@ function Offers({ amountBased }) {
     </>
   );
 }
-
-Offers.getInitialProps = async () => {
-  const url = `${baseUrl}/api/discount`;
-
-  const response = await axios.get(url);
-
-  return response.data;
-};
 
 export default Offers;

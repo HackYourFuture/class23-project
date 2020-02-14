@@ -36,8 +36,7 @@ function AddProductToCart({ user, productId, name }) {
       const payload = { quantity, productId };
       const token = cookie.get("token");
       const headers = { headers: { Authorization: token } };
-      const response = await axios.put(url, payload, headers);
-      console.log(response.data);
+      await axios.put(url, payload, headers);
       setSuccess(true);
     } catch (error) {
       catchErrors(error, window.alert);
