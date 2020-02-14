@@ -150,7 +150,7 @@ async function handlePostRequest(req, res) {
 }
 
 // Activates or Deactivates a discount
-// And deals with the cascade update operation towards products in the cards
+// And deals with the cascade update operation towards products in the cards when it is deactivated
 async function handlePutRequest(req, res) {
   // Check if the user is authorized
   if (!('authorization' in req.headers)) {
@@ -182,40 +182,20 @@ async function handlePutRequest(req, res) {
           }
         }
         await Discount.findOneAndUpdate({ _id: discountId }, { isActive });
-        // Update products about discount - cascade update for products in the cards
-        // Get all the product ids related to this discount
-        const products = await Product.find({ 'discounts._id': discountId }).distinct('_id');
-        // Get all the cards with these products
-        if (isActive) {
-          // Find the products which will be discounted more with these discount and apply the discount
-          let findQuery;
-          if (discount.discountType === DISCOUNT_TYPES.amountBased) {
-            if (discount.multipleUnits) {
-              if (discount.unitType === UNIT_TYPES.product) {
-                findQuery = [
-                  { products: { $all: discount.products } },
-                ]
-              } else {
-
-              }
-            } else {
-
-            }
-          } else {// relation based
-
-          }
+        // Update products about discount - cascade update for products in the cards for deactivate
+        if (!isActive) {
+          // Find the cart with products which is discounted with this discount
           await Cart.update(
+            { 'products.discount._id': discount._id },
+            { $unset: { 'products.$[element].discount': 1 } },
             {
-              $and: [
-                { 'products.product._id': { $in: products } },
-                { 'products.discountAmount': { $lt: { $multiply: ['$products.product.price', discount.discountPercentage / 100] } } },
-                ...findQuery
-              ]
+              multi: true,
+              arrayFilters: [{ 'element.discount._id': discount._id }]
             }
           );
-
-        } else {
+          return res.status(200).send('Discount deactivated successfully with updating cards!');
         }
+        return res.status(200).send('Discount deactivated successfully!');
       } else {
         return res.status(401).send(`You don't have the permission to create a discount!`);
       }
