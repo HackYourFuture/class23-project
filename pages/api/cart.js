@@ -57,8 +57,6 @@ async function handlePutRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
-    //Get the product
-    const newProduct = await Product.findById(productId);
 
     // Get user cart based on userId
     const cart = await Cart.findOne({ user: userId });

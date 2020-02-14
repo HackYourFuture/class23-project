@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import shortid from "shortid";
-import Discount from './Discount';
+import Discount from "./Discount";
 
 const { String, Number, ObjectId, Boolean } = mongoose.Schema.Types;
 
@@ -59,7 +59,7 @@ const ProductSchema = new mongoose.Schema({
   discounts: [
     {
       type: ObjectId,
-      ref: Discount
+      ref: "Discount"
     }
   ]
 });
