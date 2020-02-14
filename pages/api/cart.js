@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
-import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
 
 connectDb();
@@ -57,9 +56,6 @@ async function handlePutRequest(req, res) {
     );
     // Get user cart based on userId
     const cart = await Cart.findOne({ user: userId });
-    // Get product based on productId
-    const productToAdd = await Product.findOne({ _id: productId });
-
     // Check if product already exists in cart
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product)
@@ -67,12 +63,15 @@ async function handlePutRequest(req, res) {
     // Check if a discount applied to the product already
     const discountApplied =
       cart.discountedProducts &&
-      (cart.discountedProducts.some(product => ObjectId(productId).equals(product)) ||
-        cart.discountedCategories.some(category => productToAdd.category.trim() === category.trim()))
+      (cart.discountedProducts.some(product =>
+        ObjectId(productId).equals(product)
+      ) ||
+        cart.discountedCategories.some(
+          category => productToAdd.category.trim() === category.trim()
+        ));
     // If so, increment quantity (by number provided to request)
     if (productExists) {
       if (discountApplied) {
-
       } else {
         await Cart.findOneAndUpdate(
           { _id: cart._id, "products.product": productId },

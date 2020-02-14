@@ -37,8 +37,7 @@ const DiscountSchema = new mongoose.Schema({
     required: true
   },
   multipleUnits: {
-    type: Boolean,
-    required: true
+    type: Boolean
   },
   unitType: {
     type: String,

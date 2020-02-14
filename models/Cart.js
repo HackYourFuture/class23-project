@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Discount from './Discount';
+import Discount from "./Discount";
 
 const { ObjectId, Number, Boolean } = mongoose.Schema.Types;
 
