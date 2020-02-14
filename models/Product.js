@@ -55,12 +55,10 @@ const ProductSchema = new mongoose.Schema({
       ref: "Rating"
     }
   ],
-  discounts: [
-    {
-      type: ObjectId,
-      ref: "Discount"
-    }
-  ]
+  discount: {
+    type: ObjectId,
+    ref: "Discount"
+  }
 });
 
 export default mongoose.models.Product ||
