@@ -2,7 +2,11 @@ import mongoose from "mongoose";
 import Product from "./Product";
 const { ObjectId, String, Number, Boolean, Date } = mongoose.Schema.Types;
 const DiscountSchema = new mongoose.Schema({
-  products: [{ type: ObjectId, ref: "Product" }],
+  products: [{ type: ObjectId, ref: Product }],
+  product: {
+    type: ObjectId,
+    ref: Product
+  },
   discountType: {
     type: String,
     enum: ["amountBased", "relationBased"]
@@ -13,6 +17,9 @@ const DiscountSchema = new mongoose.Schema({
   },
   categories: {
     type: [String]
+  },
+  category: {
+    type: String
   },
   amountRequired: {
     type: Number
@@ -27,6 +34,15 @@ const DiscountSchema = new mongoose.Schema({
   },
   endDate: {
     type: Date,
+    required: true
+  },
+  multipleUnits: {
+    type: Boolean,
+    required: true
+  },
+  unitType: {
+    type: String,
+    enum: ["product", "category"],
     required: true
   }
 });
