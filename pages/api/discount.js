@@ -216,6 +216,7 @@ async function handlePutRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
+
     // Find the user
     const user = await User.findOne({ _id: userId });
     // If the user exists

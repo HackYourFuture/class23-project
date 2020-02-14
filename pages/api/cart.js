@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
-import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
 
 connectDb();
@@ -55,12 +54,8 @@ async function handlePutRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
-
     // Get user cart based on userId
     const cart = await Cart.findOne({ user: userId });
-    // Get product based on productId
-    const productToAdd = await Product.findOne({ _id: productId });
-
     // Check if product already exists in cart
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product)

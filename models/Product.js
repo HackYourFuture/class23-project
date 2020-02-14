@@ -1,8 +1,7 @@
 import mongoose from "mongoose";
 import shortid from "shortid";
-import Discount from "./Discount";
 
-const { String, Number, ObjectId, Boolean } = mongoose.Schema.Types;
+const { String, Number, ObjectId } = mongoose.Schema.Types;
 
 const CommentSchema = new mongoose.Schema({
   user: {
