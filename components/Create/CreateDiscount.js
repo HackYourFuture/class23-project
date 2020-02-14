@@ -16,6 +16,7 @@ import baseUrl from "../../utils/baseUrl";
 import catchErrors from "../../utils/catchErrors";
 import DiscountUnitsList from "./DiscountUnitsList";
 import DiscountSingleUnit from "./DiscountSingleUnit";
+import cookie from 'js-cookie';
 
 const discountOptions = [
   { text: "Amount Based Discount", key: DISCOUNT_TYPES.amountBased, value: DISCOUNT_TYPES.amountBased, name: 'discountType' },
@@ -135,7 +136,9 @@ function CreateDiscount({ products }) {
       const url = `${baseUrl}/api/discount`;
       const requiredProps = getRequiredPropsListForDiscount(newDiscount);
       const payload = requiredProps.reduce((discount, prop) => ({ ...discount, [prop]: newDiscount[prop] }), {});
-      const response = await axios.post(url, payload);
+      const token = cookie.get('token');
+      const headers = { headers: { Authorization: token } }
+      const response = await axios.post(url, payload, headers);
       setSuccess(response.data);
     } catch (error) {
       catchErrors(error, setError);
