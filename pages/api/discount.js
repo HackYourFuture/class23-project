@@ -10,7 +10,6 @@ import {
   getRequiredPropsListForDiscount,
   UNIT_TYPES
 } from "../../utils/discount";
-import mongoose from "mongoose";
 
 connectDb();
 
@@ -38,6 +37,7 @@ export default async (req, res) => {
 // And also if active parameter is provided as true, returns just the active ones
 async function handleGetRequest(req, res) {
   const { productId, category, isActive, discountId } = req.query;
+  console.log({ query: req.query })
   let discounts;
   const isActiveQuery = {
     $and: [
@@ -78,6 +78,7 @@ async function handleGetRequest(req, res) {
         });
       }
     } else if (discountId) {
+      console.log('single discount');
       // discount for discountId
       if (isActive) {
         discounts = await Discount.find({
@@ -87,6 +88,7 @@ async function handleGetRequest(req, res) {
           ]
         });
       } else {
+
         discounts = await Discount.find({ _id: discountId });
       }
     } else {
@@ -397,7 +399,7 @@ async function handlePutRequest(req, res) {
                     [
                       { 'products.$[element].discount.multipleUnits': true }, // if
                       { ...anItemDiscountAmount }, // true
-                      { $multiply: [{ ...anItemDiscountAmount }, { 'products.$[element].discount.amountRequired'}] } // false
+                      { $multiply: [{ ...anItemDiscountAmount }, 'products.$[element].discount.amountRequired'] } // false
                     ]
                 }
               }
@@ -414,12 +416,79 @@ async function handlePutRequest(req, res) {
       } else {
         return res
           .status(401)
-          .send(`You don't have the permission to create a discount!`);
+          .send(`You don't have the permission to update a discount!`);
       }
     } else {
-      res.status(404).send("User not found");
+      return res.status(404).send("User not found");
     }
   } catch (error) {
-    res.status(403).send(error.message);
+    return res.status(403).send(error.message);
+  }
+}
+
+// Removes a discount completely & cascade deletes
+async function handleDeleteRequest(req, res) {
+  // Check if the user is authorized
+  if (!("authorization" in req.headers)) {
+    return res.status(401).send("No authorization token");
+  }
+  // Get the required field & check if it exists
+  const { discountId } = req.body;
+  if (!discountId) {
+    return res
+      .status(403)
+      .send("Missing or bad argument: discountId");
+  }
+
+  try {
+    // Verify the token
+    const { userId } = jwt.verify(
+      req.headers.authorization,
+      process.env.JWT_SECRET
+    );
+
+    // Find the user
+    const user = await User.findOne({ _id: userId });
+    if (user) {
+      // Check if the user is authorized to delete discount
+      if (user.role === "admin" || user.role === "root") {
+        // OK, ready to remove
+        // Remove discount from the cards
+        await Cart.update(
+          { "products.discount._id": discountId },
+          {
+            $set:
+            {
+              "products.$[element].discountApplied": false,
+              "products.$[element].discountAmount": 0
+            },
+            $unset: {
+              'products.$[element].discount': 1
+            }
+          },
+          {
+            multi: true,
+            arrayFilters: [{ "element.discount._id": discountId }]
+          }
+        );
+        // Remove discount from products
+        await Product.update(
+          { 'discount._id': discountId },
+          { $unset: { discount: 1 } },
+          { multi: true }
+        );
+        // Finally, remove the discount
+        await Discount.findOneAndRemove({ _id: discountId });
+        return res.status(200).send('Discount removed successfully with updating cards and products.');
+      } else {
+        return res
+          .status(401)
+          .send(`You don't have the permission to delete a discount!`);
+      }
+    } else {
+      return res.status(404).send("User not found");
+    }
+  } catch (error) {
+    return res.status(403).send(error.message);
   }
 }
