@@ -1,13 +1,14 @@
-import React, { useState } from "react";
-import axios from "axios";
-import ProductList from "../components/Index/ProductList";
-import ProductPagination from "../components/Index/ProductPagination";
-import baseUrl from "../utils/baseUrl";
-import { useRouter } from "next/router";
+import React, { useState } from 'react';
+import axios from 'axios';
+import ProductList from '../components/Index/ProductList';
+import ProductPagination from '../components/Index/ProductPagination';
+import baseUrl from '../utils/baseUrl';
+import { useRouter } from 'next/router';
 
-function Home({ products, totalPages }) {
+function Home({ products, totalPages, user }) {
+  console.log('user', user);
   const router = useRouter();
-  const [category, setcategory] = useState("");
+  const [category, setcategory] = useState('');
 
   function selectCategory(e, data) {
     setcategory(data.value);
@@ -16,14 +17,18 @@ function Home({ products, totalPages }) {
 
   return (
     <>
-      <ProductList products={products} selectCategory={selectCategory} />
+      <ProductList
+        products={products}
+        user={user}
+        selectCategory={selectCategory}
+      />
       <ProductPagination totalPages={totalPages} category={category} />
     </>
   );
 }
 
 Home.getInitialProps = async ctx => {
-  const page = ctx.query.page ? ctx.query.page : "1";
+  const page = ctx.query.page ? ctx.query.page : '1';
   const category = ctx.query.category;
   const size = 6;
   const url = `${baseUrl}/api/products`;
