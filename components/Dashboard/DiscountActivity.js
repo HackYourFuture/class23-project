@@ -83,7 +83,7 @@ function DiscountActivity({ totalDiscounts }) {
       startDate,
       endDate
     } = discounts;
-    console.log(_id);
+
     const [active, setActive] = React.useState(discounts.isActive);
     // const averageRating = calculateRatingMedian(products.ratings);
     const isFirstRunPermission = React.useRef(true);
@@ -102,7 +102,6 @@ function DiscountActivity({ totalDiscounts }) {
         isFirstRunDelete.current = false;
         return;
       }
-      handleDelete();
     }, [discountList]);
 
     function handleToggleChange() {
@@ -111,8 +110,12 @@ function DiscountActivity({ totalDiscounts }) {
 
     async function updateActivePermission() {
       const url = `${baseUrl}/api/discount`;
-      const payload = { discountId: _id, isActive: active ? true : false };
-      await axios.put(url, payload);
+      const token = cookie.get("token");
+      const headers = { headers: { Authorization: token } };
+      const payload = {
+        params: { discountId: _id, isActive: active ? true : false }
+      };
+      await axios.put(url, payload, headers);
     }
 
     async function handleDelete(id) {
@@ -129,16 +132,17 @@ function DiscountActivity({ totalDiscounts }) {
     return (
       <Table.Row>
         <Table.Cell collapsing>
-          <Checkbox checked={active} toggle onChange={handleToggleChange} />
+          <Checkbox
+            checked={active}
+            toggle
+            onChange={_id => handleToggleChange(_id)}
+          />
         </Table.Cell>
         <Table.Cell>
           {products.map(p => (
             <Header as="h4" image>
               <Image src={p.mediaUrl} rounded size="mini" />
               <Header.Content>{p.name}</Header.Content>
-              <Header.Subheader>
-                <Rating size="tiny" icon="star" disabled maxRating={5} />
-              </Header.Subheader>
             </Header>
           ))}
         </Table.Cell>
@@ -154,7 +158,6 @@ function DiscountActivity({ totalDiscounts }) {
   }
 
   function CategoryDiscountDetails({ discounts, allDiscounts }) {
-    const [discountList, setDiscountList] = React.useState(allDiscounts);
     const {
       categories,
       products,
@@ -163,6 +166,7 @@ function DiscountActivity({ totalDiscounts }) {
       startDate,
       endDate
     } = discounts;
+    const [discountList, setDiscountList] = React.useState(allDiscounts);
     // const { categories } = discounts;
     const [active, setActive] = React.useState(discounts.isActive);
     // const averageRating = calculateRatingMedian(products.ratings);

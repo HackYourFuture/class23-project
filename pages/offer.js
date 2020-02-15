@@ -2,7 +2,16 @@ import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 import formatDate from "../utils/formatDate";
 import { calculateDiscount } from "../utils/discount";
-import { Card, Image, Header, Label, List, Segment } from "semantic-ui-react";
+import {
+  Card,
+  Image,
+  Header,
+  Label,
+  List,
+  Segment,
+  Item,
+  Button
+} from "semantic-ui-react";
 const Offer = ({ discounts }) => {
   let [products, setProducts] = React.useState([]);
   console.log(discounts);
@@ -25,42 +34,54 @@ const Offer = ({ discounts }) => {
     <>
       {discounts.map(d =>
         d.unitType === "product" ? (
-          <Segment>
+          <>
             <Header as="h2">Product Information</Header>
-            <Image.Group>
+            <Segment>
               {d.products.map(p => (
-                <Image key={p._id} src={p.mediaUrl} size="medium" />
+                <Item.Group>
+                  <Item>
+                    <Item.Image src={p.mediaUrl} size="medium" />
+                    <Item.Content>
+                      <Item.Header>{p.name}</Item.Header>
+                      <Item.Description>
+                        <p>
+                          <strong>Discount Percentage:</strong>{" "}
+                          {`%${d.discountPercentage}`}
+                        </p>
+                        <Label.Group>
+                          <span>
+                            <strong>{`New Price: `}</strong>
+                          </span>
+                          <Label
+                            style={{ textDecoration: "line-through" }}
+                            size="medium"
+                          >{`${p.price}`}</Label>
+                          <Label
+                            size="medium"
+                            color="green"
+                          >{`${calculateDiscount(
+                            p.price,
+                            d.discountPercentage
+                          )}`}</Label>
+                        </Label.Group>
+                        <p>
+                          {`Saved: $${p.price -
+                            calculateDiscount(p.price, d.discountPercentage)}`}
+                        </p>
+                      </Item.Description>
+                      <Item.Extra></Item.Extra>
+                    </Item.Content>
+                  </Item>
+                </Item.Group>
               ))}
-            </Image.Group>
-            <Label color="olive" size="large">{`Ends in ${formatDate(
-              d.endDate
-            )}`}</Label>
-            <List.Item>
-              <strong>Names:</strong>
-              {d.products.map(p => (
-                <span>{`${p.name} | `}</span>
-              ))}
-            </List.Item>
-            <List.Item>
-              <strong>Multiple Purchase Required:</strong>{" "}
-              {d.multipleUnits ? "Yes" : "No"}
-            </List.Item>
-            <List>
-              <List.Item>
-                <strong>Discount:</strong> {`%${d.discountPercentage}`}
-              </List.Item>
-
-              <List.Item>
-                <strong>Discounted Prices:</strong>
-                {d.products.map(p => (
-                  <Label size="medium">{`${p.price} /${calculateDiscount(
-                    p.price,
-                    d.discountPercentage
-                  )} `}</Label>
-                ))}
-              </List.Item>
-            </List>
-          </Segment>
+              <Segment textAlign="center">
+                <Label color="olive" size="large">{`Ends in ${formatDate(
+                  d.endDate
+                )}`}</Label>
+                <p></p>
+              </Segment>
+            </Segment>
+          </>
         ) : (
           <Segment>
             <Header>Category Information</Header>
