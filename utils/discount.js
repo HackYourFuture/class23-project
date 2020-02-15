@@ -1,8 +1,3 @@
-export const DISCOUNT_TYPES = {
-  amountBased: 'amountBased',
-  relationBased: 'relationBased'
-}
-
 export const UNIT_TYPES = {
   product: 'product',
   category: 'category'
@@ -10,7 +5,7 @@ export const UNIT_TYPES = {
 
 export function checkDiscountIsOK(discount) {
   // Main controllers
-  const { discountType, multipleUnits, unitType } = discount;
+  const { multipleUnits, unitType } = discount;
   // Every discount has a percentage and dates
   const { discountPercentage, startDate, endDate } = discount;
   // Conditional variables
@@ -26,9 +21,7 @@ export function checkDiscountIsOK(discount) {
     endsAfterStart = start <= end,
     atLeastEndsToday = (now - end < oneDayMilliseconds && now - end >= 0),
     endsAtFuture = end >= now,
-    isAmountBased = discountType === DISCOUNT_TYPES.amountBased,
     isRequiredAmountProvided = requiredAmount && !Number.isNaN(Number(requiredAmount)) && requiredAmount > 0,
-    isRelationBased = discountType === DISCOUNT_TYPES.relationBased,
     isSingleUnitSpectrum = !multipleUnits,
     isProductUnitType = unitType === UNIT_TYPES.product,
     isProductSelected = Boolean(product),
@@ -41,7 +34,7 @@ export function checkDiscountIsOK(discount) {
   const isDiscountOK =
     hasDiscountPercentage && (atLeastStartsToday || startsAtFuture) && endsAfterStart &&
     (atLeastEndsToday || endsAtFuture) &&
-    ((isAmountBased && isRequiredAmountProvided) || isRelationBased) &&
+    ((isSingleUnitSpectrum && isRequiredAmountProvided) || isMultipleUnitSpectrum) &&
     ((isSingleUnitSpectrum && ((isProductUnitType && isProductSelected) || (isCategoryUnitType && isCategorySelected))) ||
       (isMultipleUnitSpectrum && ((isProductUnitType && hasAnyProductsAdded) || (isCategoryUnitType && hasAnyCategoriesAdded))));
 
@@ -50,19 +43,19 @@ export function checkDiscountIsOK(discount) {
 
 export function getRequiredPropsListForDiscount(discount) {
   // Main controllers
-  const { discountType, multipleUnits, unitType } = discount;
+  const { multipleUnits, unitType } = discount;
 
   const requiredProps = [];
 
   // Main controllers are must
-  requiredProps.push('discountType', 'multipleUnits', 'unitType');
+  requiredProps.push('multipleUnits', 'unitType');
   // Every discounts common props
   requiredProps.push('discountPercentage', 'startDate', 'endDate');
-  if (discountType === DISCOUNT_TYPES.amountBased) requiredProps.push('requiredAmount');
   if (multipleUnits) {
     if (unitType === UNIT_TYPES.product) requiredProps.push('products');
     else requiredProps.push('categories');
   } else {
+    requiredProps.push('requiredAmount');
     if (unitType === UNIT_TYPES.product) requiredProps.push('product');
     else requiredProps.push('category');
   }

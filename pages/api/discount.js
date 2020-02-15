@@ -8,14 +8,17 @@ import {
   checkDiscountForRequiredProps,
   checkDiscountIsOK,
   getRequiredPropsListForDiscount,
-  UNIT_TYPES,
-  DISCOUNT_TYPES
+  UNIT_TYPES
 } from "../../utils/discount";
+import mongoose from 'mongoose';
 
 connectDb();
 
 export default async (req, res) => {
   switch (req.method) {
+    case "GET":
+      await handleGetRequest(req, res);
+      break;
     case "POST":
       await handlePostRequest(req, res);
       break;
@@ -118,70 +121,135 @@ async function handlePostRequest(req, res) {
           (discount, prop) => ({ ...discount, [prop]: req.body[prop] }),
           {}
         );
-        // Save the discount
-        const discount = await Discount({ ...discountObj }).save();
-        // Update products about discount
-        if (discount.unitType === UNIT_TYPES.product) {
-          if (discount.multipleUnits) {
-            // update multiple products
-            const products = discount.products.map(p => p._id);
+        // Save & Update products about discount
+        if (discountObj.unitType === UNIT_TYPES.product) {
+          if (discountObj.multipleUnits) {
+            // Get ids from the products that the discount will effect
+            const products = discountObj.products.map(p => p._id);
+            // Get the products' names that have category wide discount
+            const alreadyCategoryWideDiscountedProducts = await Product.find({
+              $and: [
+                { discount: { $ne: null } },
+                { 'discount.unitType': UNIT_TYPES.category },
+                { _id: { $in: products } }
+              ]
+            }).distinct('name');
+            if (alreadyCategoryWideDiscountedProducts.length > 0) {
+              return res.status(405).send(
+                'Discount could not be created! ' +
+                'Because there are products that have category wide discount related to them. ' +
+                'To set a new discount for these products, please delete the discount related to them. ' +
+                'These products are: ' + alreadyCategoryWideDiscountedProducts.join(',')
+              )
+            }
+            // Save the discount
+            const discount = await Discount({ ...discountObj }).save();
+            // Get the discount Ids Of already Discounted Products By Other Discounts 
+            const discountIdsOfAlreadyDiscountedProductsByOtherDiscounts = await Product.find({
+              $and: [
+                { discount: { $ne: null } },
+                { _id: { $in: products } }
+              ]
+            }).distinct('discount._id');
+            if (discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0) {
+              // Detach discounts from the products
+              await Product.update(
+                { 'discount._id': { $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts } },
+                { $unset: { discount: 1 } }
+              );
+            }
             const resp = await Product.update(
               { _id: { $in: products } },
-              { $addToSet: { discounts: discount } }
+              { discount }
             );
             console.log(`Multiple products updated with response: ${resp}`);
+            const overriddenProductsMessage = alreadyDiscountedProducts.length > 0 ?
+              " Not: Some products had different discounts related to them. " +
+              "New discount override the older ones! " +
+              "These are: " + alreadyDiscountedProducts.join(',') : '';
             return res
               .status(200)
               .send(
-                "Discount is created and products are updated successfully!"
+                "Discount is created and products are updated successfully!" +
+                overriddenProductsMessage
               );
           } else {
+            const product = await Product.findOne({ _id: discountObj.product._id });
+            if (product.discount && product.discount.unitType === UNIT_TYPES.category) {
+              return res.status(405).send(
+                'Discount could not be created! ' +
+                'Because the product of this category has a category wide discount related to it. ' +
+                'To set a new discount for this product, please delete the discount related to it.'
+              )
+            }
+            // Save the discount
+            const discount = await Discount({ ...discountObj }).save();
+            let overriddenProductsMessage = '';
+            if (product.discount) {
+              // Get already Discounted Products By The Older Discount
+              const alreadyDiscountedProductsByTheOlderDiscount = await Product.find({
+                $and: [
+                  { discount: { $ne: null } },
+                  { 'discount._id': product.discount._id },
+                  { _id: { $ne: discountObj.product._id } }
+                ]
+              });
+              if (alreadyDiscountedProductsByTheOlderDiscount.length > 0) {
+                overriddenProductsMessage = " Not: Some products were sharing a discount with this product. " +
+                  "New discount override the older ones! And some of them do not have discount now! " +
+                  "Products may be affected are: " + alreadyDiscountedProductsByTheOlderDiscount.map(p => p.name).join(',');
+                // Detach discount from the products
+                await Product.update(
+                  { 'discount._id': { $in: alreadyDiscountedProductsByTheOlderDiscount.map(p => p._id) } },
+                  { $unset: { discount: 1 } }
+                );
+              }
+            }
             const resp = await Product.findOneAndUpdate(
-              { _id: discount.product._id },
-              { $addToSet: { discounts: discount } }
+              { _id: discountObj.product._id },
+              { discount }
             );
             console.log(`A product updated with response: ${resp}`);
             return res
               .status(200)
-              .send("Discount is created and product is updated successfully!");
+              .send("Discount is created and product is updated successfully!" + overriddenProductsMessage);
           }
-        } else {
-          if (discount.multipleUnits) {
-            // update multiple categories
-            // Get all the products with related categories
-            const products = await Product.find({
-              category: { $in: discount.categories }
-            }).distinct("_id");
-            const resp = await Product.update(
-              { _id: { $in: products } },
-              { $addToSet: { discounts: discount } }
+        } else { // unitType === 'category'
+          // update multiple categories
+          // Get all the products with related categories
+          const products = await Product.find({
+            category: discountObj.multipleUnits ? { $in: discountObj.categories } : discountObj.category.trim()
+          }).distinct("_id");
+          // Save the discount
+          const discount = await Discount({ ...discountObj }).save();
+          // Get the discount Ids Of already Discounted Products By Other Discounts 
+          const discountIdsOfAlreadyDiscountedProductsByOtherDiscounts = await Product.find({
+            $and: [
+              { discount: { $ne: null } },
+              { _id: { $in: products } }
+            ]
+          }).distinct('discount._id');
+          // Detach discounts from the products
+          await Product.update(
+            { 'discount._id': { $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts } },
+            { $unset: { discount: 1 } }
+          );
+          const resp = await Product.update(
+            { _id: { $in: products } },
+            { discount }
+          );
+          console.log(
+            `Multiple products updated according to categories with response: ${resp}`
+          );
+          const overriddenProductsMessage = alreadyDiscountedProducts.length > 0 ?
+            " Not: Some products had different discounts related to them. " +
+            "New discount override the older ones! " +
+            "Number of affected products: " + products.length : '';
+          return res
+            .status(200)
+            .send(
+              "Discount is created and products are updated successfully!" + overriddenProductsMessage
             );
-            console.log(
-              `Multiple products updated according to categories with response: ${resp}`
-            );
-            return res
-              .status(200)
-              .send(
-                "Discount is created and products are updated successfully!"
-              );
-          } else {
-            // Get all the products with related category
-            const products = await Product.find({
-              category: discount.category.trim()
-            }).distinct("_id");
-            const resp = await Product.update(
-              { _id: { $in: products } },
-              { $addToSet: { discounts: discount } }
-            );
-            console.log(
-              `Multiple products updated according to a category with response: ${resp}`
-            );
-            return res
-              .status(200)
-              .send(
-                "Discount is created and products are updated successfully!"
-              );
-          }
         }
       } else {
         return res
@@ -197,7 +265,7 @@ async function handlePostRequest(req, res) {
 }
 
 // Activates or Deactivates a discount
-// And deals with the cascade update operation towards products in the cards
+// And deals with the cascade update operation towards products in the cards when it is deactivated
 async function handlePutRequest(req, res) {
   // Check if the user is authorized
   if (!("authorization" in req.headers)) {
@@ -241,44 +309,20 @@ async function handlePutRequest(req, res) {
           }
         }
         await Discount.findOneAndUpdate({ _id: discountId }, { isActive });
-        // Update products about discount - cascade update for products in the cards
-        // Get all the product ids related to this discount
-        const products = await Product.find({
-          "discounts._id": discountId
-        }).distinct("_id");
-        // Get all the cards with these products
-        if (isActive) {
-          // Find the products which will be discounted more with these discount and apply the discount
-          let findQuery;
-          if (discount.discountType === DISCOUNT_TYPES.amountBased) {
-            if (discount.multipleUnits) {
-              if (discount.unitType === UNIT_TYPES.product) {
-                findQuery = [{ products: { $all: discount.products } }];
-              } else {
-              }
-            } else {
+        // Update products about discount - cascade update for products in the cards for deactivate
+        if (!isActive) {
+          // Find the cart with products which is discounted with this discount
+          await Cart.update(
+            { 'products.discount._id': discount._id },
+            { $unset: { 'products.$[element].discount': 1 } },
+            {
+              multi: true,
+              arrayFilters: [{ 'element.discount._id': discount._id }]
             }
-          } else {
-            // relation based
-          }
-          await Cart.update({
-            $and: [
-              { "products.product._id": { $in: products } },
-              {
-                "products.discountAmount": {
-                  $lt: {
-                    $multiply: [
-                      "$products.product.price",
-                      discount.discountPercentage / 100
-                    ]
-                  }
-                }
-              },
-              ...findQuery
-            ]
-          });
-        } else {
+          );
+          return res.status(200).send('Discount deactivated successfully with updating cards!');
         }
+        return res.status(200).send('Discount deactivated successfully!');
       } else {
         return res
           .status(401)

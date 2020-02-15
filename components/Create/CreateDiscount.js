@@ -5,7 +5,6 @@ import { categoryOptions } from "./ProductCreation";
 import { universalFormatDate } from "../../utils/formatDate";
 import {
   checkDiscountIsOK,
-  DISCOUNT_TYPES,
   UNIT_TYPES,
   getRequiredPropsListForDiscount
 } from "../../utils/discount";
@@ -15,21 +14,6 @@ import catchErrors from "../../utils/catchErrors";
 import DiscountUnitsList from "./DiscountUnitsList";
 import DiscountSingleUnit from "./DiscountSingleUnit";
 import cookie from "js-cookie";
-
-const discountOptions = [
-  {
-    text: "Amount Based Discount",
-    key: DISCOUNT_TYPES.amountBased,
-    value: DISCOUNT_TYPES.amountBased,
-    name: "discountType"
-  },
-  {
-    text: "Relation Based Discount",
-    key: DISCOUNT_TYPES.relationBased,
-    value: DISCOUNT_TYPES.relationBased,
-    name: "discountType"
-  }
-];
 
 const spectrumOptions = [
   {
@@ -67,7 +51,6 @@ const NEW_DISCOUNT = {
   categories: [], // For multiple units selection - category
   product: null, // For single unit selection
   category: "", // For single unit selection
-  discountType: DISCOUNT_TYPES.amountBased,
   discountPercentage: 5,
   requiredAmount: 1,
   startDate: universalFormatDate(Date.now()),
@@ -145,10 +128,10 @@ function CreateDiscount({ products }) {
       hasLeastRequiredAmount
         ? setNewDiscount(prevState => ({ ...prevState, [name]: newUnits }))
         : setNewDiscount(prevState => ({
-            ...prevState,
-            [name]: newUnits,
-            requiredAmount: newUnits.length
-          }));
+          ...prevState,
+          [name]: newUnits,
+          requiredAmount: newUnits.length
+        }));
     }
   }
 
@@ -206,15 +189,6 @@ function CreateDiscount({ products }) {
         <Form.Group widths="equal">
           <Form.Dropdown
             selection
-            options={discountOptions}
-            name="discountType"
-            label="Discount Type"
-            placeholder="Discount Type"
-            value={newDiscount.discountType}
-            onChange={handleChangeUnit}
-          />
-          <Form.Dropdown
-            selection
             options={spectrumOptions}
             name="multipleUnits"
             label="Discount Spectrum"
@@ -234,7 +208,7 @@ function CreateDiscount({ products }) {
         </Form.Group>
 
         <Form.Group widths="equal">
-          {newDiscount.discountType === DISCOUNT_TYPES.amountBased && (
+          {!newDiscount.multipleUnits && (
             <Form.Field
               control={Input}
               name="requiredAmount"
@@ -296,27 +270,27 @@ function CreateDiscount({ products }) {
             />
           </>
         ) : (
-          <>
-            <Form.Dropdown
-              options={
-                newDiscount.unitType === UNIT_TYPES.product
-                  ? mapProductToItems()
-                  : categoryOptions.map(c => ({ ...c, name: "category" }))
-              }
-              name={newDiscount.unitType}
-              label={`Select ${newDiscount.unitType}`}
-              placeholder={`Select ${newDiscount.unitType}`}
-              search
-              selection
-              onChange={handleAddUnitChange}
-            />
-            <DiscountSingleUnit
-              unit={unit}
-              unitType={newDiscount.unitType}
-              discountPercentage={newDiscount.discountPercentage}
-            />
-          </>
-        )}
+            <>
+              <Form.Dropdown
+                options={
+                  newDiscount.unitType === UNIT_TYPES.product
+                    ? mapProductToItems()
+                    : categoryOptions.map(c => ({ ...c, name: "category" }))
+                }
+                name={newDiscount.unitType}
+                label={`Select ${newDiscount.unitType}`}
+                placeholder={`Select ${newDiscount.unitType}`}
+                search
+                selection
+                onChange={handleAddUnitChange}
+              />
+              <DiscountSingleUnit
+                unit={unit}
+                unitType={newDiscount.unitType}
+                discountPercentage={newDiscount.discountPercentage}
+              />
+            </>
+          )}
         <TextField
           name="startDate"
           id="date"

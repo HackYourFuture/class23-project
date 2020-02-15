@@ -7,10 +7,6 @@ const DiscountSchema = new mongoose.Schema({
     type: ObjectId,
     ref: Product
   },
-  discountType: {
-    type: String,
-    enum: ["amountBased", "relationBased"]
-  },
   isActive: {
     type: Boolean,
     default: true
