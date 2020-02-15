@@ -1,7 +1,16 @@
-import { Card, Container, Rating, Dropdown, Label } from "semantic-ui-react";
+import {
+  Card,
+  Container,
+  Rating,
+  Dropdown,
+  Label,
+  Button
+} from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
+import { useRouter } from "next/router";
 
 function ProductList({ products, selectCategory }) {
+  const router = useRouter();
   console.log(products);
   const categoryOptions = [
     { key: "acc", text: "Accessories", value: "accessories" },
@@ -24,6 +33,11 @@ function ProductList({ products, selectCategory }) {
         header: product.name,
         image: product.mediaUrl,
         meta: `$${product.price}`,
+        description: product.discount ? (
+          <Button color="red">{"Discount!"}</Button>
+        ) : (
+          ""
+        ),
         color: "teal",
         fluid: true,
         childKey: product._id,

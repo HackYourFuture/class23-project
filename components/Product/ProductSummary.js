@@ -39,7 +39,7 @@ function ProductSummary({
             {discount !== null && discount.length > 0 ? (
               <Button
                 color="red"
-                onClick={() => router.push(`/offer?_id=${discount}`)}
+                onClick={() => router.push(`/offer?discountId=${discount}`)}
               >
                 See Offer Details!
               </Button>
