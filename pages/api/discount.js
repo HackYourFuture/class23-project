@@ -191,11 +191,11 @@ async function handlePostRequest(req, res) {
             );
             console.log(`Multiple products updated with response: ${resp}`);
             const overriddenProductsMessage =
-              alreadyDiscountedProducts.length > 0
+              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
                 ? " Not: Some products had different discounts related to them. " +
                 "New discount override the older ones! " +
-                "These are: " +
-                alreadyDiscountedProducts.join(",")
+                "Number of affected products: " +
+                products.length
                 : "";
             return res
               .status(200)
@@ -303,7 +303,7 @@ async function handlePostRequest(req, res) {
             `Multiple products updated according to categories with response: ${resp}`
           );
           const overriddenProductsMessage =
-            alreadyDiscountedProducts.length > 0
+            discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
               ? " Not: Some products had different discounts related to them. " +
               "New discount override the older ones! " +
               "Number of affected products: " +
