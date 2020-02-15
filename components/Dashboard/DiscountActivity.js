@@ -10,6 +10,7 @@ import formateDate from "../../utils/formatDate";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
 function DiscountActivity({ totalDiscounts }) {
+  const [allDiscounts, setAllDiscounts] = React.useState(totalDiscounts);
   console.log(totalDiscounts);
 
   return (
@@ -27,11 +28,12 @@ function DiscountActivity({ totalDiscounts }) {
             <Table.HeaderCell>Start Date</Table.HeaderCell>
             <Table.HeaderCell>End Date</Table.HeaderCell>
             <Table.HeaderCell>Active</Table.HeaderCell>
+            <Table.HeaderCell>Delete</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
 
         <Table.Body>
-          {totalDiscounts.map(discount => (
+          {allDiscounts.map(discount => (
             <DiscountDetails key={discount._id} discounts={discount} />
           ))}
         </Table.Body>
@@ -48,7 +50,7 @@ function DiscountActivity({ totalDiscounts }) {
       endDate
     } = discounts;
     console.log(_id);
-    const [active, setActive] = React.useState(discounts.isActive === true);
+    const [active, setActive] = React.useState(discounts.isActive);
     // const averageRating = calculateRatingMedian(products.ratings);
     const isFirstRun = React.useRef(true);
 
@@ -58,7 +60,15 @@ function DiscountActivity({ totalDiscounts }) {
         return;
       }
       updateActivePermission();
-    }, [admin]);
+    }, [active]);
+
+    React.useEffect(() => {
+      if (isFirstRun.current) {
+        isFirstRun.current = false;
+        return;
+      }
+      handleDelete(id);
+    }, [allDiscounts]);
 
     function handleToggleChange() {
       setActive(prevState => !prevState);
@@ -68,6 +78,13 @@ function DiscountActivity({ totalDiscounts }) {
       const url = `${baseUrl}/api/discount`;
       const payload = { discountId: _id, isActive: active ? true : false };
       await axios.put(url, payload);
+    }
+
+    async function handleDelete(id) {
+      const url = `${baseUrl}/api/disocunt`;
+      const payload = { discountId: id };
+      const response = await axios.delete(url, payload);
+      setTotalDiscounts(response.data);
     }
 
     return (
@@ -95,7 +112,10 @@ function DiscountActivity({ totalDiscounts }) {
         <Table.Cell>{`%${discountPercentage}`}</Table.Cell>
         <Table.Cell>{formateDate(startDate)}</Table.Cell>
         <Table.Cell>{formateDate(endDate)}</Table.Cell>
-        <Table.Cell>{isActive ? "Yes" : "No"}</Table.Cell>
+        <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
+        <Table.Cell>
+          <Icon name="delete" onClick={() => handleDelete(_id)} />
+        </Table.Cell>
       </Table.Row>
     );
   }

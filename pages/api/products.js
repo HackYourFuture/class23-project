@@ -2,6 +2,7 @@
 import Product from "../../models/Product";
 import connectDb from "../../utils/connectDb";
 import Rating from "../../models/Rating";
+import Discount from "../../models/Discount";
 
 connectDb();
 
@@ -26,6 +27,10 @@ export default async (req, res) => {
     .populate({
       path: "ratings",
       model: Rating
+    })
+    .populate({
+      path: "discounts",
+      model: Discount
     });
 
   res.status(200).json({ products, totalPages });
