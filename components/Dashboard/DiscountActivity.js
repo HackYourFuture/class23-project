@@ -7,10 +7,11 @@ import {
   Rating
 } from "semantic-ui-react";
 import formateDate from "../../utils/formatDate";
+import baseUrl from "../../utils/baseUrl";
+import axios from "axios";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
 function DiscountActivity({ totalDiscounts }) {
-  const [allDiscounts, setAllDiscounts] = React.useState(totalDiscounts);
   console.log(totalDiscounts);
 
   return (
@@ -33,14 +34,47 @@ function DiscountActivity({ totalDiscounts }) {
         </Table.Header>
 
         <Table.Body>
-          {allDiscounts.map(discount => (
-            <DiscountDetails key={discount._id} discounts={discount} />
-          ))}
+          {totalDiscounts.map(
+            discount =>
+              discount.unitType === "product" && (
+                <ProductDiscountDetails
+                  key={discount._id}
+                  discounts={discount}
+                  allDiscounts={totalDiscounts}
+                />
+              )
+          )}
+        </Table.Body>
+      </Table>
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.HeaderCell />
+            <Table.HeaderCell>Categories/Category</Table.HeaderCell>
+            <Table.HeaderCell>Discount </Table.HeaderCell>
+            <Table.HeaderCell>Start Date</Table.HeaderCell>
+            <Table.HeaderCell>End Date</Table.HeaderCell>
+            <Table.HeaderCell>Active</Table.HeaderCell>
+            <Table.HeaderCell>Delete</Table.HeaderCell>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {totalDiscounts.map(
+            discount =>
+              discount.unitType === "category" && (
+                <CategoryDiscountDetails
+                  key={discount._id}
+                  discounts={discount}
+                  allDiscounts={totalDiscounts}
+                />
+              )
+          )}
         </Table.Body>
       </Table>
     </div>
   );
-  function DiscountDetails({ discounts }) {
+  function ProductDiscountDetails({ discounts, allDiscounts }) {
+    const [discountList, setDiscountList] = React.useState(allDiscounts);
     const {
       products,
       isActive,
@@ -52,23 +86,24 @@ function DiscountActivity({ totalDiscounts }) {
     console.log(_id);
     const [active, setActive] = React.useState(discounts.isActive);
     // const averageRating = calculateRatingMedian(products.ratings);
-    const isFirstRun = React.useRef(true);
+    const isFirstRunPermission = React.useRef(true);
+    const isFirstRunDelete = React.useRef(true);
 
     React.useEffect(() => {
-      if (isFirstRun.current) {
-        isFirstRun.current = false;
+      if (isFirstRunPermission.current) {
+        isFirstRunPermission.current = false;
         return;
       }
       updateActivePermission();
     }, [active]);
 
     React.useEffect(() => {
-      if (isFirstRun.current) {
-        isFirstRun.current = false;
+      if (isFirstRunDelete.current) {
+        isFirstRunDelete.current = false;
         return;
       }
-      handleDelete(id);
-    }, [allDiscounts]);
+      handleDelete();
+    }, [discountList]);
 
     function handleToggleChange() {
       setActive(prevState => !prevState);
@@ -81,10 +116,10 @@ function DiscountActivity({ totalDiscounts }) {
     }
 
     async function handleDelete(id) {
-      const url = `${baseUrl}/api/disocunt`;
+      const url = `${baseUrl}/api/discount`;
       const payload = { discountId: id };
       const response = await axios.delete(url, payload);
-      setTotalDiscounts(response.data);
+      setDiscountList(response.data);
     }
 
     return (
@@ -115,6 +150,82 @@ function DiscountActivity({ totalDiscounts }) {
         <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
         <Table.Cell>
           <Icon name="delete" onClick={() => handleDelete(_id)} />
+        </Table.Cell>
+      </Table.Row>
+    );
+  }
+
+  function CategoryDiscountDetails({ discounts, allDiscounts }) {
+    const [discountList, setDiscountList] = React.useState(allDiscounts);
+    const {
+      products,
+      isActive,
+      _id,
+      discountPercentage,
+      startDate,
+      endDate
+    } = discounts;
+    console.log(_id);
+    const [active, setActive] = React.useState(discounts.isActive);
+    // const averageRating = calculateRatingMedian(products.ratings);
+    const isFirstRunPermission = React.useRef(true);
+    const isFirstRunDelete = React.useRef(true);
+
+    React.useEffect(() => {
+      if (isFirstRunPermission.current) {
+        isFirstRunPermission.current = false;
+        return;
+      }
+      updateActivePermission();
+    }, [active]);
+
+    React.useEffect(() => {
+      if (isFirstRunDelete.current) {
+        isFirstRunDelete.current = false;
+        return;
+      }
+      handleDelete();
+    }, [discountList]);
+
+    function handleToggleChange() {
+      setActive(prevState => !prevState);
+    }
+
+    async function updateActivePermission() {
+      const url = `${baseUrl}/api/discount`;
+      const payload = { discountId: _id, isActive: active ? true : false };
+      await axios.put(url, payload);
+    }
+
+    async function handleDelete(id) {
+      const url = `${baseUrl}/api/discount`;
+      const payload = { discountId: id };
+      const response = await axios.delete(url, payload);
+      setDiscountList(response.data);
+    }
+
+    console.log(products.map(p => p.categories.map(c => c)));
+
+    return (
+      <Table.Row>
+        <Table.Cell collapsing>
+          <Checkbox checked={active} toggle onChange={handleToggleChange} />
+        </Table.Cell>
+        <Table.Cell>
+          {allDiscounts.map(p =>
+            p.categories.map(c => (
+              <Header as="h4">
+                <Header.Subheader>{c.toUpperCase()}</Header.Subheader>
+              </Header>
+            ))
+          )}
+        </Table.Cell>
+        <Table.Cell>{`%${discountPercentage}`}</Table.Cell>
+        <Table.Cell>{formateDate(startDate)}</Table.Cell>
+        <Table.Cell>{formateDate(endDate)}</Table.Cell>
+        <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
+        <Table.Cell>
+          <Icon name="x" onClick={() => handleDelete(_id)} />
         </Table.Cell>
       </Table.Row>
     );
