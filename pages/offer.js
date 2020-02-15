@@ -17,7 +17,9 @@ const Offer = ({ discounts }) => {
             </Image.Group>
           </>
         ) : (
-          ""
+          <>
+            <Header>Category Information</Header>
+          </>
         )
       )}
     </>

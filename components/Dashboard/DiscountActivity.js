@@ -9,6 +9,7 @@ import {
 import formateDate from "../../utils/formatDate";
 import baseUrl from "../../utils/baseUrl";
 import axios from "axios";
+import cookie from "js-cookie";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
 function DiscountActivity({ totalDiscounts }) {
@@ -117,8 +118,10 @@ function DiscountActivity({ totalDiscounts }) {
 
     async function handleDelete(id) {
       const url = `${baseUrl}/api/discount`;
+      const token = cookie.get("token");
+      const headers = { Authorization: token };
       const payload = { discountId: id };
-      const response = await axios.delete(url, payload);
+      const response = await axios.delete(url, payload, headers);
       setDiscountList(response.data);
     }
 
