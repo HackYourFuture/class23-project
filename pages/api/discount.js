@@ -178,12 +178,14 @@ async function handlePostRequest(req, res) {
                     $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
                   }
                 },
-                { $unset: { discount: 1 } }
+                { $unset: { discount: 1 } },
+                { multi: true }
               );
             }
             const resp = await Product.update(
               { _id: { $in: products } },
-              { discount }
+              { discount },
+              { multi: true }
             );
             console.log(`Multiple products updated with response: ${resp}`);
             const overriddenProductsMessage =
@@ -246,7 +248,8 @@ async function handlePostRequest(req, res) {
                       )
                     }
                   },
-                  { $unset: { discount: 1 } }
+                  { $unset: { discount: 1 } },
+                  { multi: true }
                 );
               }
             }
@@ -286,11 +289,13 @@ async function handlePostRequest(req, res) {
                 $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
               }
             },
-            { $unset: { discount: 1 } }
+            { $unset: { discount: 1 } },
+            { multi: true }
           );
           const resp = await Product.update(
             { _id: { $in: products } },
-            { discount }
+            { discount },
+            { multi: true }
           );
           console.log(
             `Multiple products updated according to categories with response: ${resp}`
