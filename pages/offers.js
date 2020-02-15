@@ -50,7 +50,7 @@ function Offers({ discounts }) {
                 <Button
                   floated="right"
                   color="green"
-                  onClick={() => router.push(`/offer?_id=${p._id}`)}
+                  onClick={() => router.push(`/offer?discountId=${p._id}`)}
                 >
                   See details
                 </Button>
@@ -77,7 +77,7 @@ function Offers({ discounts }) {
                 <Button
                   floated="right"
                   color="green"
-                  onClick={() => router.push(`/offer?_id=${c._id}`)}
+                  onClick={() => router.push(`/offer?discountId=${c._id}`)}
                 >
                   See details
                 </Button>

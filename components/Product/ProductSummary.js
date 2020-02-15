@@ -2,6 +2,7 @@ import React from "react";
 import { Item, Label, Rating, Icon, Button } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 import AddProductToCart from "./AddProductToCart";
+import { useRouter } from "next/router";
 
 function ProductSummary({
   name,
@@ -11,9 +12,10 @@ function ProductSummary({
   sku,
   user,
   ratings,
-  discounts
+  discount
 }) {
   const [ratingAmount, setRatingAmount] = React.useState(0);
+  const router = useRouter();
 
   React.useEffect(() => {
     const avrRating = calculateRatingMedian(ratings);
@@ -34,8 +36,13 @@ function ProductSummary({
             <Item.Extra>
               <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
-            {discounts !== undefined && discounts.length > 0 ? (
-              <Button color="red">See Offer Details!</Button>
+            {discount !== null && discount.length > 0 ? (
+              <Button
+                color="red"
+                onClick={() => router.push(`/offer?_id=${discount}`)}
+              >
+                See Offer Details!
+              </Button>
             ) : (
               ""
             )}

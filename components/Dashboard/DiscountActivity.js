@@ -184,7 +184,6 @@ function DiscountActivity({ totalDiscounts }) {
         isFirstRunDelete.current = false;
         return;
       }
-      handleDelete();
     }, [discountList]);
 
     function handleToggleChange() {
@@ -199,6 +198,7 @@ function DiscountActivity({ totalDiscounts }) {
 
     async function handleDelete(id) {
       const url = `${baseUrl}/api/discount`;
+      console.log(id);
       const payload = { discountId: id };
       const response = await axios.delete(url, payload);
       setDiscountList(response.data);
@@ -225,7 +225,7 @@ function DiscountActivity({ totalDiscounts }) {
         <Table.Cell>{formateDate(endDate)}</Table.Cell>
         <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
         <Table.Cell>
-          <Icon name="x" onClick={() => handleDelete(_id)} />
+          <Icon name="x" onClick={_id => handleDelete(_id)} />
         </Table.Cell>
       </Table.Row>
     );

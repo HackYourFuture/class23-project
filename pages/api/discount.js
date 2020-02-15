@@ -84,7 +84,10 @@ async function handleGetRequest(req, res) {
           $and: [{ _id: discountId }, { ...isActiveQuery }]
         });
       } else {
-        discounts = await Discount.find({ _id: discountId });
+        discounts = await Discount.find({ _id: discountId }).populate({
+          path: "products",
+          model: Product
+        });
       }
     } else {
       // all
