@@ -118,9 +118,11 @@ function DiscountActivity({ totalDiscounts }) {
     async function handleDelete(id) {
       const url = `${baseUrl}/api/discount`;
       const token = cookie.get("token");
-      const headers = { Authorization: token };
-      const params = { discountId: id };
-      const response = axios.delete(url, params, headers);
+      const payload = {
+        params: { discountId: id },
+        headers: { Authorization: token }
+      };
+      const response = axios.delete(url, payload);
       setDiscountList(response.data);
     }
 
