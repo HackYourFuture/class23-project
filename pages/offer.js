@@ -1,12 +1,15 @@
-const Offer = () => {
+import baseUrl from "../utils/baseUrl";
+import axios from "axios";
+const Offer = ({ discount }) => {
+  console.log(discount);
   return <>Hello</>;
 };
 
-Offers.getInitialProps = async () => {
+Offer.getInitialProps = async ({ query: { discountId } }) => {
   const url = `${baseUrl}/api/discount`;
   const isActive = true;
-  const payload = { params: { isActive } };
-  const response = await axios.get(url);
+  const payload = { params: { discountId } };
+  const response = await axios.get(url, payload);
   return response.data;
 };
 export default Offer;

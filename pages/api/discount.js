@@ -37,7 +37,7 @@ export default async (req, res) => {
 // Finds & returns all discounts by product, by category or with-no-condition (all of them)
 // And also if active parameter is provided as true, returns just the active ones
 async function handleGetRequest(req, res) {
-  const { productId, category, isActive } = req.query;
+  const { productId, category, isActive, discountId } = req.query;
   let discounts;
   const isActiveQuery = {
     $and: [

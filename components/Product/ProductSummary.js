@@ -3,7 +3,16 @@ import { Item, Label, Rating, Icon, Button } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 import AddProductToCart from "./AddProductToCart";
 
-function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
+function ProductSummary({
+  name,
+  mediaUrl,
+  _id,
+  price,
+  sku,
+  user,
+  ratings,
+  discounts
+}) {
   const [ratingAmount, setRatingAmount] = React.useState(0);
 
   React.useEffect(() => {
@@ -25,7 +34,11 @@ function ProductSummary({ name, mediaUrl, _id, price, sku, user, ratings }) {
             <Item.Extra>
               <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
-            <Button color="red">See Offer Details!</Button>
+            {discounts !== undefined && discounts.length > 0 ? (
+              <Button color="red">See Offer Details!</Button>
+            ) : (
+              ""
+            )}
           </Item.Content>
         </Item>
       </Item.Group>
