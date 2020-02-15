@@ -57,10 +57,16 @@ async function handleGetRequest(req, res) {
             },
             { ...isActiveQuery }
           ]
+        }).populate({
+          path: "products",
+          model: Product
         });
       } else {
         discounts = await Discount.find({
           $or: [{ "product._id": productId }, { "products._id": productId }]
+        }).populate({
+          path: "products",
+          model: Product
         });
       }
     } else if (category) {
@@ -71,10 +77,16 @@ async function handleGetRequest(req, res) {
             { $or: [{ category: category }, { categories: category }] },
             { ...isActiveQuery }
           ]
+        }).populate({
+          path: "products",
+          model: Product
         });
       } else {
         discounts = await Discount.find({
           $or: [{ category: category }, { categories: category }]
+        }).populate({
+          path: "products",
+          model: Product
         });
       }
     } else if (discountId) {
@@ -83,6 +95,9 @@ async function handleGetRequest(req, res) {
       if (isActive) {
         discounts = await Discount.find({
           $and: [{ _id: discountId }, { ...isActiveQuery }]
+        }).populate({
+          path: "products",
+          model: Product
         });
       } else {
         discounts = await Discount.find({ _id: discountId }).populate({
@@ -155,10 +170,10 @@ async function handlePostRequest(req, res) {
                 .status(405)
                 .send(
                   "Discount could not be created! " +
-                    "Because there are products that have category wide discount related to them. " +
-                    "To set a new discount for these products, please delete the discount related to them. " +
-                    "These products are: " +
-                    alreadyCategoryWideDiscountedProducts.join(",")
+                  "Because there are products that have category wide discount related to them. " +
+                  "To set a new discount for these products, please delete the discount related to them. " +
+                  "These products are: " +
+                  alreadyCategoryWideDiscountedProducts.join(",")
                 );
             }
             // Save the discount
@@ -192,15 +207,15 @@ async function handlePostRequest(req, res) {
             const overriddenProductsMessage =
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
                 ? " Not: Some products had different discounts related to them. " +
-                  "New discount override the older ones! " +
-                  "Number of affected products: " +
-                  products.length
+                "New discount override the older ones! " +
+                "Number of affected products: " +
+                products.length
                 : "";
             return res
               .status(200)
               .send(
                 "Discount is created and products are updated successfully!" +
-                  overriddenProductsMessage
+                overriddenProductsMessage
               );
           } else {
             const product = await Product.findOne({
@@ -214,8 +229,8 @@ async function handlePostRequest(req, res) {
                 .status(405)
                 .send(
                   "Discount could not be created! " +
-                    "Because the product of this category has a category wide discount related to it. " +
-                    "To set a new discount for this product, please delete the discount related to it."
+                  "Because the product of this category has a category wide discount related to it. " +
+                  "To set a new discount for this product, please delete the discount related to it."
                 );
             }
             // Save the discount
@@ -263,7 +278,7 @@ async function handlePostRequest(req, res) {
               .status(200)
               .send(
                 "Discount is created and product is updated successfully!" +
-                  overriddenProductsMessage
+                overriddenProductsMessage
               );
           }
         } else {
@@ -304,15 +319,15 @@ async function handlePostRequest(req, res) {
           const overriddenProductsMessage =
             discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
               ? " Not: Some products had different discounts related to them. " +
-                "New discount override the older ones! " +
-                "Number of affected products: " +
-                products.length
+              "New discount override the older ones! " +
+              "Number of affected products: " +
+              products.length
               : "";
           return res
             .status(200)
             .send(
               "Discount is created and products are updated successfully!" +
-                overriddenProductsMessage
+              overriddenProductsMessage
             );
         }
       } else {
