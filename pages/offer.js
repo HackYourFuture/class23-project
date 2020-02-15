@@ -12,9 +12,11 @@ import {
   Item,
   Button
 } from "semantic-ui-react";
-const Offer = ({ discounts }) => {
+const Offer = ({ discounts, productId }) => {
   let [products, setProducts] = React.useState([]);
+  console.log(productId);
   console.log(discounts);
+
   React.useEffect(() => {
     async function fetchProducts() {
       try {
@@ -78,32 +80,38 @@ const Offer = ({ discounts }) => {
                 <Label color="olive" size="large">{`Ends in ${formatDate(
                   d.endDate
                 )}`}</Label>
-                <p></p>
               </Segment>
             </Segment>
           </>
         ) : (
-          <Segment>
+          <>
             <Header>Category Information</Header>
-            <Header as="h4">About Discount:</Header>
-            <List>
-              <List.Item>
-                <strong>Categories:</strong>
-                {`${[...d.categories]} `}
-              </List.Item>
-              <List.Item content="Things you can buy"></List.Item>
-            </List>
-          </Segment>
+            <Segment>
+              <Header as="h4">About Discount:</Header>
+              <List>
+                <List.Item>
+                  <strong>Categories:</strong>
+                  {`${d.categories.map(c => c.toUpperCase())} `}
+                </List.Item>
+                <List.Item content="In order to take advantage of this discount you need to purchase at least one category specified above."></List.Item>
+              </List>
+              <Segment textAlign="center">
+                <Label color="olive" size="large">{`Ends in ${formatDate(
+                  d.endDate
+                )}`}</Label>
+              </Segment>
+            </Segment>
+          </>
         )
       )}
     </>
   );
 };
 
-Offer.getInitialProps = async ({ query: { discountId } }) => {
+Offer.getInitialProps = async ({ query: { discountId, productId } }) => {
   const url = `${baseUrl}/api/discount`;
   console.log(discountId);
-  const payload = { params: { discountId } };
+  const payload = { params: { discountId, productId } };
   const response = await axios.get(url, payload);
   return response.data;
 };
