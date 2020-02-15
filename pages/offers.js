@@ -3,9 +3,10 @@ import {
   List,
   Image,
   Button,
-  Icon,
   Label,
-  Segment
+  Segment,
+  Icon,
+  Container
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import baseUrl from "../utils/baseUrl";
@@ -33,16 +34,19 @@ function Offers({ discounts }) {
       </Header>
       <Segment>
         <List divided>
-          {productDiscounts.map(p => (
+          {productDiscounts.map(pd => (
             <List.Item>
-              {p.products.map(p => (
+              <Label.Group>
+                <Label color="red" tag>
+                  {`%${pd.discountPercentage}`}
+                </Label>
+              </Label.Group>
+              {pd.products.map(p => (
                 <Image size="small" src={p.mediaUrl} />
               ))}
-              <Label attached="top right" color="red" tag>
-                {p.discountPercentage}
-              </Label>
+
               <List.Header>Products:</List.Header>
-              {p.products.map(p => (
+              {pd.products.map(p => (
                 <List.Item as="span">{p.name}</List.Item>
               ))}
 
@@ -50,12 +54,12 @@ function Offers({ discounts }) {
                 <Button
                   floated="right"
                   color="green"
-                  onClick={() => router.push(`/offer?discountId=${p._id}`)}
+                  onClick={() => router.push(`/offer?discountId=${pd._id}`)}
                 >
                   See details
                 </Button>
                 <List.Description>
-                  {productPhrase(p.products, p.discountPercentage)}
+                  {productPhrase(pd.products, pd.discountPercentage)}
                 </List.Description>
               </List.Content>
             </List.Item>
@@ -70,10 +74,10 @@ function Offers({ discounts }) {
         <List divided>
           {categoryDiscounts.map(c => (
             <List.Item>
-              <Label attached="top right" color="red" tag>
-                {`%${c.discountPercentage}`}
-              </Label>
               <List.Content>
+                <Label.Group>
+                  <Label color="red" tag>{`%${c.discountPercentage}`}</Label>
+                </Label.Group>
                 <Button
                   floated="right"
                   color="green"

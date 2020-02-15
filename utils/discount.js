@@ -124,3 +124,18 @@ export function categoryPhrase(arr, categoryDiscount, categoryAmount = 1) {
     }
   }, "");
 }
+
+export function calculateDiscount(price, discount) {
+  const discountToCalculate = discount / 100;
+  const diff = price * discountToCalculate;
+  const newPrice = price - diff;
+  return newPrice.toFixed();
+}
+
+export function calculateEndingTime(start, end) {
+  const startingTime = new Date(start).toLocaleDateString("en-US");
+  const endingTime = new Date(end).toLocaleDateString("en-US");
+  const diffTime = Math.abs(endingTime - startingTime);
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return diffDays;
+}

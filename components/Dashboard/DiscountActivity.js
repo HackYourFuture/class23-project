@@ -10,7 +10,6 @@ import formateDate from "../../utils/formatDate";
 import baseUrl from "../../utils/baseUrl";
 import axios from "axios";
 import cookie from "js-cookie";
-import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
 function DiscountActivity({ totalDiscounts }) {
   console.log(totalDiscounts);
@@ -120,8 +119,8 @@ function DiscountActivity({ totalDiscounts }) {
       const url = `${baseUrl}/api/discount`;
       const token = cookie.get("token");
       const headers = { Authorization: token };
-      const payload = { discountId: id };
-      const response = await axios.delete(url, payload, headers);
+      const params = { discountId: id };
+      const response = axios.delete(url, params, headers);
       setDiscountList(response.data);
     }
 
@@ -136,13 +135,7 @@ function DiscountActivity({ totalDiscounts }) {
               <Image src={p.mediaUrl} rounded size="mini" />
               <Header.Content>{p.name}</Header.Content>
               <Header.Subheader>
-                <Rating
-                  size="tiny"
-                  icon="star"
-                  disabled
-                  maxRating={5}
-                  // rating={averageRating || 0}
-                />
+                <Rating size="tiny" icon="star" disabled maxRating={5} />
               </Header.Subheader>
             </Header>
           ))}
@@ -161,14 +154,14 @@ function DiscountActivity({ totalDiscounts }) {
   function CategoryDiscountDetails({ discounts, allDiscounts }) {
     const [discountList, setDiscountList] = React.useState(allDiscounts);
     const {
+      categories,
       products,
-      isActive,
       _id,
       discountPercentage,
       startDate,
       endDate
     } = discounts;
-    console.log(_id);
+    // const { categories } = discounts;
     const [active, setActive] = React.useState(discounts.isActive);
     // const averageRating = calculateRatingMedian(products.ratings);
     const isFirstRunPermission = React.useRef(true);
@@ -215,13 +208,11 @@ function DiscountActivity({ totalDiscounts }) {
           <Checkbox checked={active} toggle onChange={handleToggleChange} />
         </Table.Cell>
         <Table.Cell>
-          {allDiscounts.map(p =>
-            p.categories.map(c => (
-              <Header as="h4">
-                <Header.Subheader>{c.toUpperCase()}</Header.Subheader>
-              </Header>
-            ))
-          )}
+          <Header as="h4">
+            <Header.Subheader>
+              {categories.toString().toUpperCase()}
+            </Header.Subheader>
+          </Header>
         </Table.Cell>
         <Table.Cell>{`%${discountPercentage}`}</Table.Cell>
         <Table.Cell>{formateDate(startDate)}</Table.Cell>

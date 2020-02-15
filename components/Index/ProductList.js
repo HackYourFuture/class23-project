@@ -28,7 +28,6 @@ function ProductList({ products, selectCategory }) {
         fluid: true,
         childKey: product._id,
         href: `/product?_id=${product._id}`,
-        p: product.discount ? "lala" : "nene",
         extra: (
           <Rating
             size="tiny"
