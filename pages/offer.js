@@ -1,15 +1,33 @@
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
-const Offer = ({ discount }) => {
-  console.log(discount);
-  return <>Hello</>;
+import { Card, Image } from "semantic-ui-react";
+const Offer = ({ discounts, query }) => {
+  console.log(discounts, query);
+  const [discountedProduct, setDiscountedProduct] = React.useState([]);
+  React.useEffect(() => {
+    const product = discounts.discounts.filter(d => d._id === query._id);
+    setDiscountedProduct(product);
+  }, []);
+  console.log(discountedProduct);
+
+  return (
+    <>
+      <Card>
+        <Image.Group>
+          {discountedProduct.map(p =>
+            p.products.map(p => <Image inline src={p.mediaUrl} size="medium" />)
+          )}
+        </Image.Group>
+      </Card>
+    </>
+  );
 };
 
-Offer.getInitialProps = async ({ query: { discountId } }) => {
+Offer.getInitialProps = async ({ query }) => {
   const url = `${baseUrl}/api/discount`;
   const isActive = true;
-  const payload = { params: { discountId } };
-  const response = await axios.get(url, payload);
-  return response.data;
+  const response = await axios.get(url);
+  return { discounts: response.data, query };
 };
+
 export default Offer;
