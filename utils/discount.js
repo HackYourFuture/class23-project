@@ -16,10 +16,10 @@ export function checkDiscountIsOK(discount) {
     end = new Date(endDate).getUTCMilliseconds(),
     oneDayMilliseconds = 24 * 60 * 60 * 100;
   const hasDiscountPercentage =
-      discountPercentage &&
-      !Number.isNaN(Number(discountPercentage)) &&
-      discountPercentage > 0 &&
-      discountPercentage <= 100,
+    discountPercentage &&
+    !Number.isNaN(Number(discountPercentage)) &&
+    discountPercentage > 0 &&
+    discountPercentage <= 100,
     atLeastStartsToday = now - start < oneDayMilliseconds && now - start >= 0,
     startsAtFuture = start >= now,
     endsAfterStart = start <= end,
@@ -81,7 +81,7 @@ export function checkDiscountForRequiredProps(discount) {
   const requiredProps = getRequiredPropsListForDiscount(discount);
   const notFoundProps = requiredProps
     .reduce((notFoundOnes, prop) => {
-      if (discount[prop]) return notFoundOnes;
+      if (discount[prop] !== undefined || discount[prop] !== null) return notFoundOnes;
       else return [...notFoundOnes, prop];
     }, [])
     .join(",");
@@ -91,7 +91,7 @@ export function checkDiscountForRequiredProps(discount) {
 }
 
 export function productPhrase(arr, productDiscount, productAmount = 1) {
-  return arr.reduce(function(prev, current, index, array) {
+  return arr.reduce(function (prev, current, index, array) {
     let string = `Buy at least ${productAmount} `;
     if (index === 0) {
       return (string += current.name);
@@ -106,7 +106,7 @@ export function productPhrase(arr, productDiscount, productAmount = 1) {
 }
 
 export function categoryPhrase(arr, categoryDiscount, categoryAmount = 1) {
-  return arr.reduce(function(prev, current, index, array) {
+  return arr.reduce(function (prev, current, index, array) {
     let string = `Buy at least ${categoryAmount} product from `;
     if (index === 0) {
       return (string += current);
