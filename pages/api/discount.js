@@ -444,7 +444,7 @@ async function handleDeleteRequest(req, res) {
     return res.status(401).send("No authorization token");
   }
   // Get the required field & check if it exists
-  const { discountId } = req.body;
+  const { discountId } = req.query;
   if (!discountId) {
     return res.status(403).send("Missing or bad argument: discountId");
   }
