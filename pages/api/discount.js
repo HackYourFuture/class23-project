@@ -359,13 +359,7 @@ async function handlePutRequest(req, res) {
         if (isActive) {
           // Check the dates & decide if the operation is possible
           const now = new Date();
-          if (now < discount.startDate) {
-            return res
-              .status(403)
-              .send(
-                "Discount could not be set as active before start date. Try again later."
-              );
-          } else if (now > discount.endDate) {
+          if (now > discount.endDate) {
             return res
               .status(403)
               .send("Discount could not be set as active after it is expired.");
@@ -377,17 +371,46 @@ async function handlePutRequest(req, res) {
           // Find the cart with products which is discounted with this discount
           await Cart.update(
             { "products.discount._id": discount._id },
-            { $unset: { "products.$[element].discount": 1 } },
+            {
+              $set:
+              {
+                "products.$[element].discountApplied": false,
+                "products.$[element].discountAmount": 0
+              }
+            },
             {
               multi: true,
               arrayFilters: [{ "element.discount._id": discount._id }]
             }
           );
-          return res
-            .status(200)
-            .send("Discount deactivated successfully with updating cards!");
+        } else {
+          // Find the cart with products which is discounted with this discount
+          const anItemDiscountAmount = { $divide: [{ $multiply: ['products.$[element].discount.discountPercentage', 'products.$[element].product.price'] }, 100] };
+          await Cart.update(
+            { "products.discount._id": discount._id },
+            {
+              $set:
+              {
+                "products.$[element].discountApplied": true,
+                "products.$[element].discountAmount": {
+                  $cond:
+                    [
+                      { 'products.$[element].discount.multipleUnits': true }, // if
+                      { ...anItemDiscountAmount }, // true
+                      { $multiply: [{ ...anItemDiscountAmount }, { 'products.$[element].discount.amountRequired'}] } // false
+                    ]
+                }
+              }
+            },
+            {
+              multi: true,
+              arrayFilters: [{ "element.discount._id": discount._id }]
+            }
+          );
         }
-        return res.status(200).send("Discount deactivated successfully!");
+        return res
+          .status(200)
+          .send("Discount deactivated successfully with updating cards!");
       } else {
         return res
           .status(401)
