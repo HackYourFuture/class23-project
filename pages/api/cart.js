@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
 import connectDb from "../../utils/connectDb";
+import Discount from "../../models/Discount";
+import Product from "../../models/Product";
+import { isDiscountExpired, isDiscountStarted, UNIT_TYPES } from '../../utils/discount';
+import { Card } from "semantic-ui-react";
 
 connectDb();
 
@@ -56,28 +60,19 @@ async function handlePutRequest(req, res) {
     );
     // Get user cart based on userId
     const cart = await Cart.findOne({ user: userId });
-    // Check if product already exists in cart
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product)
     );
-    // Check if a discount applied to the product already
-    const discountApplied =
-      cart.discountedProducts &&
-      (cart.discountedProducts.some(product =>
-        ObjectId(productId).equals(product)
-      ) ||
-        cart.discountedCategories.some(
-          category => productToAdd.category.trim() === category.trim()
-        ));
-    // If so, increment quantity (by number provided to request)
+
+    const discountInfo = await isDiscountApplicableForCart(cart, productId, productExists);
+
+    // If product exists, increment quantity (by number provided to request)
     if (productExists) {
-      if (discountApplied) {
-      } else {
-        await Cart.findOneAndUpdate(
-          { _id: cart._id, "products.product": productId },
-          { $inc: { "products.$.quantity": quantity } }
-        );
-      }
+      // save the product
+      await Cart.findOneAndUpdate(
+        { _id: cart._id, "products.product": productId },
+        { $inc: { "products.$.quantity": quantity } }
+      );
     } else {
       // If not, add new product with given quantity
       const newProduct = { quantity, product: productId };
@@ -85,6 +80,31 @@ async function handlePutRequest(req, res) {
         { _id: cart._id },
         { $addToSet: { products: newProduct } }
       );
+    }
+    let findQuery = {};
+    const discount = discountInfo.product.discount;
+    if (discountInfo.isSuitable) {
+      if (discount.unitType === UNIT_TYPES.product) {
+        if (discount.multipleUnits) { // products
+          findQuery = { 'products.product': { $in: discount.products.map(p => p._id) } };
+        } else { // product
+          findQuery = { 'products.product': productId };
+        }
+      } else { // unit category
+        if (discount.multipleUnits) { // categories
+          findQuery = { 'products.product.category': { $in: discount.categories } };
+        } else { // category
+          findQuery = { 'products.product.category': discount.category };
+        }
+      }
+      await Cart.update(
+        { _id: cart._id, ...findQuery },
+        { $set: { 'products.$.discount': discount } },
+        { multi: true }
+      );
+    }
+    if (discountInfo.isApplicable) {
+      await activateDiscountForCart(discount);
     }
     res.status(200).send("Cart updated");
   } catch (error) {
@@ -116,4 +136,106 @@ async function handleDeleteRequest(req, res) {
     console.error(error);
     res.status(403).send("Please login again");
   }
+}
+
+
+async function isDiscountApplicableForCart(cart, productId, productExists) {
+  // Check for discount availability
+  let isDiscountOnline = false,
+    isCartProvidesRequirementsForDiscount = true,
+    isDiscountAppliedBefore = false;
+  //Get the product 
+  const product = await Product.findOne({ _id: productId })
+    .populate({ path: 'discount', model: Discount })
+    .populate({ path: 'discount.product', model: Product })
+    .populate({ path: 'discount.products', model: Product });
+  // Get the discount
+  const discount = product.discount;
+  if (!discount) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  // Check if the discount is not expired
+  isDiscountOnline = !isDiscountExpired(discount) && isDiscountStarted(discount);
+  if (!isDiscountOnline) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  // Check if the discount is applied before
+  isDiscountAppliedBefore = cart.products.some(doc => ObjectId(doc.discount).equals(discount));
+  if (isDiscountAppliedBefore) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  const cartProduct = productExists ? cart.products.find(doc => ObjectId(productId).equals(doc.product)) : null;
+  // Check if the card has everything for discount
+  if (discount.unitType === UNIT_TYPES.product) { // product
+    if (discount.multipleUnits) { // check for the products
+      discount.products.forEach(prod => {
+        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product))) {
+          isCartProvidesRequirementsForDiscount = false;
+        }
+      });
+    } else { // check for the product amount
+      if (!((productExists && (cartProduct.quantity + 1) >= discount.amountRequired) || discount.amountRequired === 1)) {
+        isCartProvidesRequirementsForDiscount = false;
+      }
+    }
+  } else { // category
+    if (discount.multipleUnits) { // check for the categories
+      discount.categories.forEach(cat => {
+        if (!cart.products.some(doc => doc.product.category === cat)) {
+          isCartProvidesRequirementsForDiscount = false;
+        }
+      });
+    } else { // check for the category's products amount
+      let total = cart.products.reduce((total, doc) => {
+        if (doc.product.category === discount.category) return total + 1;
+        else return total;
+      }, 0);
+      if (total < discount.amountRequired) {
+        isCartProvidesRequirementsForDiscount = false;
+      }
+    }
+  }
+  if (!isCartProvidesRequirementsForDiscount) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  return { product, isApplicable: discount.isActive, isSuitable: true };
+}
+
+async function activateDiscountForCart(discount) {
+  // Find the cart with products which is discounted with this discount
+  const anItemDiscountAmount = {
+    $divide: [
+      {
+        $multiply: [
+          "products.$[element].discount.discountPercentage",
+          "products.$[element].product.price"
+        ]
+      },
+      100
+    ]
+  };
+  await Cart.update(
+    { "products.discount._id": discount._id },
+    {
+      $set: {
+        "products.$[element].discountApplied": true,
+        "products.$[element].discountAmount": {
+          $cond: [
+            { "products.$[element].discount.multipleUnits": true }, // if
+            { ...anItemDiscountAmount }, // true
+            {
+              $multiply: [
+                { ...anItemDiscountAmount },
+                "products.$[element].discount.amountRequired"
+              ]
+            } // false
+          ]
+        }
+      }
+    },
+    {
+      multi: true,
+      arrayFilters: [{ "element.discount._id": discount._id }]
+    }
+  );
 }

@@ -90,6 +90,25 @@ export function checkDiscountForRequiredProps(discount) {
   else return true;
 }
 
+export function isDiscountStarted(discount) {
+  const now = new Date().getUTCMilliseconds(),
+    start = new Date(discount.startDate).getUTCMilliseconds(),
+    oneDayMilliseconds = 24 * 60 * 60 * 100,
+    atLeastStartsToday = now - start < oneDayMilliseconds && now - start >= 0;
+  return atLeastStartsToday;
+}
+
+export function isDiscountExpired(discount) {
+  const now = new Date().getUTCMilliseconds(),
+    start = new Date(discount.startDate).getUTCMilliseconds(),
+    end = new Date(discount.endDate).getUTCMilliseconds(),
+    oneDayMilliseconds = 24 * 60 * 60 * 100,
+    endsAfterStart = start <= end,
+    atLeastEndsToday = now - end < oneDayMilliseconds && now - end >= 0,
+    endsAtFuture = end >= now;
+  return !(endsAfterStart && (atLeastEndsToday || endsAtFuture));
+}
+
 export function productPhrase(arr, productDiscount, productAmount = 1) {
   return arr.reduce(function (prev, current, index, array) {
     let string = `Buy at least ${productAmount} `;

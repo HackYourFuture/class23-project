@@ -48,24 +48,32 @@ async function handleGetRequest(req, res) {
   };
   try {
     if (productId) {
+      // get the product category
+      const productCategory = await Product.findOne({ _id: productId }).distinct('category');
       // discounts for product
       if (isActive) {
         discounts = await Discount.find({
           $and: [
             {
-              $or: [{ "product._id": productId }, { "products._id": productId }]
+              $or: [{ "product._id": productId }, { "products._id": productId }, { category: productCategory }, { categories: productCategory }]
             },
             { ...isActiveQuery }
           ]
         }).populate({
           path: "products",
           model: Product
+        }).populate({
+          path: "product",
+          model: Product
         });
       } else {
         discounts = await Discount.find({
-          $or: [{ "product._id": productId }, { "products._id": productId }]
+          $or: [{ "product._id": productId }, { "products._id": productId }, { category: productCategory }, { categories: productCategory }]
         }).populate({
           path: "products",
+          model: Product
+        }).populate({
+          path: "product",
           model: Product
         });
       }
@@ -80,12 +88,18 @@ async function handleGetRequest(req, res) {
         }).populate({
           path: "products",
           model: Product
+        }).populate({
+          path: "product",
+          model: Product
         });
       } else {
         discounts = await Discount.find({
           $or: [{ category: category }, { categories: category }]
         }).populate({
           path: "products",
+          model: Product
+        }).populate({
+          path: "product",
           model: Product
         });
       }
@@ -98,10 +112,16 @@ async function handleGetRequest(req, res) {
         }).populate({
           path: "products",
           model: Product
+        }).populate({
+          path: "product",
+          model: Product
         });
       } else {
         discounts = await Discount.find({ _id: discountId }).populate({
           path: "products",
+          model: Product
+        }).populate({
+          path: "product",
           model: Product
         });
       }
@@ -112,6 +132,9 @@ async function handleGetRequest(req, res) {
       } else {
         discounts = await Discount.find({}).populate({
           path: "products",
+          model: Product
+        }).populate({
+          path: "product",
           model: Product
         });
       }
