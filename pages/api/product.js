@@ -68,7 +68,7 @@ async function handleGetRequest(req, res) {
     }
   ]);
 
-  await Rating.populate(products, { path: "ratings" });
+  await Rating.populate(products, { path: "ratings", model: Rating });
 
   const shuffledList = shuffle(products, 5);
   const topSuggestedProducts = shuffledList.sort(

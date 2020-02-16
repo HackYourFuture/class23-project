@@ -18,13 +18,6 @@ export function redirectUser(ctx, location) {
 
 export async function handleLogout() {
   cookie.remove("token");
-  if (firebase.auth().currentUser) {
-    try {
-      await firebase.auth().signOut();
-    } catch (error) {
-      console.error('Error while signing out from social user:', error.message);
-    }
-  }
   window.localStorage.setItem("logout", Date.now());
   Router.push("/login");
 }

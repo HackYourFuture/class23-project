@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 import shortid from "shortid";
+import User from './User';
+import Rating from './Rating';
 
 const { String, Number, ObjectId } = mongoose.Schema.Types;
 
 const CommentSchema = new mongoose.Schema({
   user: {
     type: ObjectId,
-    ref: "User"
+    ref: User
   },
   content: {
     type: String,
@@ -34,7 +36,7 @@ const SuggestionSchema = new mongoose.Schema({
   ratings: [
     {
       type: ObjectId,
-      ref: 'Rating',
+      ref: Rating,
     },
   ]
 
@@ -79,7 +81,7 @@ const ProductSchema = new mongoose.Schema({
   ratings: [
     {
       type: ObjectId,
-      ref: "Rating"
+      ref: Rating
     }
   ]
 });
