@@ -13,7 +13,7 @@ import {
   Icon
 } from "semantic-ui-react";
 
-function Home({ products, totalPages, currency }) {
+function Home({ products, totalPages, currency, user }) {
   const [newCurrency, setNewCurrency] = useState(false);
   const router = useRouter();
   const [category, setCategory] = useState("");
@@ -54,6 +54,7 @@ function Home({ products, totalPages, currency }) {
 
       <ProductList
         products={products}
+        user={user}
         selectCategory={selectCategory}
         currency={currency}
       />
@@ -64,7 +65,7 @@ function Home({ products, totalPages, currency }) {
 }
 
 Home.getInitialProps = async ctx => {
-  const page = ctx.query.page ? ctx.query.page : "1";
+  const page = ctx.query.page ? ctx.query.page : '1';
   const category = ctx.query.category;
   const size = 6;
   const url = `${baseUrl}/api/products`;
@@ -74,6 +75,6 @@ Home.getInitialProps = async ctx => {
   // return response data as an object
   return response.data;
   // note: this object will be merged with existing props
-};
+}; 
 
 export default Home;
