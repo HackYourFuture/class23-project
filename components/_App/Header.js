@@ -20,7 +20,7 @@ function Header({ user }) {
 
   return (
     <Menu stackable fluid id="menu" inverted>
-      <Container text>
+      <Container text className="navbar-wrapper">
         <Link href="/">
           <Menu.Item header active={isActive("/")}>
             <Image
@@ -77,22 +77,22 @@ function Header({ user }) {
             </Menu.Item>
           </>
         ) : (
-          <>
-            <Link href="/login">
-              <Menu.Item header active={isActive("/login")}>
-                <Icon name="sign in" size="large" />
-                Login
+            <>
+              <Link href="/login">
+                <Menu.Item header active={isActive("/login")}>
+                  <Icon name="sign in" size="large" />
+                  Login
               </Menu.Item>
-            </Link>
+              </Link>
 
-            <Link href="/signup">
-              <Menu.Item header active={isActive("/signup")}>
-                <Icon name="signup" size="large" />
-                Signup
+              <Link href="/signup">
+                <Menu.Item header active={isActive("/signup")}>
+                  <Icon name="signup" size="large" />
+                  Signup
               </Menu.Item>
-            </Link>
-          </>
-        )}
+              </Link>
+            </>
+          )}
       </Container>
     </Menu>
   );
