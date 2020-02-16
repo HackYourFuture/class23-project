@@ -18,6 +18,17 @@ const OrderSchema = new mongoose.Schema(
           type: ObjectId,
           ref: 'Product',
         },
+        discountPercentage: {
+          type: Number,
+        },
+        discountApplied: {
+          type: Boolean,
+          default: false
+        },
+        discountAmount: {
+          type: Number,
+          default: 0
+        }
       },
     ],
     email: {

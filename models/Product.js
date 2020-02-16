@@ -25,11 +25,11 @@ const SuggestionSchema = new mongoose.Schema({
   },
   name: {
     type: String,
-    required: true,
+    required: true
   },
   price: {
     type: Number,
-    required: true,
+    required: true
   },
   ratings: [
     {
@@ -81,7 +81,11 @@ const ProductSchema = new mongoose.Schema({
       type: ObjectId,
       ref: "Rating"
     }
-  ]
+  ],
+  discount: {
+    type: ObjectId,
+    ref: "Discount"
+  }
 });
 
 export default mongoose.models.Product ||

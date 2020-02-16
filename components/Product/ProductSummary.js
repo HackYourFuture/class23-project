@@ -16,6 +16,7 @@ import AddProductToCart from "./AddProductToCart";
 import axios from "axios";
 import cookie from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
+import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
 
 function ProductSummary({
@@ -27,7 +28,8 @@ function ProductSummary({
   sku,
   user,
   ratings,
-  currency
+  currency,
+  discount
 }) {
   console.log(currency);
   const [ratingAmount, setRatingAmount] = React.useState(0);
@@ -40,6 +42,7 @@ function ProductSummary({
   const [mediaPreview, setMediaPreview] = React.useState("");
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState(false);
+  const router = useRouter();
 
   React.useEffect(() => {
     const avrRating = calculateRatingMedian(ratings);
@@ -287,6 +290,16 @@ function ProductSummary({
             <Item.Extra>
               <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
+            {discount !== null && discount.length > 0 ? (
+              <Button
+                color="red"
+                onClick={() => router.push(`/offer?discountId=${discount}`)}
+              >
+                See Offer Details!
+              </Button>
+            ) : (
+              ""
+            )}
           </Item.Content>
         </Item>
       </Item.Group>
