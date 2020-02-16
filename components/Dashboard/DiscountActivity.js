@@ -130,7 +130,7 @@ function DiscountActivity({ totalDiscounts }) {
     const [active, setActive] = React.useState(discount.isActive);
     const [toggling, setToggling] = useState(false);
     const [removing, setRemoving] = useState(false);
-
+    if (discount.product) console.log({ product: discount.product.name });
     return (
       <Table.Row>
         <Table.Cell collapsing>

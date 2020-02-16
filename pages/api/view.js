@@ -49,7 +49,7 @@ async function handleGetRequest(req, res) {
         model: Discount,
         populate: { path: "products", model: Product }
       }
-    });
+    }).populate({ path: 'product', model: Product });
     const topViewedTenProducts = await Product.aggregate([
       {
         $sort: { numberOfViews: -1 }
