@@ -1,6 +1,5 @@
 import { Card, Container, Rating, Dropdown } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
-import { useState } from "react";
 
 function ProductList({ products, selectCategory, currency }) {
   const categoryOptions = [
@@ -15,6 +14,8 @@ function ProductList({ products, selectCategory, currency }) {
     { key: "tec", text: "Technology", value: "technology" },
     { key: "oth", text: "Other", value: "other" }
   ];
+
+  console.log(products);
 
   function mapProductsToItems(products) {
     return products.map(product => {

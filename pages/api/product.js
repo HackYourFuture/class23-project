@@ -2,10 +2,10 @@ import Product from "../../models/Product";
 import Cart from "../../models/Cart";
 import User from "../../models/User";
 import connectDb from "../../utils/connectDb";
+import shuffle from "../../utils/shuffle";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Rating from "../../models/Rating";
-
 connectDb();
 
 const COMMENTS_PER_PAGE = 5;
@@ -52,9 +52,34 @@ async function handleGetRequest(req, res) {
         $cond: [{ $ifNull: ["$comments", false] }, { $size: "$comments" }, 0]
       }
     });
-  res
-    .status(200)
-    .json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product });
+
+  // Top Products
+
+  const products = await Product.aggregate([
+    {
+      $match: {
+        $and: [
+          { _id: { $ne: product._id } },
+          {
+            category: product.category
+          }
+        ]
+      }
+    }
+  ]);
+
+  await Rating.populate(products, { path: "ratings" });
+
+  const shuffledList = shuffle(products, 5);
+  const topSuggestedProducts = shuffledList.sort(
+    (a, b) => b.numberOfViews - a.numberOfViews
+  );
+
+  res.status(200).json({
+    totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
+    product,
+    topSuggestedProducts
+  });
 }
 
 async function handlePostRequest(req, res) {
@@ -141,20 +166,29 @@ async function handlePutRequest(req, res) {
 }
 
 async function handleDeleteRequest(req, res) {
-  const { _id } = req.query;
-
+  const { _id, commentId } = req.query;
   try {
-    // 1) Delete product by id
-    await Product.findOneAndDelete({ _id });
+    if (_id & !commentId) { // Delete product
+      // 1) Delete product by id
+      await Product.findOneAndDelete({ _id });
 
-    // 2) Remove from all carts, referenced as "product"
-    await Cart.updateMany(
-      { "products.product": _id },
-      { $pull: { products: { product: _id } } }
-    );
-    res.status(204).json({});
+      // 2) Remove from all carts, referenced as "product"
+      await Cart.updateMany(
+        { "products.product": _id },
+        { $pull: { products: { product: _id } } }
+      );
+      return res.status(204).json({});
+    } else if (_id && commentId) { // Delete comment
+      await Product.findOneAndUpdate(
+        { _id },
+        { $pull: { comments: { _id: commentId } } }
+      );
+      return res.status(204).send('Comment removed successfully!');
+    } else {
+      return res.status(405).send('Operation not allowed or could not be understood!');
+    }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error deleting product");
+    return res.status(500).send("Error deleting product or comment!");
   }
 }

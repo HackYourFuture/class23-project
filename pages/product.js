@@ -5,9 +5,9 @@ import ProductAttributes from "../components/Product/ProductAttributes";
 import AddCommentToProduct from "../components/Product/AddCommentToProduct";
 import CommentPagination from "../components/Product/CommentPagination";
 import baseUrl from "../utils/baseUrl";
+import AddProductSuggestions from "../components/Product/AddProductSuggestions";
 
-function Product({ product, user, totalComments, currency }) {
-  console.log(currency);
+function Product({ product, user, totalComments, topSuggestedProducts, currency }) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
   const [displayedTotalComments, setDisplayedTotalComments] = useState(
     totalComments
@@ -37,6 +37,10 @@ function Product({ product, user, totalComments, currency }) {
     <>
       <ProductSummary user={user} {...displayedProduct} currency={currency} />
       <ProductAttributes user={user} {...displayedProduct} />
+      <AddProductSuggestions
+        topSuggestedProducts={topSuggestedProducts}
+        {...displayedProduct}
+      />
       <AddCommentToProduct
         user={user}
         product={displayedProduct}
