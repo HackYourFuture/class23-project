@@ -23,6 +23,7 @@ function Cart({ products, user }) {
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
   const [values, setValues] = React.useState("");
+  const [values2, setValues2] = React.useState("");
   const [successSubmit, setSuccessSubmit] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
@@ -66,7 +67,11 @@ function Cart({ products, user }) {
       await setSuccessSubmit(response.data);
       console.log("submit", response.data);
       console.log("val", values);
+      await setValues2(values);
+      console.log(values2);
     } catch (error) {
+      setValues2("");
+      setValues("");
       catchErrors(error, window.alert);
     }
   };
@@ -95,9 +100,10 @@ function Cart({ products, user }) {
               onChange={handleChange}
             />
             <Form.Button content="Submit" />
+            {values2.length > 2 ? <h3>Valid Discount Code</h3> : null}
           </Form>
         </Segment>
-        {successSubmit === values ? (
+        {successSubmit === values2 ? (
           <CartSummary
             products={cartProducts}
             handleCheckout={handleCheckout}

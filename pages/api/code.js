@@ -4,19 +4,6 @@ import connectDb from "../../utils/connectDb";
 connectDb();
 
 export default async (req, res) => {
-  switch (req.method) {
-    case "POST":
-      await handlePostRequest(req, res);
-      break;
-    case "GET":
-      await handleGetRequest(req, res);
-      break;
-    default:
-      res.status(405).send(`Method ${req.method} is not allowed`);
-      break;
-  }
-};
-async function handlePostRequest(req, res) {
   const { values } = req.body;
   console.log("Hello", { values });
   try {
@@ -31,4 +18,4 @@ async function handlePostRequest(req, res) {
     console.error(error);
     res.status(404).send("Connection lost");
   }
-}
+};
