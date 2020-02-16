@@ -22,7 +22,7 @@ function DiscountActivity({ totalDiscounts }) {
     const url = `${baseUrl}/api/discount`;
     const token = cookie.get("token");
     const headers = { headers: { Authorization: token } };
-    const payload = { discountId: discount._id, isActive: discount.isActive };
+    const payload = { discountId: discount._id, isActive: !discount.isActive };
     try {
       await axios.put(url, payload, headers);
       discount.isActive = !discount.isActive;
@@ -51,7 +51,7 @@ function DiscountActivity({ totalDiscounts }) {
     } catch (error) {
       console.warn(error);
     } finally {
-      activityIndicator(false);
+      //activityIndicator(false);
     }
   }
 

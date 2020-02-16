@@ -8,8 +8,10 @@ import {
   checkDiscountForRequiredProps,
   checkDiscountIsOK,
   getRequiredPropsListForDiscount,
-  UNIT_TYPES
+  UNIT_TYPES,
+  isDiscountExpired
 } from "../../utils/discount";
+import mongoose from 'mongoose';
 
 connectDb();
 
@@ -417,6 +419,8 @@ async function handlePutRequest(req, res) {
   }
   // Get the required fields & check if they exist
   const { isActive, discountId } = req.body;
+  console.log({ body: req.body });
+
   if (!discountId && isActive === undefined && typeof isActive !== "boolean") {
     return res
       .status(403)
@@ -439,8 +443,7 @@ async function handlePutRequest(req, res) {
         const discount = await Discount.findOne({ _id: discountId });
         if (isActive) {
           // Check the dates & decide if the operation is possible
-          const now = new Date();
-          if (now > discount.endDate) {
+          if (isDiscountExpired(discount)) {
             return res
               .status(403)
               .send("Discount could not be set as active after it is expired.");
@@ -558,7 +561,7 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
 
   carts.forEach(cart => {
     cart.products.forEach(doc => {
-      if (doc.discount && ObjectId(doc.discount._id).equals(discountId)) {
+      if (doc.discount && mongoose.Types.ObjectId(doc.discount._id).equals(discountId)) {
         doc.discountApplied = activate;
         if (!activate || remove) doc.discountAmount = 0;
         else if (activate) {
@@ -572,5 +575,7 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
       }
     })
   });
-  await carts.save();
+  carts.forEach(async (cart) => {
+    await cart.save();
+  })
 }
