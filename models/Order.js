@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { ObjectId, Number } = mongoose.Schema.Types;
 
@@ -6,32 +6,43 @@ const OrderSchema = new mongoose.Schema(
   {
     user: {
       type: ObjectId,
-      ref: "User"
+      ref: 'User',
     },
     products: [
       {
         quantity: {
           type: Number,
-          default: 1
+          default: 1,
         },
         product: {
           type: ObjectId,
-          ref: "Product"
+          ref: 'Product',
+        },
+        discountPercentage: {
+          type: Number,
+        },
+        discountApplied: {
+          type: Boolean,
+          default: false
+        },
+        discountAmount: {
+          type: Number,
+          default: 0
         }
-      }
+      },
     ],
     email: {
       type: String,
-      required: true
+      required: true,
     },
     total: {
       type: Number,
-      required: true
-    }
+      required: true,
+    },
   },
   {
-    timestamps: true
-  }
+    timestamps: true,
+  },
 );
 
-export default mongoose.models.Order || mongoose.model("Order", OrderSchema);
+export default mongoose.models.Order || mongoose.model('Order', OrderSchema);

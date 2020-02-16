@@ -20,7 +20,7 @@ function Header({ user }) {
 
   return (
     <Menu stackable fluid id="menu" inverted>
-      <Container text>
+      <Container text className="navbar-wrapper">
         <Link href="/">
           <Menu.Item header active={isActive("/")}>
             <Image
@@ -32,21 +32,35 @@ function Header({ user }) {
           </Menu.Item>
         </Link>
 
+        {isRootOrAdmin && (
+          <>
+            <Link href="/dashboard">
+              <Menu.Item header active={isActive("/dashboard")}>
+                <Icon name="chart line" size="large" />
+                Dashboard
+              </Menu.Item>
+            </Link>
+            <Link href="/create">
+              <Menu.Item header active={isActive("/create")}>
+                <Icon name="add square" size="large" />
+                Create
+              </Menu.Item>
+            </Link>
+          </>
+        )}
+
         <Link href="/cart">
           <Menu.Item header active={isActive("/cart")}>
             <Icon name="cart" size="large" />
             Cart
           </Menu.Item>
         </Link>
-
-        {isRootOrAdmin && (
-          <Link href="/create">
-            <Menu.Item header active={isActive("/create")}>
-              <Icon name="add square" size="large" />
-              Create
-            </Menu.Item>
-          </Link>
-        )}
+        <Link href="/offers">
+          <Menu.Item header active={isActive("/offers")}>
+            <Icon name="shopping basket" size="large" />
+            Offers
+          </Menu.Item>
+        </Link>
 
         {user ? (
           <>
@@ -63,22 +77,22 @@ function Header({ user }) {
             </Menu.Item>
           </>
         ) : (
-          <>
-            <Link href="/login">
-              <Menu.Item header active={isActive("/login")}>
-                <Icon name="sign in" size="large" />
-                Login
+            <>
+              <Link href="/login">
+                <Menu.Item header active={isActive("/login")}>
+                  <Icon name="sign in" size="large" />
+                  Login
               </Menu.Item>
-            </Link>
+              </Link>
 
-            <Link href="/signup">
-              <Menu.Item header active={isActive("/signup")}>
-                <Icon name="signup" size="large" />
-                Signup
+              <Link href="/signup">
+                <Menu.Item header active={isActive("/signup")}>
+                  <Icon name="signup" size="large" />
+                  Signup
               </Menu.Item>
-            </Link>
-          </>
-        )}
+              </Link>
+            </>
+          )}
       </Container>
     </Menu>
   );

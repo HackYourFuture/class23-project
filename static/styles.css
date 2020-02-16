@@ -12,8 +12,19 @@ body {
   background: var(--menuBg);
 }
 
+.navbar-wrapper {
+  justify-content: center !important;
+}
+
 /* Overrides default styled accordion styles (too much bottom padding) */
 .ui.styled.accordion .content {
   margin: 0;
   padding: 0.5em 1em 0.75em !important;
 }
+
+/* @media only screen and (min-width: 770px) {
+  .ui.modal.transition.visible.active {
+    transform: translate(50%);
+    max-width: 400px !important ;
+  }
+} */

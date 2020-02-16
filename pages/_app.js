@@ -5,20 +5,18 @@ import { redirectUser } from "../utils/auth";
 import baseUrl from "../utils/baseUrl";
 import axios from "axios";
 import Router from "next/router";
-
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
     const { token } = parseCookies(ctx);
-
     let pageProps = {};
-
     if (Component.getInitialProps) {
       pageProps = await Component.getInitialProps(ctx);
     }
-
     if (!token) {
       const isProtectedRoute =
-        ctx.pathname === "/account" || ctx.pathname === "/create";
+        ctx.pathname === '/account' ||
+        ctx.pathname === '/create' ||
+        ctx.pathname === '/dashboard';
       if (isProtectedRoute) {
         redirectUser(ctx, "/login");
       }
@@ -32,7 +30,7 @@ class MyApp extends App {
         const isAdmin = user.role === "admin";
         // if authenticated, but not of role 'admin' or 'root', redirect from '/create' page
         const isNotPermitted =
-          !(isRoot || isAdmin) && ctx.pathname === "/create";
+          !(isRoot || isAdmin) && ctx.pathname === '/create';
         if (isNotPermitted) {
           redirectUser(ctx, "/");
         }
@@ -45,12 +43,25 @@ class MyApp extends App {
         redirectUser(ctx, "/login");
       }
     }
-
     return { pageProps };
   }
 
+  state = {
+    currency: ""
+  };
   componentDidMount() {
     window.addEventListener("storage", this.syncLogout);
+    this.setState({
+      currency: window.localStorage.getItem("currency")
+    });
+  }
+
+  componentDidUpdate() {
+    if (window.localStorage.getItem("currency") !== this.state.currency) {
+      this.setState({
+        currency: window.localStorage.getItem("currency")
+      });
+    }
   }
 
   syncLogout = event => {
@@ -58,15 +69,13 @@ class MyApp extends App {
       Router.push("/login");
     }
   };
-
   render() {
     const { Component, pageProps } = this.props;
     return (
       <Layout {...pageProps}>
-        <Component {...pageProps} />
+        <Component {...pageProps} currency={this.state.currency} />
       </Layout>
     );
   }
 }
-
 export default MyApp;

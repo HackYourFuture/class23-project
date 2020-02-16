@@ -1,5 +1,6 @@
 import cookie from "js-cookie";
 import Router from "next/router";
+import firebase from 'firebase';
 
 export function handleLogin(token) {
   cookie.set("token", token);
@@ -15,7 +16,7 @@ export function redirectUser(ctx, location) {
   }
 }
 
-export function handleLogout() {
+export async function handleLogout() {
   cookie.remove("token");
   window.localStorage.setItem("logout", Date.now());
   Router.push("/login");

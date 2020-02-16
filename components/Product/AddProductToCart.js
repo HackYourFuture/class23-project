@@ -1,4 +1,5 @@
 import React from "react";
+import { logEvent } from "../../utils/analytics";
 import { Input } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -6,7 +7,7 @@ import baseUrl from "../../utils/baseUrl";
 import catchErrors from "../../utils/catchErrors";
 import cookie from "js-cookie";
 
-function AddProductToCart({ user, productId }) {
+function AddProductToCart({ user, productId, name }) {
   const [quantity, setQuantity] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -24,6 +25,12 @@ function AddProductToCart({ user, productId }) {
 
   async function handleAddProductToCart() {
     try {
+      logEvent(
+        "User",
+        `User ${user.name} added product ${name} to their cart`,
+        "Product"
+      );
+
       setLoading(true);
       const url = `${baseUrl}/api/cart`;
       const payload = { quantity, productId };
