@@ -18,7 +18,9 @@ class MyApp extends App {
 
     if (!token) {
       const isProtectedRoute =
-        ctx.pathname === '/account' || ctx.pathname === '/create' || ctx.pathname === '/dashboard';
+        ctx.pathname === '/account' ||
+        ctx.pathname === '/create' ||
+        ctx.pathname === '/dashboard';
       if (isProtectedRoute) {
         redirectUser(ctx, '/login');
       }
@@ -31,7 +33,8 @@ class MyApp extends App {
         const isRoot = user.role === 'root';
         const isAdmin = user.role === 'admin';
         // if authenticated, but not of role 'admin' or 'root', redirect from '/create' page
-        const isNotPermitted = !(isRoot || isAdmin) && ctx.pathname === '/create';
+        const isNotPermitted =
+          !(isRoot || isAdmin) && ctx.pathname === '/create';
         if (isNotPermitted) {
           redirectUser(ctx, '/');
         }
