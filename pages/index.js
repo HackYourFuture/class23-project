@@ -6,7 +6,6 @@ import baseUrl from '../utils/baseUrl';
 import { useRouter } from 'next/router';
 
 function Home({ products, totalPages, user }) {
-  console.log('user', user);
   const router = useRouter();
   const [category, setcategory] = useState('');
 

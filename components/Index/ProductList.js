@@ -22,6 +22,7 @@ function ProductList({ products, selectCategory, user }) {
   const [isOpen, setIsOpen] = React.useState();
   const [success, setSuccess] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
+  const [showMessage, setShowMessage] = React.useState(false);
 
   const router = useRouter();
   const categoryOptions = [
@@ -94,6 +95,7 @@ function ProductList({ products, selectCategory, user }) {
             onClick={() => {
               if (user) {
                 setSuccess(true);
+                setShowMessage(true);
                 handleAddProductToCart();
                 console.log(user);
                 return;
@@ -112,7 +114,7 @@ function ProductList({ products, selectCategory, user }) {
 
   return (
     <>
-      {success && (
+      {success && showMessage && (
         <Message success={success}>Product successfully added to cart</Message>
       )}
       <Container style={{ marginBottom: '2em' }}>
@@ -168,5 +170,4 @@ function ProductList({ products, selectCategory, user }) {
     </>
   );
 }
-
 export default ProductList;
