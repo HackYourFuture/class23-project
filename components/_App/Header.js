@@ -55,6 +55,12 @@ function Header({ user }) {
             Cart
           </Menu.Item>
         </Link>
+        <Link href="/offers">
+          <Menu.Item header active={isActive("/offers")}>
+            <Icon name="shopping basket" size="large" />
+            Offers
+          </Menu.Item>
+        </Link>
 
         {user ? (
           <>

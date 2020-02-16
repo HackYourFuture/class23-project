@@ -42,7 +42,7 @@ function Signup() {
 
       setEmailSent(response.data);
       handleLogin(response.data);
-      logEvent('User', 'Created an Account');
+      logEvent("User", "Created an Account");
     } catch (error) {
       catchErrors(error, setError);
     } finally {

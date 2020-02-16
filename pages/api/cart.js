@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import Cart from "../../models/Cart";
 import connectDb from "../../utils/connectDb";
+import Discount from "../../models/Discount";
+import Product from "../../models/Product";
+import { isDiscountExpired, isDiscountStarted, UNIT_TYPES } from '../../utils/discount';
 
 connectDb();
 
@@ -55,24 +58,40 @@ async function handlePutRequest(req, res) {
       process.env.JWT_SECRET
     );
     // Get user cart based on userId
-    const cart = await Cart.findOne({ user: userId });
-    // Check if product already exists in cart
+    const cart = await Cart.findOne({ user: userId })
+      .populate({ path: 'products.discount', model: 'Discount' })
+      .populate({ path: 'products.product', model: 'Product' });
     const productExists = cart.products.some(doc =>
-      ObjectId(productId).equals(doc.product)
+      ObjectId(productId).equals(doc.product._id)
     );
-    // If so, increment quantity (by number provided to request)
+
+    const discountInfo = await isProductsDiscountApplicableForCart(cart, productId, productExists);
+    console.log({ discountInfo })
+    // If product exists, increment quantity (by number provided to request)
+    let newCart = {};
     if (productExists) {
-      await Cart.findOneAndUpdate(
+      // save the product
+      newCart = await Cart.findOneAndUpdate(
         { _id: cart._id, "products.product": productId },
-        { $inc: { "products.$.quantity": quantity } }
-      );
+        { $inc: { "products.$.quantity": quantity } },
+        { new: true }
+      ).populate({ path: 'products.product', model: 'Product' });
     } else {
       // If not, add new product with given quantity
       const newProduct = { quantity, product: productId };
-      await Cart.findOneAndUpdate(
+      newCart = await Cart.findOneAndUpdate(
         { _id: cart._id },
-        { $addToSet: { products: newProduct } }
-      );
+        { $addToSet: { products: newProduct } },
+        { new: true }
+      ).populate({ path: 'products.product', model: 'Product' });;
+    }
+
+    const discount = discountInfo.product.discount;
+    if (discountInfo.isSuitable) {
+      await addDiscountToCartInDeactivatedMode(discount, newCart);
+    }
+    if (discountInfo.isApplicable) {
+      await activateDiscountForCart(discount);
     }
     res.status(200).send("Cart updated");
   } catch (error) {
@@ -91,17 +110,314 @@ async function handleDeleteRequest(req, res) {
       req.headers.authorization,
       process.env.JWT_SECRET
     );
-    const cart = await Cart.findOneAndUpdate(
-      { user: userId },
-      { $pull: { products: { product: productId } } },
-      { new: true }
-    ).populate({
+    // get the cart
+    const oldCart = await Cart.findOne({ user: userId }).populate({
       path: "products.product",
       model: "Product"
+    }).populate({
+      path: "products.discount",
+      model: "Discount"
+    }).populate({
+      path: "products.discount.products",
+      model: "Product"
+    }).populate({
+      path: "products.discount.product",
+      model: "Product"
     });
+
+    // get the product element from cart
+    const cartProduct = oldCart.products.find(doc => ObjectId(productId).equals(doc.product._id));
+    console.log({ cartProduct })
+    let cart = {};
+    // check if a discount set to the product
+    if (cartProduct.discount) {
+      // Remove the discount from the cart
+      await Cart.update(
+        { user: userId },
+        { $unset: { 'products.$[element].discount': 1 } },
+        {
+          multi: true,
+          arrayFilters: [{ 'element.discount': cartProduct.discount._id }]
+        }
+      );
+      // remove the product from the cart
+      cart = await Cart.findOneAndUpdate(
+        { user: userId },
+        { $pull: { products: { product: productId } } },
+        { new: true }
+      ).populate({
+        path: "products.product",
+        model: "Product"
+      }).populate({
+        path: "products.discount",
+        model: "Discount"
+      }).populate({
+        path: "products.discount.products",
+        model: "Product"
+      }).populate({
+        path: "products.discount.product",
+        model: "Product"
+      });
+
+      // Check the applicability of the discount for the cart
+      const discountInfo = isDiscountApplicableForCartWithRemovedProduct(cart, cartProduct.discount);
+      if (discountInfo.isSuitable) {
+        cart = await addDiscountToCartInDeactivatedMode(discount, cart);
+      }
+      if (discountInfo.isApplicable) {
+        cart = await activateDiscountForCart(discount, userId);
+      }
+    } else {
+      // remove the product from the cart
+      cart = await Cart.findOneAndUpdate(
+        { user: userId },
+        { $pull: { products: { product: productId } } },
+        { new: true }
+      ).populate({
+        path: "products.product",
+        model: "Product"
+      }).populate({
+        path: "products.discount",
+        model: "Discount"
+      }).populate({
+        path: "products.discount.products",
+        model: "Product"
+      }).populate({
+        path: "products.discount.product",
+        model: "Product"
+      });
+    }
+
     res.status(200).json(cart.products);
   } catch (error) {
     console.error(error);
     res.status(403).send("Please login again");
   }
+}
+
+async function isProductsDiscountApplicableForCart(cart, productId, productExists) {
+  // Check for discount availability
+  let isDiscountOnline = false,
+    isCartProvidesRequirementsForDiscount = true,
+    isDiscountAppliedBefore = false;
+  //Get the product 
+  const product = await Product.findOne({ _id: productId })
+    .populate({ path: 'discount', model: Discount })
+    .populate({ path: 'discount.product', model: Product })
+    .populate({ path: 'discount.products', model: Product });
+  // Get the discount
+  const discount = product.discount;
+  console.log({ availability: discount });
+  if (!discount) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  // Check if the discount is not expired
+  isDiscountOnline = !isDiscountExpired(discount) && isDiscountStarted(discount);
+  console.log({ isDiscountOnline })
+  if (!isDiscountOnline) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  // Check if the discount is applied before
+  console.log({ productsOfCart: cart.products });
+  isDiscountAppliedBefore = cart.products.some(doc => doc.discount && ObjectId(doc.discount._id).equals(discount._id));
+  console.log({ isDiscountAppliedBefore });
+
+  if (isDiscountAppliedBefore) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  const cartProduct = productExists ? cart.products.find(doc => ObjectId(productId).equals(doc.product._id)) : null;
+  console.log({ cartProduct });
+
+  // Check if the card has everything for discount
+  if (discount.unitType === UNIT_TYPES.product) { // product
+    if (discount.multipleUnits) { // check for the products
+      discount.products.forEach(prod => {
+        if (ObjectId(prod).equals(productId)) return;
+        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
+          isCartProvidesRequirementsForDiscount = false;
+          console.log('bug here')
+        }
+      });
+    } else { // check for the product amount
+      if (!((productExists && (cartProduct.quantity + 1) >= discount.amountRequired) || discount.amountRequired === 1)) {
+        isCartProvidesRequirementsForDiscount = false;
+      }
+    }
+  } else { // category
+    if (discount.multipleUnits) { // check for the categories
+      discount.categories.forEach(cat => {
+        if (!productExists && cat === product.category) return;
+        if (!cart.products.some(doc => doc.product.category === cat)) {
+          isCartProvidesRequirementsForDiscount = false;
+        }
+      });
+    } else { // check for the category's products amount
+      let total = cart.products.reduce((total, doc) => {
+        if (doc.product.category === discount.category) return total + 1;
+        else return total;
+      }, 0);
+      console.log({ isCartProvidesRequirementsForDiscount })
+      console.log({ total })
+      console.log({ amountRequired: discount.amountRequired })
+      total = productExists ? total : total + 1
+      if (total < discount.amountRequired) {
+        isCartProvidesRequirementsForDiscount = false;
+      }
+    }
+  }
+  console.log({ isCartProvidesRequirementsForDiscount });
+
+  if (!isCartProvidesRequirementsForDiscount) {
+    return { product, isApplicable: false, isSuitable: false };
+  }
+  return { product, isApplicable: discount.isActive, isSuitable: true };
+}
+
+async function isDiscountApplicableForCartWithRemovedProduct(cart, discount) {
+  // Check for discount availability
+  let isDiscountOnline = false,
+    isCartProvidesRequirementsForDiscount = true,
+    isDiscountAppliedBefore = false;
+  // Check if the discount is not expired
+  isDiscountOnline = !isDiscountExpired(discount) && isDiscountStarted(discount);
+  if (!isDiscountOnline) {
+    return { isApplicable: false, isSuitable: false };
+  }
+  // Check if the card has everything for discount
+  if (discount.unitType === UNIT_TYPES.product) { // product
+    if (discount.multipleUnits) { // check for the products
+      discount.products.forEach(prod => {
+        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
+          isCartProvidesRequirementsForDiscount = false;
+        }
+      });
+    } else { // check for the product amount
+      isCartProvidesRequirementsForDiscount = false;
+    }
+  } else { // category
+    if (discount.multipleUnits) { // check for the categories
+      discount.categories.forEach(cat => {
+        if (!cart.products.some(doc => doc.product.category === cat)) {
+          isCartProvidesRequirementsForDiscount = false;
+        }
+      });
+    } else { // check for the category's products amount
+      let total = cart.products.reduce((total, doc) => {
+        if (doc.product.category === discount.category) return total + 1;
+        else return total;
+      }, 0);
+      if (total < discount.amountRequired) {
+        isCartProvidesRequirementsForDiscount = false;
+      }
+    }
+  }
+  if (!isCartProvidesRequirementsForDiscount) {
+    return { isApplicable: false, isSuitable: false };
+  }
+  return { isApplicable: discount.isActive, isSuitable: true };
+}
+
+async function addDiscountToCartInDeactivatedMode(discount, cart) {
+
+  if (discount.unitType === UNIT_TYPES.product) {
+    if (discount.multipleUnits) {
+      const comparableProductIds = discount.products.map(p => p._id);
+      cart.products.forEach(doc => {
+        if (comparableProductIds.includes(doc.product._id)) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    } else {
+      cart.products.forEach(doc => {
+        if (doc.product._id === discount.product._id) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    }
+
+    await cart.save();
+  } else { // unit category
+    if (discount.multipleUnits) {
+      cart.products.forEach(doc => {
+        if (discount.categories.includes(doc.product.category)) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    } else {
+      cart.products.forEach(doc => {
+        if (doc.product.category === discount.category) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    }
+
+    await cart.save();
+  }
+
+  return await Cart.findOne(
+    { _id: cart._id },
+  ).populate({
+    path: "products.product",
+    model: "Product"
+  }).populate({
+    path: "products.discount",
+    model: "Discount"
+  }).populate({
+    path: "products.discount.products",
+    model: "Product"
+  }).populate({
+    path: "products.discount.product",
+    model: "Product"
+  });
+}
+
+async function activateDiscountForCart(discount, userId) {
+  // Find the cart with products which is discounted with this discount
+  const carts = await Cart.find({ 'products.discount': discount._id })
+    .populate({
+      path: "products.product",
+      model: "Product"
+    }).populate({
+      path: "products.discount",
+      model: "Discount"
+    }).populate({
+      path: "products.discount.products",
+      model: "Product"
+    }).populate({
+      path: "products.discount.product",
+      model: "Product"
+    });
+
+  carts.forEach(cart => {
+    cart.products.forEach(doc => {
+      if (doc.discount && ObjectId(doc.discount._id).equals(discount._id)) {
+        doc.discountApplied = true;
+        if (doc.discount.multipleUnits) {
+          doc.discountAmount = (doc.discount.discountPercentage * doc.product.price) / 100;
+        } else {
+          doc.discountAmount = ((doc.discount.discountPercentage * doc.product.price) / 100) * doc.discount.amountRequired;
+        }
+      }
+    })
+  });
+
+  carts.forEach(async (cart) => {
+    await cart.save();
+  })
+
+  return await Cart.find(
+    { user: userId }
+  ).populate({
+    path: "products.product",
+    model: "Product"
+  }).populate({
+    path: "products.discount",
+    model: "Discount"
+  }).populate({
+    path: "products.discount.products",
+    model: "Product"
+  }).populate({
+    path: "products.discount.product",
+    model: "Product"
+  });
 }

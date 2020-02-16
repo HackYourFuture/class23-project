@@ -5,6 +5,7 @@ import {
   Rating,
   Dropdown,
   Icon,
+  Label,
   Button,
   Modal,
   Message,
@@ -74,11 +75,14 @@ function ProductList({ products, selectCategory, user, currency }) {
       return {
         header: product.name,
         image: product.mediaUrl,
-        meta:
-          currency === "" || currency === "usd"
-            ? `$${product.price}`
-            : `€${product.priceEuro}`,
-
+        meta: currency === "" || currency === "usd"
+        ? `$${product.price}`
+        : `€${product.priceEuro}`,
+        description: product.discount ? (
+          <Button color="red">{"Discount!"}</Button>
+        ) : (
+          ""
+        ),
         color: "teal",
         fluid: true,
         childKey: product._id,

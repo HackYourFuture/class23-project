@@ -33,6 +33,8 @@ function Product({ product, user, totalComments, topSuggestedProducts, currency 
     setDisplayedTotalComments(totalComments);
   }, [product, totalComments]);
 
+  console.log(displayedProduct);
+
   return (
     <>
       <ProductSummary user={user} {...displayedProduct} currency={currency} />
