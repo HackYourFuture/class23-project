@@ -1,5 +1,6 @@
 import Order from '../../models/Order';
 import Rating from '../../models/Rating';
+import Product from '../../models/Product';
 import jwt from 'jsonwebtoken';
 import connectDb from '../../utils/connectDb';
 
@@ -15,7 +16,7 @@ export default async (req, res) => {
       .sort({ createdAt: 'desc' })
       .populate({
         path: 'products.product',
-        model: 'Product',
+        model: Product,
         populate: {
           path: 'ratings',
           model: Rating,
