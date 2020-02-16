@@ -470,6 +470,7 @@ async function handlePutRequest(req, res) {
       return res.status(404).send("User not found");
     }
   } catch (error) {
+    console.log(error.message);
     return res.status(403).send(error.message);
   }
 }
