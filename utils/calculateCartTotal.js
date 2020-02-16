@@ -1,6 +1,9 @@
 function calculateCartTotal(products) {
   const total = products.reduce((acc, el) => {
     acc += el.product.price * el.quantity;
+    if (el.discount && el.discountApplied) {
+      acc -= el.discountAmount;
+    }
     return acc;
   }, 0);
   const cartTotal = ((total * 100) / 100).toFixed(2);
