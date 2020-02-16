@@ -58,32 +58,37 @@ async function handlePutRequest(req, res) {
       process.env.JWT_SECRET
     );
     // Get user cart based on userId
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne({ user: userId })
+      .populate({ path: 'products.discount', model: 'Discount' })
+      .populate({ path: 'products.product', model: 'Product' });
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product)
     );
 
     const discountInfo = await isProductsDiscountApplicableForCart(cart, productId, productExists);
-
+    console.log({ discountInfo })
     // If product exists, increment quantity (by number provided to request)
+    let newCart = {};
     if (productExists) {
       // save the product
-      await Cart.findOneAndUpdate(
+      newCart = await Cart.findOneAndUpdate(
         { _id: cart._id, "products.product": productId },
-        { $inc: { "products.$.quantity": quantity } }
-      );
+        { $inc: { "products.$.quantity": quantity } },
+        { new: true }
+      ).populate({ path: 'products.product', model: 'Product' });
     } else {
       // If not, add new product with given quantity
       const newProduct = { quantity, product: productId };
-      await Cart.findOneAndUpdate(
+      newCart = await Cart.findOneAndUpdate(
         { _id: cart._id },
-        { $addToSet: { products: newProduct } }
-      );
+        { $addToSet: { products: newProduct } },
+        { new: true }
+      ).populate({ path: 'products.product', model: 'Product' });;
     }
 
     const discount = discountInfo.product.discount;
     if (discountInfo.isSuitable) {
-      await addDiscountToCartInDeactivatedMode(discount, cart);
+      await addDiscountToCartInDeactivatedMode(discount, newCart);
     }
     if (discountInfo.isApplicable) {
       await activateDiscountForCart(discount);
@@ -121,7 +126,8 @@ async function handleDeleteRequest(req, res) {
     });
 
     // get the product element from cart
-    const cartProduct = oldCart.products.find(doc => ObjectId(productId).equals(doc.product));
+    const cartProduct = oldCart.products.find(doc => ObjectId(productId).equals(doc.product._id));
+    console.log({ cartProduct })
     let cart = {};
     // check if a discount set to the product
     if (cartProduct.discount) {
@@ -201,6 +207,7 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
     .populate({ path: 'discount.products', model: Product });
   // Get the discount
   const discount = product.discount;
+  console.log({ discount });
   if (!discount) {
     return { product, isApplicable: false, isSuitable: false };
   }
@@ -214,12 +221,15 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
   if (isDiscountAppliedBefore) {
     return { product, isApplicable: false, isSuitable: false };
   }
-  const cartProduct = productExists ? cart.products.find(doc => ObjectId(productId).equals(doc.product)) : null;
+  const cartProduct = productExists ? cart.products.find(doc => ObjectId(productId).equals(doc.product._id)) : null;
+  console.log({ cartProduct });
+
   // Check if the card has everything for discount
   if (discount.unitType === UNIT_TYPES.product) { // product
     if (discount.multipleUnits) { // check for the products
       discount.products.forEach(prod => {
-        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product))) {
+        if (prod._id === productId) return;
+        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
           isCartProvidesRequirementsForDiscount = false;
         }
       });
@@ -231,6 +241,7 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
   } else { // category
     if (discount.multipleUnits) { // check for the categories
       discount.categories.forEach(cat => {
+        if (!productExists && cat === product.category) return;
         if (!cart.products.some(doc => doc.product.category === cat)) {
           isCartProvidesRequirementsForDiscount = false;
         }
@@ -240,11 +251,17 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
         if (doc.product.category === discount.category) return total + 1;
         else return total;
       }, 0);
+      console.log({ isCartProvidesRequirementsForDiscount })
+      console.log({ total })
+      console.log({ amountRequired: discount.amountRequired })
+      total = productExists ? total : total + 1
       if (total < discount.amountRequired) {
         isCartProvidesRequirementsForDiscount = false;
       }
     }
   }
+  console.log({ isCartProvidesRequirementsForDiscount });
+
   if (!isCartProvidesRequirementsForDiscount) {
     return { product, isApplicable: false, isSuitable: false };
   }
@@ -265,7 +282,7 @@ async function isDiscountApplicableForCartWithRemovedProduct(cart, discount) {
   if (discount.unitType === UNIT_TYPES.product) { // product
     if (discount.multipleUnits) { // check for the products
       discount.products.forEach(prod => {
-        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product))) {
+        if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
           isCartProvidesRequirementsForDiscount = false;
         }
       });
@@ -296,24 +313,44 @@ async function isDiscountApplicableForCartWithRemovedProduct(cart, discount) {
 }
 
 async function addDiscountToCartInDeactivatedMode(discount, cart) {
-  let findQuery = {};
+
   if (discount.unitType === UNIT_TYPES.product) {
-    if (discount.multipleUnits) { // products
-      findQuery = { 'products.product': { $in: discount.products.map(p => p._id) } };
-    } else { // product
-      findQuery = { 'products.product': discount.product._id };
+    if (discount.multipleUnits) {
+      const comparableProductIds = discount.products.map(p => p._id);
+      cart.products.forEach(doc => {
+        if (comparableProductIds.includes(doc.product._id)) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    } else {
+      cart.products.forEach(doc => {
+        if (doc.product._id === discount.product._id) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
     }
+
+    await cart.save();
   } else { // unit category
-    if (discount.multipleUnits) { // categories
-      findQuery = { 'products.product.category': { $in: discount.categories } };
-    } else { // category
-      findQuery = { 'products.product.category': discount.category };
+    if (discount.multipleUnits) {
+      cart.products.forEach(doc => {
+        if (discount.categories.includes(doc.product.category)) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
+    } else {
+      cart.products.forEach(doc => {
+        if (doc.product.category === discount.category) {
+          doc.discount = ObjectId(discount._id);
+        }
+      });
     }
+
+    await cart.save();
   }
-  return await Cart.update(
-    { _id: cart._id, ...findQuery },
-    { $set: { 'products.$.discount': discount } },
-    { multi: true }
+
+  return await Cart.findOne(
+    { _id: cart._id },
   ).populate({
     path: "products.product",
     model: "Product"
@@ -345,21 +382,19 @@ async function activateDiscountForCart(discount) {
   return await Cart.update(
     { "products.discount": discount._id },
     {
-      $set: {
-        "products.$[element].discountApplied": true,
-        "products.$[element].discountAmount": {
-          $cond: [
-            { "products.$[element].discount.multipleUnits": true }, // if
-            { ...anItemDiscountAmount }, // true
-            {
-              $multiply: [
-                { ...anItemDiscountAmount },
-                "products.$[element].discount.amountRequired"
-              ]
-            } // false
-          ]
-        }
-      }
+      "products.$[element].discountApplied": true,
+      $cond: [
+        { "products.$[element].discount.multipleUnits": true }, // if
+        { "products.$[element].discountAmount": { ...anItemDiscountAmount } }, // true
+        {
+          "products.$[element].discountAmount": {
+            $multiply: [
+              { ...anItemDiscountAmount },
+              "products.$[element].discount.amountRequired"
+            ]
+          }
+        }// false
+      ]
     },
     {
       multi: true,

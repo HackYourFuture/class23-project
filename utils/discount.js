@@ -9,7 +9,7 @@ export function checkDiscountIsOK(discount) {
   // Every discount has a percentage and dates
   const { discountPercentage, startDate, endDate } = discount;
   // Conditional variables
-  const { requiredAmount, product, category, products, categories } = discount;
+  const { amountRequired, product, category, products, categories } = discount;
   // For time comparisons
   const now = new Date().getUTCMilliseconds(),
     start = new Date(startDate).getUTCMilliseconds(),
@@ -26,9 +26,9 @@ export function checkDiscountIsOK(discount) {
     atLeastEndsToday = now - end < oneDayMilliseconds && now - end >= 0,
     endsAtFuture = end >= now,
     isRequiredAmountProvided =
-      requiredAmount &&
-      !Number.isNaN(Number(requiredAmount)) &&
-      requiredAmount > 0,
+      amountRequired &&
+      !Number.isNaN(Number(amountRequired)) &&
+      amountRequired > 0,
     isSingleUnitSpectrum = !multipleUnits,
     isProductUnitType = unitType === UNIT_TYPES.product,
     isProductSelected = Boolean(product),
@@ -69,7 +69,7 @@ export function getRequiredPropsListForDiscount(discount) {
     if (unitType === UNIT_TYPES.product) requiredProps.push("products");
     else requiredProps.push("categories");
   } else {
-    requiredProps.push("requiredAmount");
+    requiredProps.push("amountRequired");
     if (unitType === UNIT_TYPES.product) requiredProps.push("product");
     else requiredProps.push("category");
   }

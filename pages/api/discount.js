@@ -181,13 +181,12 @@ async function handlePostRequest(req, res) {
             // Get ids from the products that the discount will effect
             const products = discountObj.products.map(p => p._id);
             // Get the products' names that have category wide discount
-            const alreadyCategoryWideDiscountedProducts = await Product.find({
-              $and: [
-                { discount: { $ne: null } },
-                { "discount.unitType": UNIT_TYPES.category },
-                { _id: { $in: products } }
-              ]
-            }).distinct("name");
+            let alreadyCategoryWideDiscountedProducts = [];
+            const populatedProducts = await Product.find({
+              $and: [{ _id: { $in: products } }, { discount: { $ne: null } }]
+            }).populate('discount');
+            alreadyCategoryWideDiscountedProducts = populatedProducts.filter(pr => pr.discount.unitType === UNIT_TYPES.category).map(pr => pr.name);
+            console.log({ products });
             console.log({ alreadyCategoryWideDiscountedProducts });
             if (alreadyCategoryWideDiscountedProducts.length > 0) {
               return res
@@ -273,18 +272,16 @@ async function handlePostRequest(req, res) {
             const product = await Product.findOne({
               _id: discountObj.product._id
             }).populate({
-              path: "products.product",
-              model: "Product"
-            }).populate({
-              path: "products.discount",
+              path: "discount",
               model: "Discount"
             }).populate({
-              path: "products.discount.products",
+              path: "discount.products",
               model: "Product"
             }).populate({
-              path: "products.discount.product",
+              path: "discount.product",
               model: "Product"
             });
+            console.log('single unit product: ', product)
             if (
               product.discount &&
               product.discount.unitType === UNIT_TYPES.category

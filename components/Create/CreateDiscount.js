@@ -52,7 +52,7 @@ const NEW_DISCOUNT = {
   product: null, // For single unit selection
   category: "", // For single unit selection
   discountPercentage: 5,
-  requiredAmount: 1,
+  amountRequired: 1,
   startDate: universalFormatDate(Date.now()),
   endDate: universalFormatDate(Date.now()),
   multipleUnits: true,
@@ -123,14 +123,14 @@ function CreateDiscount({ products }) {
       }).length > 0;
     const newUnits = [value, ...newDiscount[name]];
     const hasLeastRequiredAmount =
-      newDiscount.requiredAmount >= newUnits.length;
+      newDiscount.amountRequired >= newUnits.length;
     if (!hasUnit) {
       hasLeastRequiredAmount
         ? setNewDiscount(prevState => ({ ...prevState, [name]: newUnits }))
         : setNewDiscount(prevState => ({
           ...prevState,
           [name]: newUnits,
-          requiredAmount: newUnits.length
+          amountRequired: newUnits.length
         }));
     }
   }
@@ -211,13 +211,13 @@ function CreateDiscount({ products }) {
           {!newDiscount.multipleUnits && (
             <Form.Field
               control={Input}
-              name="requiredAmount"
+              name="amountRequired"
               label="Required Amount"
               placeholder="Amount"
               min="1.00"
               step="1.00"
               type="number"
-              value={newDiscount.requiredAmount}
+              value={newDiscount.amountRequired}
               onChange={handleChange}
             />
           )}
