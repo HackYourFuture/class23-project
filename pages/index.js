@@ -37,6 +37,6 @@ Home.getInitialProps = async ctx => {
   // return response data as an object
   return response.data;
   // note: this object will be merged with existing props
-};
+}; 
 
 export default Home;

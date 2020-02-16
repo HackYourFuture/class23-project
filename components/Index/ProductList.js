@@ -169,5 +169,5 @@ function ProductList({ products, selectCategory, user }) {
       )}
     </>
   );
-}
+} 
 export default ProductList;
