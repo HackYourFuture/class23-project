@@ -109,59 +109,76 @@ async function handlePutRequest(req, res) {
   if (!("authorization" in req.headers)) {
     return res.status(401).send("No authorization token");
   }
-  // Get the required fields & check if they exist
-  const { comment, productId } = req.body;
-  if (!comment || !productId) {
-    return res.status(422).send("Comment and productId are required");
-  }
-  try {
-    // Verify the token
-    const { userId } = jwt.verify(
-      req.headers.authorization,
-      process.env.JWT_SECRET
-    );
-    // Find the user
-    const user = await User.findOne({ _id: userId });
-    // If the user exists
-    if (user) {
-      // Create the comment
-      const newComment = {
-        user: userId,
-        content: comment,
-        updated_at: Date.now()
-      };
-      // Add the comment to the Product & get new Product
-      const updatedProduct = await Product.findOneAndUpdate(
-        { _id: productId },
-        { $push: { comments: { $each: [newComment], $position: 0 } } },
-        { new: true }
-      )
-        .populate({ path: "comments.user", model: User })
-        .slice("comments", COMMENTS_PER_PAGE);
 
-      // Get comments count
-      const [{ comments: count }] = await Product.aggregate()
-        .match({ _id: mongoose.Types.ObjectId(productId) })
-        .project({
-          comments: {
-            $cond: [
-              { $ifNull: ["$comments", false] },
-              { $size: "$comments" },
-              0
-            ]
-          }
-        });
+  /*****update product fields *******/
+  if ('updateField' in req.body) {
+    const { updateField, productId } = req.body;
 
-      // Return comments count and the updated product
-      res.status(200).json({
-        totalComments: Math.ceil(count / COMMENTS_PER_PAGE),
-        product: updatedProduct
-      });
-    } else {
-      res.status(404).send("User not found");
+    if (Object.keys(updateField).length === 0) {
+      return res.status(404).send('No valid data and field to update.');
     }
-  } catch (error) {
-    res.status(403).send(`Please login to add comments!`);
+
+    try {
+      const { userId } = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+      const user = await User.findOne({ _id: userId });
+      if (user.role === 'admin' || user.role === 'root') {
+        const updatedProduct = await Product.findOneAndUpdate(
+          { _id: productId },
+          { $set: updateField },
+          { new: true },
+        );
+
+        res.status(200).json({ updatedProduct });
+      } else {
+        res.status(401).send('Unauthorized users can not update product');
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send('Error updating product');
+    }
+  } else {
+    /******* Add comment to product *******/
+
+    // Get the required fields & check if they exist
+    const { comment, productId } = req.body;
+    if (!comment || !productId) {
+      return res.status(422).send('Comment and productId are required');
+    }
+    try {
+      // Verify the token
+      const { userId } = jwt.verify(req.headers.authorization, process.env.JWT_SECRET);
+      // Find the user
+      const user = await User.findOne({ _id: userId });
+      // If the user exists
+      if (user) {
+        // Create the comment
+        const newComment = { user: userId, content: comment, updated_at: Date.now() };
+        // Add the comment to the Product & get new Product
+        const updatedProduct = await Product.findOneAndUpdate(
+          { _id: productId },
+          { $push: { comments: { $each: [newComment], $position: 0 } } },
+          { new: true },
+        )
+          .populate({ path: 'comments.user', model: User })
+          .slice('comments', COMMENTS_PER_PAGE);
+
+        // Get comments count
+        const [{ comments: count }] = await Product.aggregate()
+          .match({ _id: mongoose.Types.ObjectId(productId) })
+          .project({
+            comments: { $cond: [{ $ifNull: ['$comments', false] }, { $size: '$comments' }, 0] },
+          });
+
+        // Return comments count and the updated product
+        res
+          .status(200)
+          .json({ totalComments: Math.ceil(count / COMMENTS_PER_PAGE), product: updatedProduct });
+      } else {
+        res.status(404).send('User not found');
+      }
+    } catch (error) {
+      res.status(403).send(`Please login to add comments!`);
+    }
   }
 }
 
