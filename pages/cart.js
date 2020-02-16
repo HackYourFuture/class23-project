@@ -1,7 +1,15 @@
 import { useState } from "react";
 import { logEvent } from "../utils/analytics";
 import { useRouter } from "next/router";
-import { Segment, Modal, Image, Button, Header } from "semantic-ui-react";
+import {
+  Segment,
+  Modal,
+  Image,
+  Button,
+  Header,
+  Form,
+  Divider
+} from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
@@ -14,6 +22,9 @@ function Cart({ products, user }) {
   const router = useRouter();
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
+  const [values, setValues] = React.useState("");
+  const [values2, setValues2] = React.useState("");
+  const [successSubmit, setSuccessSubmit] = useState("");
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
 
@@ -46,6 +57,28 @@ function Cart({ products, user }) {
     }
   }
 
+  const handleSubmit = async event => {
+    event.preventDefault();
+    try {
+      console.log("Coupon Submitted");
+      const url = `${baseUrl}/api/code`;
+      const payload = { values };
+      const response = await axios.post(url, payload);
+      await setSuccessSubmit(response.data);
+      console.log("submit", response.data);
+      console.log("val", values);
+      await setValues2(values);
+      console.log(values2);
+    } catch (error) {
+      setValues2("");
+      setValues("");
+      catchErrors(error, window.alert);
+    }
+  };
+  const handleChange = event => {
+    setValues(event.target.value);
+  };
+
   return (
     <>
       <Segment loading={loading}>
@@ -55,11 +88,36 @@ function Cart({ products, user }) {
           products={cartProducts}
           success={success}
         />
-        <CartSummary
-          products={cartProducts}
-          handleCheckout={handleCheckout}
-          success={success}
-        />
+        <Divider />
+        <Segment>
+          <>Add a Promo Code</>
+          <Divider hidden />
+          <Form onSubmit={handleSubmit}>
+            <Form.Input
+              placeholder="Coupon"
+              name="couponCode"
+              value={values}
+              onChange={handleChange}
+            />
+            <Form.Button content="Submit" />
+            {values2.length > 2 ? <h3>Valid Discount Code</h3> : null}
+          </Form>
+        </Segment>
+        {successSubmit === values2 ? (
+          <CartSummary
+            products={cartProducts}
+            handleCheckout={handleCheckout}
+            success={success}
+            code={successSubmit}
+          />
+        ) : (
+          <CartSummary
+            products={cartProducts}
+            handleCheckout={handleCheckout}
+            success={success}
+            code={""}
+          />
+        )}
       </Segment>
       {success && (
         <Modal
@@ -97,8 +155,11 @@ Cart.getInitialProps = async ctx => {
     return { products: [] };
   }
   const url = `${baseUrl}/api/cart`;
+  const url2 = `${baseUrl}/api/code`;
   const payload = { headers: { Authorization: token } };
+  // const payload2 = { values };
   const response = await axios.get(url, payload);
+  // const result = await axios.get(url2);
   return { products: response.data };
 };
 
