@@ -148,7 +148,7 @@ function DiscountActivity({ totalDiscounts }) {
               <Header.Content>{p.name}</Header.Content>
             </Header>
           )) :
-            <Header key={`table_header_discount_product_${discount.product._id}`} as="h4" image>
+            <Header as="h4" image>
               <Image src={discount.product.mediaUrl} rounded size="mini" />
               <Header.Content>{discount.product.name}</Header.Content>
             </Header>

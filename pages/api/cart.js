@@ -207,17 +207,21 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
     .populate({ path: 'discount.products', model: Product });
   // Get the discount
   const discount = product.discount;
-  console.log({ discount });
+  console.log({ availability: discount });
   if (!discount) {
     return { product, isApplicable: false, isSuitable: false };
   }
   // Check if the discount is not expired
   isDiscountOnline = !isDiscountExpired(discount) && isDiscountStarted(discount);
+  console.log({ isDiscountOnline })
   if (!isDiscountOnline) {
     return { product, isApplicable: false, isSuitable: false };
   }
   // Check if the discount is applied before
-  isDiscountAppliedBefore = cart.products.some(doc => ObjectId(doc.discount._id).equals(discount._id));
+  console.log({ productsOfCart: cart.products });
+  isDiscountAppliedBefore = cart.products.some(doc => doc.discount && ObjectId(doc.discount._id).equals(discount._id));
+  console.log({ isDiscountAppliedBefore });
+
   if (isDiscountAppliedBefore) {
     return { product, isApplicable: false, isSuitable: false };
   }
@@ -228,9 +232,10 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
   if (discount.unitType === UNIT_TYPES.product) { // product
     if (discount.multipleUnits) { // check for the products
       discount.products.forEach(prod => {
-        if (prod._id === productId) return;
+        if (ObjectId(prod).equals(productId)) return;
         if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
           isCartProvidesRequirementsForDiscount = false;
+          console.log('bug here')
         }
       });
     } else { // check for the product amount
@@ -396,7 +401,9 @@ async function activateDiscountForCart(discount, userId) {
     })
   });
 
-  await carts.save();
+  carts.forEach(async (cart) => {
+    await cart.save();
+  })
 
   return await Cart.find(
     { user: userId }

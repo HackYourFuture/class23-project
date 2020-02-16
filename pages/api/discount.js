@@ -256,6 +256,7 @@ async function handlePostRequest(req, res) {
                 overriddenProductsMessage
               );
           } else {
+            console.log({ id: discountObj.product._id })
             const product = await Product.findOne({
               _id: discountObj.product._id
             }).populate({
@@ -316,11 +317,11 @@ async function handlePostRequest(req, res) {
                   { multi: true }
                 );
               }
+              // Remove the discount from the carts
+              await removeDiscountFromCarts(product.discount._id);
+              // remove the overridden discounts
+              await Discount.deleteOne({ _id: product.discount._id });
             }
-            // Remove the discount from the carts
-            await removeDiscountFromCarts(product.discount._id);
-            // remove the overridden discounts
-            await Discount.deleteOne({ _id: product.discount._id });
             const resp = await Product.findOneAndUpdate(
               { _id: discountObj.product._id },
               { discount }
