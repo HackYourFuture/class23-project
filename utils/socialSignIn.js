@@ -11,11 +11,7 @@ if (!firebase.apps.length) {
   });
 }
 
-export default async function handleSocialLogin(
-  event,
-  errorHandler,
-  loadingHandler,
-) {
+export default async function handleSocialLogin(event, errorHandler, loadingHandler) {
   if (firebase.auth().currentUser) {
     return catchErrors(new Error('You are already signed in!'), errorHandler);
   }
@@ -23,12 +19,10 @@ export default async function handleSocialLogin(
     loadingHandler(true);
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const facebookProvider = new firebase.auth.FacebookAuthProvider();
-    const chosenProvider =
-      event.target.title === 'google' ? googleProvider : facebookProvider;
-    const {
-      user: { displayName, email },
-      credential: { providerId },
-    } = await firebase.auth().signInWithPopup(chosenProvider);
+    const chosenProvider = event.target.title === 'google' ? googleProvider : facebookProvider;
+    const { user: { displayName, email }, credential: { providerId } } = await firebase
+      .auth()
+      .signInWithPopup(chosenProvider);
     const idToken = await firebase.auth().currentUser.getIdToken(true);
     const payload = {
       username: displayName,
