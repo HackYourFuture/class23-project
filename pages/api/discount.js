@@ -560,7 +560,7 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
       model: "Product"
     });
 
-  carts.forEach(cart => {
+  carts.forEach(async cart => {
     cart.products.forEach(doc => {
       if (doc.discount && mongoose.Types.ObjectId(doc.discount._id).equals(discountId)) {
         doc.discountApplied = activate;
@@ -574,9 +574,10 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
         }
         if (remove) doc.discount = null;
       }
-    })
-  });
-  carts.forEach(async (cart) => {
+    });
     await cart.save();
-  })
+  });
+  // carts.forEach(async (cart) => {
+  //   await cart.save();
+  // })
 }
