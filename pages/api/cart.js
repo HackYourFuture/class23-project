@@ -62,7 +62,7 @@ async function handlePutRequest(req, res) {
       .populate({ path: 'products.discount', model: 'Discount' })
       .populate({ path: 'products.product', model: 'Product' });
     const productExists = cart.products.some(doc =>
-      ObjectId(productId).equals(doc.product)
+      ObjectId(productId).equals(doc.product._id)
     );
 
     const discountInfo = await isProductsDiscountApplicableForCart(cart, productId, productExists);
@@ -165,7 +165,7 @@ async function handleDeleteRequest(req, res) {
         cart = await addDiscountToCartInDeactivatedMode(discount, cart);
       }
       if (discountInfo.isApplicable) {
-        cart = await activateDiscountForCart(discount);
+        cart = await activateDiscountForCart(discount, userId);
       }
     } else {
       // remove the product from the cart
@@ -217,7 +217,7 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
     return { product, isApplicable: false, isSuitable: false };
   }
   // Check if the discount is applied before
-  isDiscountAppliedBefore = cart.products.some(doc => ObjectId(doc.discount).equals(discount));
+  isDiscountAppliedBefore = cart.products.some(doc => ObjectId(doc.discount._id).equals(discount._id));
   if (isDiscountAppliedBefore) {
     return { product, isApplicable: false, isSuitable: false };
   }
@@ -366,40 +366,40 @@ async function addDiscountToCartInDeactivatedMode(discount, cart) {
   });
 }
 
-async function activateDiscountForCart(discount) {
+async function activateDiscountForCart(discount, userId) {
   // Find the cart with products which is discounted with this discount
-  const anItemDiscountAmount = {
-    $divide: [
-      {
-        $multiply: [
-          "products.$[element].discount.discountPercentage",
-          "products.$[element].product.price"
-        ]
-      },
-      100
-    ]
-  };
-  return await Cart.update(
-    { "products.discount": discount._id },
-    {
-      "products.$[element].discountApplied": true,
-      $cond: [
-        { "products.$[element].discount.multipleUnits": true }, // if
-        { "products.$[element].discountAmount": { ...anItemDiscountAmount } }, // true
-        {
-          "products.$[element].discountAmount": {
-            $multiply: [
-              { ...anItemDiscountAmount },
-              "products.$[element].discount.amountRequired"
-            ]
-          }
-        }// false
-      ]
-    },
-    {
-      multi: true,
-      arrayFilters: [{ "element.discount": discount._id }]
-    }
+  const carts = await Cart.find({ 'products.discount': discount._id })
+    .populate({
+      path: "products.product",
+      model: "Product"
+    }).populate({
+      path: "products.discount",
+      model: "Discount"
+    }).populate({
+      path: "products.discount.products",
+      model: "Product"
+    }).populate({
+      path: "products.discount.product",
+      model: "Product"
+    });
+
+  carts.forEach(cart => {
+    cart.products.forEach(doc => {
+      if (doc.discount && ObjectId(doc.discount._id).equals(discount._id)) {
+        doc.discountApplied = true;
+        if (doc.discount.multipleUnits) {
+          doc.discountAmount = (doc.discount.discountPercentage * doc.product.price) / 100;
+        } else {
+          doc.discountAmount = ((doc.discount.discountPercentage * doc.product.price) / 100) * doc.discount.amountRequired;
+        }
+      }
+    })
+  });
+
+  await carts.save();
+
+  return await Cart.find(
+    { user: userId }
   ).populate({
     path: "products.product",
     model: "Product"

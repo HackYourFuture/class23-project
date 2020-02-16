@@ -222,26 +222,11 @@ async function handlePostRequest(req, res) {
                 { multi: true }
               );
               // Remove the discount from the carts
-              await Cart.update(
-                {},
-                {
-                  $set: {
-                    'products.$[element].discountApplied': false,
-                    'products.$[element].discountAmount': 0
-                  },
-                  $unset: { 'products.$[element].discount': 1 }
-                },
-                {
-                  multi: true,
-                  arrayFilters: [{
-                    'element.discount': {
-                      $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-                    }
-                  }]
-                }
-              );
+              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
+                await removeDiscountFromCarts(discountId);
+              })
               // remove the overridden discounts
-              await Discount.remove(
+              await Discount.deleteMany(
                 {
                   _id: {
                     $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
@@ -331,22 +316,9 @@ async function handlePostRequest(req, res) {
               }
             }
             // Remove the discount from the carts
-            await Cart.update(
-              {},
-              {
-                $set: {
-                  'products.$[element].discountApplied': false,
-                  'products.$[element].discountAmount': 0
-                },
-                $unset: { 'products.$[element].discount': 1 }
-              },
-              {
-                multi: true,
-                arrayFilters: [{ 'element.discount': product.discount._id }]
-              }
-            );
+            await removeDiscountFromCarts(product.discount._id);
             // remove the overridden discounts
-            await Discount.remove({ _id: product.discount._id });
+            await Discount.deleteOne({ _id: product.discount._id });
             const resp = await Product.findOneAndUpdate(
               { _id: discountObj.product._id },
               { discount }
@@ -389,25 +361,10 @@ async function handlePostRequest(req, res) {
             { $unset: { discount: 1 } },
             { multi: true }
           );
-          // Remove the discount from the carts
-          await Cart.update(
-            {},
-            {
-              $set: {
-                'products.$[element].discountApplied': false,
-                'products.$[element].discountAmount': 0
-              },
-              $unset: { 'products.$[element].discount': 1 }
-            },
-            {
-              multi: true,
-              arrayFilters: [{
-                'element.discount': {
-                  $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-                }
-              }]
-            }
-          );
+          // Remove the discounts from the carts
+          discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
+            await removeDiscountFromCarts(discountId);
+          });
           // remove the overridden discounts
           await Discount.deleteMany(
             {
@@ -493,60 +450,17 @@ async function handlePutRequest(req, res) {
         // Update products about discount - cascade update for products in the cards for deactivate
         if (!isActive) {
           // Find the cart with products which is discounted with this discount
-          await Cart.update(
-            { "products.discount": discount._id },
-            {
-              $set: {
-                "products.$[element].discountApplied": false,
-                "products.$[element].discountAmount": 0
-              }
-            },
-            {
-              multi: true,
-              arrayFilters: [{ "element.discount": discount._id }]
-            }
-          );
+          deactivateDiscountFromCarts(discountId);
+          return res
+            .status(200)
+            .send("Discount deactivated successfully with updating cards!");
         } else {
           // Find the cart with products which is discounted with this discount
-          const anItemDiscountAmount = {
-            $divide: [
-              {
-                $multiply: [
-                  "products.$[element].discount.discountPercentage",
-                  "products.$[element].product.price"
-                ]
-              },
-              100
-            ]
-          };
-          await Cart.update(
-            { "products.discount": discount._id },
-            {
-              $set: {
-                "products.$[element].discountApplied": true,
-                "products.$[element].discountAmount": {
-                  $cond: [
-                    { "products.$[element].discount.multipleUnits": true }, // if
-                    { ...anItemDiscountAmount }, // true
-                    {
-                      $multiply: [
-                        { ...anItemDiscountAmount },
-                        "products.$[element].discount.amountRequired"
-                      ]
-                    } // false
-                  ]
-                }
-              }
-            },
-            {
-              multi: true,
-              arrayFilters: [{ "element.discount": discount._id }]
-            }
-          );
+          activateDiscountForCarts(discountId);
+          return res
+            .status(200)
+            .send("Discount activated successfully with updating cards!");
         }
-        return res
-          .status(200)
-          .send("Discount deactivated successfully with updating cards!");
       } else {
         return res
           .status(401)
@@ -586,24 +500,9 @@ async function handleDeleteRequest(req, res) {
       if (user.role === "admin" || user.role === "root") {
         // OK, ready to remove
         // Remove discount from the cards
-        await Cart.update(
-          { "products.discount": discountId },
-          {
-            $set: {
-              "products.$[element].discountApplied": false,
-              "products.$[element].discountAmount": 0
-            },
-            $unset: {
-              "products.$[element].discount": 1
-            }
-          },
-          {
-            multi: true,
-            arrayFilters: [{ "element.discount": discountId }]
-          }
-        );
+        await removeDiscountFromCarts(discountId);
         // Remove discount from products
-        await Product.update(
+        await Product.updateMany(
           { "discount": discountId },
           { $unset: { discount: 1 } },
           { multi: true }
@@ -626,4 +525,51 @@ async function handleDeleteRequest(req, res) {
   } catch (error) {
     return res.status(403).send(error.message);
   }
+}
+
+async function activateDiscountForCarts(discountId) {
+  await activateDeactivateRemoveDiscountFromCarts(discountId, true);
+}
+
+async function deactivateDiscountFromCarts(discountId) {
+  await activateDeactivateRemoveDiscountFromCarts(discountId, false);
+}
+
+async function removeDiscountFromCarts(discountId) {
+  await activateDeactivateRemoveDiscountFromCarts(discountId, false, true);
+}
+
+async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, remove = false) {
+  const carts = await Cart.find({ 'products.discount': discountId })
+    .populate({
+      path: "products.product",
+      model: "Product"
+    }).populate({
+      path: "products.discount",
+      model: "Discount"
+    }).populate({
+      path: "products.discount.products",
+      model: "Product"
+    }).populate({
+      path: "products.discount.product",
+      model: "Product"
+    });
+
+  carts.forEach(cart => {
+    cart.products.forEach(doc => {
+      if (doc.discount && ObjectId(doc.discount._id).equals(discountId)) {
+        doc.discountApplied = activate;
+        if (!activate || remove) doc.discountAmount = 0;
+        else if (activate) {
+          if (doc.discount.multipleUnits) {
+            doc.discountAmount = (doc.discount.discountPercentage * doc.product.price) / 100;
+          } else {
+            doc.discountAmount = ((doc.discount.discountPercentage * doc.product.price) / 100) * doc.discount.amountRequired;
+          }
+        }
+        if (remove) doc.discount = null;
+      }
+    })
+  });
+  await carts.save();
 }
