@@ -12,6 +12,7 @@ const INITIAL_USER = {
   name: '',
   email: '',
   password: '',
+  rePassword: '',
 };
 
 function Signup() {
@@ -19,6 +20,7 @@ function Signup() {
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [passwordErrors, setPasswordErrors] = React.useState([]);
   const [emailSent, setEmailSent] = React.useState('');
 
   React.useEffect(() => {
@@ -31,20 +33,29 @@ function Signup() {
     setUser(prevState => ({ ...prevState, [name]: value }));
   }
 
+  const validatePasswordMatch = user => user.password === user.rePassword;
+
   async function handleSubmit(event) {
     event.preventDefault();
     try {
       setLoading(true);
       setError('');
+      setPasswordErrors([]);
+      const isMatch = validatePasswordMatch(user);
+      if (!isMatch) {
+        throw new Error('Passwords do not match.');
+      }
       const url = `${baseUrl}/api/signup`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
-
       setEmailSent(response.data);
-
       logEvent('User', 'Created an Account');
     } catch (error) {
-      catchErrors(error, setError);
+      if (error.response && typeof error.response.data === 'object') {
+        setPasswordErrors(error.response.data);
+      } else {
+        catchErrors(error, setError);
+      }
     } finally {
       setLoading(false);
     }
@@ -59,8 +70,15 @@ function Signup() {
         content="Create a new account"
         color="teal"
       />
-      <Form error={Boolean(error)} loading={loading} onSubmit={handleSubmit}>
-        <Message error header="Oops!" content={error} />
+      <Form
+        error={Boolean(error) || Boolean(passwordErrors.length)}
+        loading={loading}
+        onSubmit={handleSubmit}
+      >
+        {error && <Message error header="Oops!" content={error} />}
+        {Boolean(passwordErrors.length) && (
+          <Message error header="Password should contain: " list={passwordErrors} />
+        )}
         {Boolean(emailSent) ? (
           <Message positive header="Success" content={emailSent} />
         ) : (
@@ -98,6 +116,17 @@ function Signup() {
                   value={user.password}
                   onChange={handleChange}
                 />
+                <Form.Input
+                  fluid
+                  icon="lock"
+                  iconPosition="left"
+                  label="Confirm Password"
+                  placeholder="Confirm Password"
+                  name="rePassword"
+                  type="password"
+                  value={user.rePassword}
+                  onChange={handleChange}
+                />
                 <Button
                   disabled={disabled || loading}
                   icon="signup"
@@ -118,7 +147,7 @@ function Signup() {
               >
                 <Icon name="google" />
                 Sign In with Google
-      </Button>
+              </Button>
               <Button
                 title="facebook"
                 attached
@@ -135,6 +164,7 @@ function Signup() {
             </>
           )
         }
+
       </Form>
 
       {Boolean(!emailSent) && (

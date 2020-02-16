@@ -16,7 +16,6 @@ import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
 import { handleLogin } from '../utils/auth';
 import handleSocialSignIn from '../utils/socialSignIn';
-import { event } from 'react-ga';
 
 const INITIAL_USER = {
   email: '',
@@ -39,6 +38,7 @@ function Login() {
   const sections = [
     { key: 'Forget password?', content: 'Forget password?', link: true },
   ];
+  const [verificationError, setVerificationError] = React.useState('');
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
@@ -56,12 +56,18 @@ function Login() {
     try {
       setLoading(true);
       setError('');
+      setVerificationError('');
       const url = `${baseUrl}/api/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data);
     } catch (error) {
-      catchErrors(error, setError);
+      if (typeof error.response.data === 'object') {
+        setVerificationError(error.response.data.msg);
+        setDisabled(true);
+      } else {
+        catchErrors(error, setError);
+      }
     } finally {
       setLoading(false);
     }
@@ -95,13 +101,20 @@ function Login() {
         color="blue"
       />
       <Form
-        error={Boolean(error)}
-        success={Boolean(success)}
+        error={Boolean(error) || Boolean(verificationError)}
         loading={loading}
         onSubmit={handleSubmit}
       >
-        <Message error header="Oops!" content={error} />
-        <Message success header="Success!" content={success} />
+        {error && <Message error header="Oops!" content={error} />}
+        {success && <Message success header="Success" content={success} />}
+        {verificationError && (
+          <Message error size='big'>
+            {verificationError}
+            <Link href="/resend">
+              <a> Resend activation email.</a>
+            </Link>
+          </Message>
+        )}
         <Segment>
           <Form.Input
             fluid
