@@ -55,7 +55,7 @@ async function handleGetRequest(req, res) {
         discounts = await Discount.find({
           $and: [
             {
-              $or: [{ "product._id": productId }, { "products._id": productId }, { category: productCategory }, { categories: productCategory }]
+              $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
             },
             { ...isActiveQuery }
           ]
@@ -68,7 +68,7 @@ async function handleGetRequest(req, res) {
         });
       } else {
         discounts = await Discount.find({
-          $or: [{ "product._id": productId }, { "products._id": productId }, { category: productCategory }, { categories: productCategory }]
+          $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
         }).populate({
           path: "products",
           model: Product
@@ -188,6 +188,7 @@ async function handlePostRequest(req, res) {
                 { _id: { $in: products } }
               ]
             }).distinct("name");
+            console.log({ alreadyCategoryWideDiscountedProducts });
             if (alreadyCategoryWideDiscountedProducts.length > 0) {
               return res
                 .status(405)
@@ -206,19 +207,47 @@ async function handlePostRequest(req, res) {
               {
                 $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
               }
-            ).distinct("discount._id");
+            ).distinct("discount");
+            console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts })
             if (
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
             ) {
               // Detach discounts from the products
               await Product.update(
                 {
-                  "discount._id": {
+                  "discount": {
                     $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
                   }
                 },
                 { $unset: { discount: 1 } },
                 { multi: true }
+              );
+              // Remove the discount from the carts
+              await Cart.update(
+                {},
+                {
+                  $set: {
+                    'products.$[element].discountApplied': false,
+                    'products.$[element].discountAmount': 0
+                  },
+                  $unset: { 'products.$[element].discount': 1 }
+                },
+                {
+                  multi: true,
+                  arrayFilters: [{
+                    'element.discount': {
+                      $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+                    }
+                  }]
+                }
+              );
+              // remove the overridden discounts
+              await Discount.remove(
+                {
+                  _id: {
+                    $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+                  }
+                }
               );
             }
             const resp = await Product.update(
@@ -243,6 +272,18 @@ async function handlePostRequest(req, res) {
           } else {
             const product = await Product.findOne({
               _id: discountObj.product._id
+            }).populate({
+              path: "products.product",
+              model: "Product"
+            }).populate({
+              path: "products.discount",
+              model: "Discount"
+            }).populate({
+              path: "products.discount.products",
+              model: "Product"
+            }).populate({
+              path: "products.discount.product",
+              model: "Product"
             });
             if (
               product.discount &&
@@ -265,7 +306,7 @@ async function handlePostRequest(req, res) {
                 {
                   $and: [
                     { discount: { $ne: null } },
-                    { "discount._id": product.discount._id },
+                    { "discount": product.discount._id },
                     { _id: { $ne: discountObj.product._id } }
                   ]
                 }
@@ -281,7 +322,7 @@ async function handlePostRequest(req, res) {
                 // Detach discount from the products
                 await Product.update(
                   {
-                    "discount._id": {
+                    "discount": {
                       $in: alreadyDiscountedProductsByTheOlderDiscount.map(
                         p => p._id
                       )
@@ -292,6 +333,23 @@ async function handlePostRequest(req, res) {
                 );
               }
             }
+            // Remove the discount from the carts
+            await Cart.update(
+              {},
+              {
+                $set: {
+                  'products.$[element].discountApplied': false,
+                  'products.$[element].discountAmount': 0
+                },
+                $unset: { 'products.$[element].discount': 1 }
+              },
+              {
+                multi: true,
+                arrayFilters: [{ 'element.discount': product.discount._id }]
+              }
+            );
+            // remove the overridden discounts
+            await Discount.remove({ _id: product.discount._id });
             const resp = await Product.findOneAndUpdate(
               { _id: discountObj.product._id },
               { discount }
@@ -308,10 +366,11 @@ async function handlePostRequest(req, res) {
           // unitType === 'category'
           // update multiple categories
           // Get all the products with related categories
+          const categoryFilter = discountObj.multipleUnits
+            ? { $in: discountObj.categories }
+            : discountObj.category.trim();
           const products = await Product.find({
-            category: discountObj.multipleUnits
-              ? { $in: discountObj.categories }
-              : discountObj.category.trim()
+            category: categoryFilter
           }).distinct("_id");
           // Save the discount
           const discount = await Discount({ ...discountObj }).save();
@@ -320,16 +379,45 @@ async function handlePostRequest(req, res) {
             {
               $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
             }
-          ).distinct("discount._id");
+          ).distinct("discount");
+          console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts });
+
           // Detach discounts from the products
           await Product.update(
             {
-              "discount._id": {
+              "discount": {
                 $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
               }
             },
             { $unset: { discount: 1 } },
             { multi: true }
+          );
+          // Remove the discount from the carts
+          await Cart.update(
+            {},
+            {
+              $set: {
+                'products.$[element].discountApplied': false,
+                'products.$[element].discountAmount': 0
+              },
+              $unset: { 'products.$[element].discount': 1 }
+            },
+            {
+              multi: true,
+              arrayFilters: [{
+                'element.discount': {
+                  $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+                }
+              }]
+            }
+          );
+          // remove the overridden discounts
+          await Discount.deleteMany(
+            {
+              _id: {
+                $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+              }
+            }
           );
           const resp = await Product.update(
             { _id: { $in: products } },
@@ -409,7 +497,7 @@ async function handlePutRequest(req, res) {
         if (!isActive) {
           // Find the cart with products which is discounted with this discount
           await Cart.update(
-            { "products.discount._id": discount._id },
+            { "products.discount": discount._id },
             {
               $set: {
                 "products.$[element].discountApplied": false,
@@ -418,7 +506,7 @@ async function handlePutRequest(req, res) {
             },
             {
               multi: true,
-              arrayFilters: [{ "element.discount._id": discount._id }]
+              arrayFilters: [{ "element.discount": discount._id }]
             }
           );
         } else {
@@ -435,7 +523,7 @@ async function handlePutRequest(req, res) {
             ]
           };
           await Cart.update(
-            { "products.discount._id": discount._id },
+            { "products.discount": discount._id },
             {
               $set: {
                 "products.$[element].discountApplied": true,
@@ -455,7 +543,7 @@ async function handlePutRequest(req, res) {
             },
             {
               multi: true,
-              arrayFilters: [{ "element.discount._id": discount._id }]
+              arrayFilters: [{ "element.discount": discount._id }]
             }
           );
         }
@@ -502,7 +590,7 @@ async function handleDeleteRequest(req, res) {
         // OK, ready to remove
         // Remove discount from the cards
         await Cart.update(
-          { "products.discount._id": discountId },
+          { "products.discount": discountId },
           {
             $set: {
               "products.$[element].discountApplied": false,
@@ -514,12 +602,12 @@ async function handleDeleteRequest(req, res) {
           },
           {
             multi: true,
-            arrayFilters: [{ "element.discount._id": discountId }]
+            arrayFilters: [{ "element.discount": discountId }]
           }
         );
         // Remove discount from products
         await Product.update(
-          { "discount._id": discountId },
+          { "discount": discountId },
           { $unset: { discount: 1 } },
           { multi: true }
         );

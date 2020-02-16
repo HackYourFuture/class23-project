@@ -5,7 +5,6 @@ import connectDb from "../../utils/connectDb";
 import Discount from "../../models/Discount";
 import Product from "../../models/Product";
 import { isDiscountExpired, isDiscountStarted, UNIT_TYPES } from '../../utils/discount';
-import { Card } from "semantic-ui-react";
 
 connectDb();
 
@@ -190,7 +189,6 @@ async function handleDeleteRequest(req, res) {
   }
 }
 
-
 async function isProductsDiscountApplicableForCart(cart, productId, productExists) {
   // Check for discount availability
   let isDiscountOnline = false,
@@ -345,7 +343,7 @@ async function activateDiscountForCart(discount) {
     ]
   };
   return await Cart.update(
-    { "products.discount._id": discount._id },
+    { "products.discount": discount._id },
     {
       $set: {
         "products.$[element].discountApplied": true,
@@ -365,7 +363,7 @@ async function activateDiscountForCart(discount) {
     },
     {
       multi: true,
-      arrayFilters: [{ "element.discount._id": discount._id }]
+      arrayFilters: [{ "element.discount": discount._id }]
     }
   ).populate({
     path: "products.product",

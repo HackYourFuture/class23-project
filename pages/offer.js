@@ -39,12 +39,49 @@ const Offer = ({ discounts, productId }) => {
           <>
             <Header as="h2">Product Information</Header>
             <Segment>
-              {d.products.map(p => (
+              {d.multipleUnits ?
+                d.products.map(p => (
+                  <Item.Group>
+                    <Item key={`discount_detail_product_multiple_${d._id}_${p.name}`}>
+                      <Item.Image src={p.mediaUrl} size="medium" />
+                      <Item.Content>
+                        <Item.Header>{p.name}</Item.Header>
+                        <Item.Description>
+                          <p>
+                            <strong>Discount Percentage:</strong>{" "}
+                            {`%${d.discountPercentage}`}
+                          </p>
+                          <Label.Group>
+                            <span>
+                              <strong>{`New Price: `}</strong>
+                            </span>
+                            <Label
+                              style={{ textDecoration: "line-through" }}
+                              size="medium"
+                            >{`${p.price}`}</Label>
+                            <Label
+                              size="medium"
+                              color="green"
+                            >{`${calculateDiscount(
+                              p.price,
+                              d.discountPercentage
+                            )}`}</Label>
+                          </Label.Group>
+                          <p>
+                            {`Saved: $${p.price -
+                              calculateDiscount(p.price, d.discountPercentage)}`}
+                          </p>
+                        </Item.Description>
+                        <Item.Extra></Item.Extra>
+                      </Item.Content>
+                    </Item>
+                  </Item.Group>
+                )) :
                 <Item.Group>
                   <Item>
-                    <Item.Image src={p.mediaUrl} size="medium" />
+                    <Item.Image src={d.product.mediaUrl} size="medium" />
                     <Item.Content>
-                      <Item.Header>{p.name}</Item.Header>
+                      <Item.Header>{d.product.name}</Item.Header>
                       <Item.Description>
                         <p>
                           <strong>Discount Percentage:</strong>{" "}
@@ -57,25 +94,25 @@ const Offer = ({ discounts, productId }) => {
                           <Label
                             style={{ textDecoration: "line-through" }}
                             size="medium"
-                          >{`${p.price}`}</Label>
+                          >{`${d.product.price}`}</Label>
                           <Label
                             size="medium"
                             color="green"
                           >{`${calculateDiscount(
-                            p.price,
+                            d.product.price,
                             d.discountPercentage
                           )}`}</Label>
                         </Label.Group>
                         <p>
-                          {`Saved: $${p.price -
-                            calculateDiscount(p.price, d.discountPercentage)}`}
+                          {`Saved: $${d.product.price -
+                            calculateDiscount(d.product.price, d.discountPercentage)}`}
                         </p>
                       </Item.Description>
                       <Item.Extra></Item.Extra>
                     </Item.Content>
                   </Item>
                 </Item.Group>
-              ))}
+              }
               <Segment textAlign="center">
                 <Label color="olive" size="large">{`Ends in ${formatDate(
                   d.endDate
@@ -84,25 +121,31 @@ const Offer = ({ discounts, productId }) => {
             </Segment>
           </>
         ) : (
-          <>
-            <Header>Category Information</Header>
-            <Segment>
-              <Header as="h4">About Discount:</Header>
-              <List>
-                <List.Item>
-                  <strong>Categories:</strong>
-                  {`${d.categories.map(c => c.toUpperCase())} `}
-                </List.Item>
-                <List.Item content="In order to take advantage of this discount you need to purchase at least one category specified above."></List.Item>
-              </List>
-              <Segment textAlign="center">
-                <Label color="olive" size="large">{`Ends in ${formatDate(
-                  d.endDate
-                )}`}</Label>
+            <>
+              <Header>Category Information</Header>
+              <Segment>
+                <Header as="h4">About Discount:</Header>
+                <List>
+                  <List.Item>
+                    <strong>Categories:</strong>
+                    {d.multipleUnits ? `${d.categories.map(c => c.toUpperCase() + ' ')}` : d.category.toUpperCase()}
+                  </List.Item>
+                  {
+                    d.multipleUnits ?
+                      <List.Item content="In order to take advantage of this discount you need to purchase at least one product from the categories specified above."></List.Item>
+                      :
+                      <List.Item content={`In order to take advantage of this discount you need to purchase at least ${d.amountRequired} product(s) from the category specified above.`}></List.Item>
+                  }
+
+                </List>
+                <Segment textAlign="center">
+                  <Label color="olive" size="large">{`Ends in ${formatDate(
+                    d.endDate
+                  )}`}</Label>
+                </Segment>
               </Segment>
-            </Segment>
-          </>
-        )
+            </>
+          )
       )}
     </>
   );

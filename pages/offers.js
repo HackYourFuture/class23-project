@@ -10,7 +10,7 @@ import {
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import baseUrl from "../utils/baseUrl";
-import { productPhrase, categoryPhrase } from "../utils/discount";
+import { productsPhrase, productPhrase, categoriesPhrase, categoryPhrase } from "../utils/discount";
 import axios from "axios";
 
 function Offers({ discounts }) {
@@ -35,20 +35,20 @@ function Offers({ discounts }) {
       <Segment>
         <List divided>
           {productDiscounts.map(pd => (
-            <List.Item>
+            <List.Item key={pd._id}>
               <Label.Group>
                 <Label color="red" tag>
                   {`%${pd.discountPercentage}`}
                 </Label>
               </Label.Group>
-              {pd.products.map(p => (
-                <Image size="small" src={p.mediaUrl} />
-              ))}
+              {pd.multipleUnits ? pd.products.map(p => (
+                <Image key={`discount_products_multiple_image_${pd._id}_${p.name}`} size="small" src={p.mediaUrl} />
+              )) : <Image size="small" src={pd.product.mediaUrl} />}
 
               <List.Header>Products:</List.Header>
-              {pd.products.map(p => (
-                <List.Item as="span">{p.name}</List.Item>
-              ))}
+              {pd.multipleUnits ? pd.products.map(p => (
+                <List.Item key={`discount_products_multiple_header_${pd._id}_${p.name}`} as="span">{p.name + ' '}</List.Item>
+              )) : <List.Item as="span">{pd.product.name}</List.Item>}
 
               <List.Content>
                 <Button
@@ -59,7 +59,7 @@ function Offers({ discounts }) {
                   See details
                 </Button>
                 <List.Description>
-                  {productPhrase(pd.products, pd.discountPercentage)}
+                  {pd.multipleUnits ? productsPhrase(pd.products, pd.discountPercentage) : productPhrase(pd.product, pd.discountPercentage, pd.amountRequired)}
                 </List.Description>
               </List.Content>
             </List.Item>
@@ -73,7 +73,7 @@ function Offers({ discounts }) {
       <Segment>
         <List divided>
           {categoryDiscounts.map(c => (
-            <List.Item>
+            <List.Item key={c._id}>
               <List.Content>
                 <Label.Group>
                   <Label color="red" tag>{`%${c.discountPercentage}`}</Label>
@@ -85,11 +85,11 @@ function Offers({ discounts }) {
                 >
                   See details
                 </Button>
-                {c.categories.map(c => (
-                  <List.Header as="a">{c.toUpperCase()}</List.Header>
-                ))}
+                {c.multipleUnits ? c.categories.map(cat => (
+                  <List.Header key={`discount_category_multiple_${c._id}_${cat}`} as="a">{cat.toUpperCase() + ' '}</List.Header>
+                )) : <List.Header as="a">{c.category.toUpperCase()}</List.Header>}
                 <List.Description>
-                  {categoryPhrase(c.categories, c.discountPercentage)}
+                  {c.multipleUnits ? categoriesPhrase(c.categories, c.discountPercentage) : categoryPhrase(c.category, c.discountPercentage, c.amountRequired)}
                 </List.Description>
               </List.Content>
             </List.Item>

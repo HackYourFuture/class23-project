@@ -109,7 +109,11 @@ export function isDiscountExpired(discount) {
   return !(endsAfterStart && (atLeastEndsToday || endsAtFuture));
 }
 
-export function productPhrase(arr, productDiscount, productAmount = 1) {
+export function productPhrase(product, productDiscount, productAmount = 1) {
+  return `Buy at least ${productAmount} "${product.name}" for %${productDiscount} off!`;
+}
+
+export function productsPhrase(arr, productDiscount, productAmount = 1) {
   return arr.reduce(function (prev, current, index, array) {
     let string = `Buy at least ${productAmount} `;
     if (index === 0) {
@@ -124,7 +128,11 @@ export function productPhrase(arr, productDiscount, productAmount = 1) {
   }, "");
 }
 
-export function categoryPhrase(arr, categoryDiscount, categoryAmount = 1) {
+export function categoryPhrase(category, categoryDiscount, categoryAmount = 1) {
+  return `Buy at least ${categoryAmount} product(s) from ${category} for %${categoryDiscount} off!`;
+}
+
+export function categoriesPhrase(arr, categoryDiscount, categoryAmount = 1) {
   return arr.reduce(function (prev, current, index, array) {
     let string = `Buy at least ${categoryAmount} product from `;
     if (index === 0) {
