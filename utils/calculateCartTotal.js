@@ -7,7 +7,7 @@ function calculateCartTotal(products) {
     return acc;
   }, 0);
   const totalEuro = products.reduce((acc, el) => {
-    acc += el.product.priceEuro * el.quantity;
+    acc += el.product.priceEuro ? el.product.priceEuro * el.quantity : el.product.price * el.quantity;
     return acc;
   }, 0);
   const cartTotal = ((total * 100) / 100).toFixed(2);

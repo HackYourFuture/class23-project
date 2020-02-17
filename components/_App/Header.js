@@ -3,6 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import NProgress from "nprogress";
 import { handleLogout } from "../../utils/auth";
+import title from '../../utils/title';
 
 Router.onRouteChangeStart = () => NProgress.start();
 Router.onRouteChangeComplete = () => NProgress.done();
@@ -28,7 +29,7 @@ function Header({ user }) {
               src="/static/logo.svg"
               style={{ marginRight: "1em" }}
             />
-            ReactReserve
+            {title}
           </Menu.Item>
         </Link>
 

@@ -27,6 +27,7 @@ function Cart({ products, user, currency }) {
       headers: { Authorization: token },
     };
     const response = await axios.delete(url, payload);
+    console.log(response.data);
     setCartProducts(response.data);
     logEvent('User', `User ${user.name} removed product from their cart`);
   }

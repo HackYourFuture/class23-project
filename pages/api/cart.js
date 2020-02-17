@@ -132,14 +132,14 @@ async function handleDeleteRequest(req, res) {
     // check if a discount set to the product
     if (cartProduct.discount) {
       // Remove the discount from the cart
-      await Cart.update(
-        { user: userId },
-        { $unset: { 'products.$[element].discount': 1 } },
-        {
-          multi: true,
-          arrayFilters: [{ 'element.discount': cartProduct.discount._id }]
+      oldCart.products.forEach(doc => {
+        if (doc.discount && ObjectId(doc.discount._id).equals(cartProduct.discount._id)) {
+          doc.discount = null;
+          doc.discountApplied = false;
+          doc.discountAmount = 0;
         }
-      );
+      });
+      await oldCart.save();
       // remove the product from the cart
       cart = await Cart.findOneAndUpdate(
         { user: userId },

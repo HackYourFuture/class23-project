@@ -70,10 +70,10 @@ function CartItemList({
               View Products
             </Button>
           ) : (
-            <Button color="blue" onClick={() => router.push("/login")}>
-              Login to Add Products
+              <Button color="blue" onClick={() => router.push("/login")}>
+                Login to Add Products
             </Button>
-          )}
+            )}
         </div>
       </Segment>
     );
@@ -84,7 +84,7 @@ function CartItemList({
       {products.map(p => (
         <Item key={p.product._id}>
           <Item.Image src={p.product.mediaUrl} size="small" />
-          <Item.Content fluid>
+          <Item.Content>
             <Item.Header
               as="a"
               onClick={() => router.push(`/product?_id=${p.product._id}`)}

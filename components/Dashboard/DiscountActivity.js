@@ -4,7 +4,9 @@ import {
   Header,
   Icon,
   Image,
-  Message
+  Message,
+  Loader,
+  Dimmer
 } from "semantic-ui-react";
 import formateDate from "../../utils/formatDate";
 import baseUrl from "../../utils/baseUrl";
@@ -26,7 +28,7 @@ function DiscountActivity({ totalDiscounts }) {
     try {
       await axios.put(url, payload, headers);
       discount.isActive = !discount.isActive;
-      activeSetter(!discount.isActive);
+      activeSetter(discount.isActive);
       setDiscounts(discounts);
     } catch (error) {
       console.warn(error);
@@ -140,6 +142,7 @@ function DiscountActivity({ totalDiscounts }) {
             disabled={toggling}
             onChange={() => handleToggleChange(discount, setActive, setToggling)}
           />
+          <Loader size='small' active={toggling} disabled={!toggling} inline='centered' />
         </Table.Cell>
         <Table.Cell>
           {discount.multipleUnits ? discount.products.map(p => (
@@ -174,6 +177,7 @@ function DiscountActivity({ totalDiscounts }) {
       <Table.Row>
         <Table.Cell collapsing>
           <Checkbox disabled={toggling} checked={active} toggle onChange={() => handleToggleChange(discount, setActive, setToggling)} />
+          <Loader size='small' active={toggling} disabled={!toggling} inline='centered' />
         </Table.Cell>
         <Table.Cell>
           <Header as="h4">
