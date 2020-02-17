@@ -9,21 +9,21 @@ function Confirmation({ message }) {
   return (
     <>
       {type === 'verified' ? (
-        <Message>
+        <Message success size="large">
           {msg}
           <Link href="/login">
             <a> Log in here</a>
           </Link>
         </Message>
       ) : type === 'not-verified' ? (
-        <Message error>
+        <Message error size="large">
           {msg}
           <Link href="/resend">
             <a> Resend activation email.</a>
           </Link>
         </Message>
       ) : (
-        <Message error header="Oops!" content={msg} />
+        <Message error header="Oops!" content={msg} size="large" />
       )}
     </>
   );

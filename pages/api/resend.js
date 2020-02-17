@@ -37,7 +37,10 @@ export default async (req, res) => {
       from: 'no-reply@hackyourshop.com',
       to: email,
       subject: 'Account activation',
-      text: `Hello,\n\n Please activate your account by clicking the link: \nhttp://${req.headers.host}/confirmation/${temporaryToken}`,
+      html: `Hello <strong>${user.name}</strong>,
+      <br> Please activate your account by clicking the link below:
+      <br> <a href='http://${req.headers.host}/confirmation/${temporaryToken}'><h2>hackyourshop.com</h2></a>
+      <br>Enjoy Shopping :)`,
     };
 
     transporter.sendMail(mailOptions, err => {

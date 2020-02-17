@@ -13,7 +13,7 @@ export default async (req, res) => {
 
     // 2) --if not, return error
     if (!user) {
-      return res.status(404).send('No user exists with that email');
+      return res.status(404).send('No user exists with the email');
     }
 
     // 3) check to see if a user verified
@@ -35,10 +35,9 @@ export default async (req, res) => {
       // 6) send that token to the client
       res.status(200).json(token);
     } else {
-      res.status(401).send('Passwords do not match');
+      res.status(401).send('Incorrect password.');
     }
   } catch (error) {
-    console.error(error);
     res.status(500).send('Error logging in user');
   }
 };

@@ -1,14 +1,14 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
+import passwordValidator from 'password-validator';
+import isEmail from 'validator/lib/isEmail';
+import isLength from 'validator/lib/isLength';
+import equals from 'validator/lib/equals';
 import User from '../../models/User';
 import Cart from '../../models/Cart';
 import Token from '../../models/Token';
 import connectDb from '../../utils/connectDb';
-import isEmail from 'validator/lib/isEmail';
-import isLength from 'validator/lib/isLength';
-import passwordValidator from 'password-validator';
-import equals from 'validator/lib/equals';
 
 connectDb();
 
@@ -59,6 +59,7 @@ export default async (req, res) => {
       );
       return res.status(422).send(Object.values(errorMessages));
     }
+
     const user = await User.findOne({ email });
 
     if (user) {
@@ -88,7 +89,10 @@ export default async (req, res) => {
       from: 'no-reply@hackyourshop.com',
       to: newUser.email,
       subject: 'Account activation',
-      text: `Hello,\n\n Please activate your account by clicking the link: \nhttp://${req.headers.host}/confirmation/${temporaryToken}`,
+      html: `Hello <strong>${newUser.name}</strong>,
+      <br> Please activate your account by clicking the link below:
+      <br> <a href='http://${req.headers.host}/confirmation/${temporaryToken}'><h2>hackyourshop.com</h2></a>
+      <br>Enjoy Shopping :)`,
     };
 
     transporter.sendMail(mailOptions, err => {
