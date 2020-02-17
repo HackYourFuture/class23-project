@@ -10,7 +10,7 @@ function initializeAdmin() {
   // Initialize admin
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: 'https://hackyourshoplets.firebaseio.com',
+    databaseURL: 'https://hackyourshop-d9ad6.firebaseio.com',
   });
   console.log('Admin Initialized');
   return admin;

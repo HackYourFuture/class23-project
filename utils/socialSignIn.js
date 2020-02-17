@@ -6,8 +6,8 @@ import firebase from 'firebase';
 
 if (!firebase.apps.length) {
   firebase.initializeApp({
-    apiKey: 'AIzaSyBRM75TC1eGfRlN6jguGv3jReDF-1orzVM',
-    authDomain: 'hackyourshoplets.firebaseapp.com',
+    apiKey: 'AIzaSyAsBJg_zzaO-7uSCFlSKj01HD-xCRLpJ8k',
+    authDomain: 'hackyourshop-d9ad6.firebaseapp.com',
   });
 }
 
