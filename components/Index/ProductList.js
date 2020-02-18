@@ -89,9 +89,9 @@ function ProductList({ products, selectCategory, user, currency }, ctx) {
             <Image src={product.mediaUrl} />
           </Segment>
         ),
-        meta: currency === "" || currency === "usd"
-          ? `$${product.price}`
-          : `€${product.priceEuro}`,
+        meta: !currency || currency === "usd"
+          ? `$${product.price.toFixed(2)}`
+          : `€${product.priceEuro.toFixed(2)}`,
         color: "teal",
         fluid: true,
         childKey: product._id,

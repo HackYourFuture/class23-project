@@ -24,7 +24,7 @@ function CartItemList({
     const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
     return (
       <span style={{ textDecoration: cartDocument.discountApplied ? "line-through" : "none" }}>
-        {`${cartDocument.quantity} x ${curr}${price}`}
+        {`${cartDocument.quantity} x ${curr}${price.toFixed(2)}`}
       </span>
     );
   }
@@ -47,7 +47,7 @@ function CartItemList({
     const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
     const amount = cartDocument.discount.multipleUnits ? (cartDocument.quantity - 1) : (cartDocument.quantity - cartDocument.discount.amountRequired);
     if (amount <= 0) return;
-    return <Label>{amount} x {curr}{price}</Label>;
+    return <Label>{amount} x {curr}{price.toFixed(2)}</Label>;
   }
 
   if (success) {

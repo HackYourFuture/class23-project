@@ -58,7 +58,7 @@ const Offer = ({ discounts, productId }) => {
                             <Label
                               style={{ textDecoration: "line-through" }}
                               size="medium"
-                            >{`${p.price}`}</Label>
+                            >{`${p.price.toFixed(2)}`}</Label>
                             <Label
                               size="medium"
                               color="green"
@@ -68,8 +68,8 @@ const Offer = ({ discounts, productId }) => {
                             )}`}</Label>
                           </Label.Group>
                           <p>
-                            {`Saved: $${p.price -
-                              calculateDiscount(p.price, d.discountPercentage)}`}
+                            {`Saved: $${(p.price -
+                              calculateDiscount(p.price, d.discountPercentage)).toFixed(2)}`}
                           </p>
                         </Item.Description>
                         <Item.Extra></Item.Extra>
@@ -94,7 +94,7 @@ const Offer = ({ discounts, productId }) => {
                           <Label
                             style={{ textDecoration: "line-through" }}
                             size="medium"
-                          >{`${d.product.price}`}</Label>
+                          >{`${d.product.price.toFixed(2)}`}</Label>
                           <Label
                             size="medium"
                             color="green"
@@ -104,8 +104,8 @@ const Offer = ({ discounts, productId }) => {
                           )}`}</Label>
                         </Label.Group>
                         <p>
-                          {`Saved: $${d.product.price -
-                            calculateDiscount(d.product.price, d.discountPercentage)}`}
+                          {`Saved: $${(d.product.price -
+                            calculateDiscount(d.product.price, d.discountPercentage)).toFixed(2)}`}
                         </p>
                       </Item.Description>
                       <Item.Extra></Item.Extra>

@@ -1,13 +1,14 @@
 import { Card, Rating } from "semantic-ui-react";
 import calculateRatingMedian from "../../utils/calculateRatingMedian";
 
-function AddProductSuggestions({ topSuggestedProducts }) {
+function AddProductSuggestions({ topSuggestedProducts, currency }) {
   function mapProductsToItems(products) {
     return products.map(product => {
+      console.log({ product })
       return {
         header: product.name,
         image: product.mediaUrl,
-        meta: `$${product.price}`,
+        meta: (!currency || currency === 'usd') ? `$${product.price.toFixed(2)}` : `€${product.priceEuro.toFixed(2)}`,
         color: "teal",
         fluid: true,
         childKey: product._id,

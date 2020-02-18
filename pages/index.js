@@ -26,7 +26,7 @@ function Home({ products, totalPages, currency, user }, ctx) {
 
   const handleChange = async () => {
     setNewCurrency(prevState => !prevState);
-    await redirectUser(ctx, "/");
+    redirectUser(ctx, "/");
   };
   useEffect(() => {
     newCurrency

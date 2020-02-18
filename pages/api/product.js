@@ -93,11 +93,9 @@ async function handlePostRequest(req, res) {
     if (!name || !price || !description || !mediaUrl || !category) {
       return res.status(422).send("Product missing one or more fields");
     }
-    const priceEuro = (price / 0.88).toFixed(2);
     const product = await new Product({
       name,
       price,
-      priceEuro,
       description,
       mediaUrl,
       category

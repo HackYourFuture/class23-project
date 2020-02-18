@@ -230,10 +230,10 @@ function ProductSummary({
             </Item.Header>
             <Item.Description>
               <div>
-                {currency === "" || currency === "usd" ? (
-                  <p>${price}</p>
+                {!currency || currency === "usd" ? (
+                  <p>${price.toFixed(2)}</p>
                 ) : (
-                    <p>&euro;{priceEuro}</p>
+                    <p>&euro;{priceEuro.toFixed(2)}</p>
                   )}
                 {user && (user.role === "admin" || user.role === "root") && (
                   <Modal

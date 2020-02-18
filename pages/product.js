@@ -9,9 +9,7 @@ import AddProductSuggestions from "../components/Product/AddProductSuggestions";
 
 function Product({ product, user, totalComments, topSuggestedProducts, currency }) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
-  const [displayedTotalComments, setDisplayedTotalComments] = useState(
-    totalComments
-  );
+  const [displayedTotalComments, setDisplayedTotalComments] = useState(totalComments);
 
   function handleNewComment({
     totalComments: newTotalComments,
@@ -33,7 +31,7 @@ function Product({ product, user, totalComments, topSuggestedProducts, currency 
     setDisplayedTotalComments(totalComments);
   }, [product, totalComments]);
 
-  console.log(displayedProduct);
+  console.log({ currency });
 
   return (
     <>
@@ -42,6 +40,7 @@ function Product({ product, user, totalComments, topSuggestedProducts, currency 
       <AddProductSuggestions
         topSuggestedProducts={topSuggestedProducts}
         {...displayedProduct}
+        currency={currency}
       />
       <AddCommentToProduct
         user={user}

@@ -156,7 +156,7 @@ export function calculateDiscount(price, discount) {
   const discountToCalculate = discount / 100;
   const diff = price * discountToCalculate;
   const newPrice = price - diff;
-  return newPrice.toFixed();
+  return newPrice.toFixed(2);
 }
 
 export function calculateEndingTime(start, end) {

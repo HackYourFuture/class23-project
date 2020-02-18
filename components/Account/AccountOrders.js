@@ -83,9 +83,9 @@ function AccountOrders({ orders, _id, currency }, ctx) {
                     <List.Content>
                       <List.Header>{p.product.name}</List.Header>
                       <List.Description>
-                        {currency === "" || currency === "usd"
-                          ? `${p.quantity} · $${p.product.price}`
-                          : `${p.quantity} · €${p.product.priceEuro}`}
+                        {!currency || currency === "usd"
+                          ? `${p.quantity} · $${(p.product.price).toFixed(2)}`
+                          : `${p.quantity} · €${(p.product.priceEuro).toFixed(2)}`}
                       </List.Description>
                     </List.Content>
                     <Rating
