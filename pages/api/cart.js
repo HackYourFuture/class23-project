@@ -39,6 +39,9 @@ async function handleGetRequest(req, res) {
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "products.product",
       model: "Product"
+    }).populate({
+      path: 'products.discount',
+      model: 'Discount'
     });
     res.status(200).json(cart.products);
   } catch (error) {
@@ -75,7 +78,8 @@ async function handlePutRequest(req, res) {
         { _id: cart._id, "products.product": productId },
         { $inc: { "products.$.quantity": quantity } },
         { new: true }
-      ).populate({ path: 'products.product', model: 'Product' });
+      ).populate({ path: 'products.product', model: 'Product' })
+        .populate({ path: 'products.discount', model: 'Discount' });
     } else {
       // If not, add new product with given quantity
       const newProduct = { quantity, product: productId };
@@ -83,7 +87,8 @@ async function handlePutRequest(req, res) {
         { _id: cart._id },
         { $addToSet: { products: newProduct } },
         { new: true }
-      ).populate({ path: 'products.product', model: 'Product' });;
+      ).populate({ path: 'products.product', model: 'Product' })
+        .populate({ path: 'products.discount', model: 'Discount' });
     }
 
     const discount = discountInfo.product.discount;
@@ -329,12 +334,11 @@ async function addDiscountToCartInDeactivatedMode(discount, cart) {
       });
     } else {
       cart.products.forEach(doc => {
-        if (doc.product._id === discount.product._id) {
+        if (ObjectId(doc.product._id).equals(discount.product._id)) {
           doc.discount = ObjectId(discount._id);
         }
       });
     }
-
     await cart.save();
   } else { // unit category
     if (discount.multipleUnits) {
@@ -388,7 +392,7 @@ async function activateDiscountForCart(discount, userId) {
       model: "Product"
     });
 
-  carts.forEach(cart => {
+  carts.forEach(async cart => {
     cart.products.forEach(doc => {
       if (doc.discount && ObjectId(doc.discount._id).equals(discount._id)) {
         doc.discountApplied = true;
@@ -399,11 +403,8 @@ async function activateDiscountForCart(discount, userId) {
         }
       }
     })
-  });
-
-  carts.forEach(async (cart) => {
     await cart.save();
-  })
+  });
 
   return await Cart.find(
     { user: userId }

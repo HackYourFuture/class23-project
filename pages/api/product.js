@@ -6,6 +6,7 @@ import shuffle from "../../utils/shuffle";
 import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Rating from "../../models/Rating";
+import Discount from "../../models/Discount";
 connectDb();
 
 const COMMENTS_PER_PAGE = 5;
@@ -41,6 +42,10 @@ async function handleGetRequest(req, res) {
     .populate({
       path: "ratings",
       model: Rating
+    })
+    .populate({
+      path: 'discount',
+      model: Discount
     })
     .slice("comments", startIndex, startIndex + COMMENTS_PER_PAGE);
 

@@ -13,12 +13,13 @@ import catchErrors from "../../utils/catchErrors";
 import baseUrl from "../../utils/baseUrl";
 import cookie from "js-cookie";
 import { useRouter } from "next/router";
+import { redirectUser } from "../../utils/auth";
 
 export default function AddCommentToProduct({
   user,
   product,
   handleNewComment
-}) {
+}, ctx) {
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -57,7 +58,7 @@ export default function AddCommentToProduct({
   async function handleSubmit(event) {
     event.preventDefault();
     if (!user) {
-      router.push("/login");
+      redirectUser(ctx, "/login");
       return;
     }
 
@@ -118,7 +119,7 @@ export default function AddCommentToProduct({
                 color="orange"
                 content="Login to Add Comments"
                 icon="sign in"
-                onClick={() => router.push("/login")}
+                onClick={() => redirectUser(ctx, "/login")}
               />
             )}
         </Form>

@@ -24,7 +24,7 @@
 ## Cloudinary:
 
 - CLOUDINARY_URL: `cloudinary://481818939869213:HLuX_Wcz2tDV20U83ndgPL06ZPg@dy7xzflbz`
-- username: `class23.nl@gmail.com`
+- username: `class23.hyf@gmail.com`
 - password: `image.class23HYF\$`
 
 ## For social login:

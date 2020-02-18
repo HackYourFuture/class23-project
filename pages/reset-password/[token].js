@@ -9,12 +9,13 @@ import {
 import axios from 'axios';
 import baseUrl from '../../utils/baseUrl';
 import { useRouter } from 'next/router';
+import { redirectUser } from '../../utils/auth';
 
 const PASSWORDS = {
   requested: '',
   repeated: '',
 };
-function ResetPassword({ message, token, error: propError }) {
+function ResetPassword({ message, token, error: propError }, ctx) {
   const router = useRouter();
   const [passwords, setPasswords] = React.useState(PASSWORDS);
   const [disabled, setDisabled] = React.useState(true);
@@ -52,7 +53,7 @@ function ResetPassword({ message, token, error: propError }) {
         setIsOpen(true);
       }, 1500);
       setTimeout(() => {
-        router.push('/login');
+        redirectUser(ctx, '/login');
       }, 3000);
     } catch (error) {
       setSuccess('');
@@ -67,56 +68,56 @@ function ResetPassword({ message, token, error: propError }) {
       {propError ? (
         <Message error={Boolean(propError)} header="Oops!" content={message} />
       ) : (
-        <Form
-          error={Boolean(error)}
-          success={Boolean(success)}
-          loading={loading}
-          onSubmit={handleSubmit}
-        >
-          <Message error header="Oops!" content={error} />
-          <Message success header="Success!" content={success} />
-          <Segment>
-            <Form.Input
-              fluid
-              icon="envelope"
-              iconPosition="left"
-              label="Email"
-              name="name"
-              disabled
-              value={message}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="New password"
-              placeholder="New password"
-              name="requested"
-              type="password"
-              value={passwords.requested}
-              onChange={handleChange}
-            />
-            <Form.Input
-              fluid
-              icon="lock"
-              iconPosition="left"
-              label="Re-new password"
-              placeholder="Re-new password"
-              name="repeated"
-              type="password"
-              value={passwords.repeated}
-              onChange={handleChange}
-            />
-            <Button
-              disabled={disabled || loading}
-              type="submit"
-              color="orange"
-              content="Reset Password"
-            />
-          </Segment>
-        </Form>
-      )}
+          <Form
+            error={Boolean(error)}
+            success={Boolean(success)}
+            loading={loading}
+            onSubmit={handleSubmit}
+          >
+            <Message error header="Oops!" content={error} />
+            <Message success header="Success!" content={success} />
+            <Segment>
+              <Form.Input
+                fluid
+                icon="envelope"
+                iconPosition="left"
+                label="Email"
+                name="name"
+                disabled
+                value={message}
+                onChange={handleChange}
+              />
+              <Form.Input
+                fluid
+                icon="lock"
+                iconPosition="left"
+                label="New password"
+                placeholder="New password"
+                name="requested"
+                type="password"
+                value={passwords.requested}
+                onChange={handleChange}
+              />
+              <Form.Input
+                fluid
+                icon="lock"
+                iconPosition="left"
+                label="Re-new password"
+                placeholder="Re-new password"
+                name="repeated"
+                type="password"
+                value={passwords.repeated}
+                onChange={handleChange}
+              />
+              <Button
+                disabled={disabled || loading}
+                type="submit"
+                color="orange"
+                content="Reset Password"
+              />
+            </Segment>
+          </Form>
+        )}
       <Modal
         open={isOpen}
         dimmer="blurring"

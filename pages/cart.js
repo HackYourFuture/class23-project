@@ -10,7 +10,7 @@ import baseUrl from '../utils/baseUrl';
 import cookie from 'js-cookie';
 import catchErrors from '../utils/catchErrors';
 
-function Cart({ products, user, currency }) {
+function Cart({ products, user, currency }, ctx) {
   const router = useRouter();
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
@@ -103,7 +103,7 @@ function Cart({ products, user, currency }) {
             <Image floated="left" src="../static/click-to-rate.png" />
           </Modal.Content>
           <Modal.Actions>
-            <Button color="green" onClick={() => router.push('/account')}>
+            <Button color="green" onClick={() => redirectUser(ctx, '/account')}>
               I'd love to!
             </Button>
             <Button color="red" onClick={() => setIsOpen(false)}>

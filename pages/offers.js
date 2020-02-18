@@ -12,8 +12,9 @@ import { useRouter } from "next/router";
 import baseUrl from "../utils/baseUrl";
 import { productsPhrase, productPhrase, categoriesPhrase, categoryPhrase } from "../utils/discount";
 import axios from "axios";
+import { redirectUser } from "../utils/auth";
 
-function Offers({ discounts }) {
+function Offers({ discounts }, ctx) {
   const router = useRouter();
   const productDiscounts = discounts.filter(
     p => p.unitType === "product" && p.isActive
@@ -46,15 +47,15 @@ function Offers({ discounts }) {
               )) : <Image size="small" src={pd.product.mediaUrl} />}
 
               <List.Header>Products:</List.Header>
-              {pd.multipleUnits ? pd.products.map(p => (
-                <List.Item key={`discount_products_multiple_header_${pd._id}_${p.name}`} as="span">{p.name + ' '}</List.Item>
-              )) : <List.Item as="span">{pd.product.name}</List.Item>}
+              {pd.multipleUnits ? pd.products.map((p, index, pds) => (
+                <List.Item key={`discount_products_multiple_header_${pd._id}_${p.name}`} as="span"><strong>{' ' + p.name + ' '}</strong>{(index !== pds.length - 1) && <strong>|</strong>}</List.Item>
+              )) : <List.Item as="span"><strong>{pd.product.name}</strong></List.Item>}
 
               <List.Content>
                 <Button
                   floated="right"
                   color="green"
-                  onClick={() => router.push(`/offer?discountId=${pd._id}`)}
+                  onClick={() => redirectUser(ctx, `/offer?discountId=${pd._id}`)}
                 >
                   See details
                 </Button>
@@ -81,13 +82,13 @@ function Offers({ discounts }) {
                 <Button
                   floated="right"
                   color="green"
-                  onClick={() => router.push(`/offer?discountId=${c._id}`)}
+                  onClick={() => redirectUser(ctx, `/offer?discountId=${c._id}`)}
                 >
-                  See details
+                  Details
                 </Button>
-                {c.multipleUnits ? c.categories.map(cat => (
-                  <List.Header key={`discount_category_multiple_${c._id}_${cat}`} as="a">{cat.toUpperCase() + ' '}</List.Header>
-                )) : <List.Header as="a">{c.category.toUpperCase()}</List.Header>}
+                {c.multipleUnits ? c.categories.map((cat, index, cats) => (
+                  <List.Header key={`discount_category_multiple_${c._id}_${cat}`} as="a"><strong>{' ' + cat.toUpperCase() + ' '}</strong> {(index !== cats.length - 1) && <strong>|</strong>}</List.Header>
+                )) : <List.Header as="a"><strong>{c.category.toUpperCase()}</strong></List.Header>}
                 <List.Description>
                   {c.multipleUnits ? categoriesPhrase(c.categories, c.discountPercentage) : categoryPhrase(c.category, c.discountPercentage, c.amountRequired)}
                 </List.Description>

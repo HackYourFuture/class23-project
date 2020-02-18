@@ -29,7 +29,7 @@ export default async (req, res) => {
       model: Rating
     })
     .populate({
-      path: "discounts",
+      path: "discount",
       model: Discount
     });
 

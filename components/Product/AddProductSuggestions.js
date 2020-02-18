@@ -29,7 +29,7 @@ function AddProductSuggestions({ topSuggestedProducts }) {
 
   return (
     <>
-      <Card.Header as="h2" centered>
+      <Card.Header as="h2" centered='true'>
         You may also like..
       </Card.Header>
       <Card.Group

@@ -18,6 +18,7 @@ import cookie from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
 import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
+import { isDiscountStarted, isDiscountExpired } from "../../utils/discount";
 
 function ProductSummary({
   name,
@@ -30,7 +31,7 @@ function ProductSummary({
   ratings,
   currency,
   discount
-}) {
+}, ctx) {
   console.log(currency);
   const [ratingAmount, setRatingAmount] = React.useState(0);
   const [productName, setProductName] = React.useState(name);
@@ -97,6 +98,8 @@ function ProductSummary({
     setNewMediaUrl({ mediaUrl });
     setMediaPreview(window.URL.createObjectURL(files[0]));
   }
+
+  console.log({ discount });
 
   return (
     <>
@@ -227,11 +230,11 @@ function ProductSummary({
             </Item.Header>
             <Item.Description>
               <div>
-              {currency === "" || currency === "usd" ? (
-                <p>${price}</p>
-              ) : (
-                <p>&euro;{priceEuro}</p>
-              )}
+                {currency === "" || currency === "usd" ? (
+                  <p>${price}</p>
+                ) : (
+                    <p>&euro;{priceEuro}</p>
+                  )}
                 {user && (user.role === "admin" || user.role === "root") && (
                   <Modal
                     size="tiny"
@@ -290,16 +293,21 @@ function ProductSummary({
             <Item.Extra>
               <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
-            {discount !== null && discount.length > 0 ? (
-              <Button
-                color="red"
-                onClick={() => router.push(`/offer?discountId=${discount}`)}
-              >
-                See Offer Details!
-              </Button>
-            ) : (
-              ""
-            )}
+            {(discount && discount.isActive &&
+              isDiscountStarted(discount) && !isDiscountExpired(discount)) &&
+              (
+                <>
+                  <Label tag icon='gift' color='red' content={`%${discount.discountPercentage}`} />
+                  <Button
+                    color="red"
+                    size='mini'
+                    onClick={() => redirectUser(ctx, `/offer?discountId=${discount._id}`)}
+                  >
+                    See Offer Details!
+                </Button>
+                </>
+              )
+            }
           </Item.Content>
         </Item>
       </Item.Group>

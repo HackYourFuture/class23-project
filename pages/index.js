@@ -12,20 +12,21 @@ import {
   Button,
   Icon
 } from "semantic-ui-react";
+import { redirectUser } from '../utils/auth';
 
-function Home({ products, totalPages, currency, user }) {
+function Home({ products, totalPages, currency, user }, ctx) {
   const [newCurrency, setNewCurrency] = useState(false);
   const router = useRouter();
   const [category, setCategory] = useState("");
 
   function selectCategory(e, data) {
     setCategory(data.value);
-    router.push(`/?category=${data.value}`);
+    redirectUser(ctx, `/?category=${data.value}`);
   }
 
   const handleChange = async () => {
     setNewCurrency(prevState => !prevState);
-    await router.push("/");
+    await redirectUser(ctx, "/");
   };
   useEffect(() => {
     newCurrency
@@ -75,6 +76,6 @@ Home.getInitialProps = async ctx => {
   // return response data as an object
   return response.data;
   // note: this object will be merged with existing props
-}; 
+};
 
 export default Home;

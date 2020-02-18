@@ -14,8 +14,9 @@ import baseUrl from "../../utils/baseUrl";
 import cookie from "js-cookie";
 import axios from "axios";
 import formateDate from "../../utils/formatDate";
+import { redirectUser } from "../../utils/auth";
 
-function AccountOrders({ orders, _id, currency }) {
+function AccountOrders({ orders, _id, currency }, ctx) {
   const initialStars = orders.reduce((starObj, order) => {
     starObj[order._id] = order.products.reduce((prodObj, p) => {
       prodObj[p.product._id] =
@@ -63,17 +64,17 @@ function AccountOrders({ orders, _id, currency }) {
                   />
                 </List.Header>
               ) : (
-                <List.Header as="h3">
-                  Total: €{(order.total / 1.2).toFixed(2)}
-                  <Label
-                    content={order.email}
-                    icon="mail"
-                    basic
-                    horizontal
-                    style={{ marginLeft: "1em" }}
-                  />
-                </List.Header>
-              )}
+                  <List.Header as="h3">
+                    Total: €{(order.total / 1.2).toFixed(2)}
+                    <Label
+                      content={order.email}
+                      icon="mail"
+                      basic
+                      horizontal
+                      style={{ marginLeft: "1em" }}
+                    />
+                  </List.Header>
+                )}
 
               <List>
                 {order.products.map(p => (
@@ -124,19 +125,19 @@ function AccountOrders({ orders, _id, currency }) {
             No past orders.
           </Header>
           <div>
-            <Button onClick={() => router.push("/")} color="orange">
+            <Button onClick={() => redirectUser(ctx, '/')} color="orange">
               View Products
             </Button>
           </div>
         </Segment>
       ) : (
-        <Accordion
-          fluid
-          styled
-          exclusive={false}
-          panels={mapOrdersToPanels(orders)}
-        />
-      )}
+          <Accordion
+            fluid
+            styled
+            exclusive={false}
+            panels={mapOrdersToPanels(orders)}
+          />
+        )}
     </>
   );
 }

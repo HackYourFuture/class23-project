@@ -5,8 +5,9 @@ import cookie from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
 import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
+import { redirectUser } from "../../utils/auth";
 
-function ProductAttributes({ description, _id, user }) {
+function ProductAttributes({ description, _id, user }, ctx) {
   const [modal, setModal] = React.useState(false);
   const [productDescription, setProductDescription] = React.useState(
     description
@@ -24,7 +25,7 @@ function ProductAttributes({ description, _id, user }) {
     const url = `${baseUrl}/api/product`;
     const payload = { params: { _id } };
     await axios.delete(url, payload);
-    router.push("/");
+    redirectUser(ctx, "/");
   }
 
   const setUpdateFields = (updateField, updatedProduct) => {
@@ -64,7 +65,7 @@ function ProductAttributes({ description, _id, user }) {
             <Modal
               trigger={
                 <Button style={{ background: "white" }}>
-                  <Icon name="pencil" size="medium" color="black" />
+                  <Icon name="pencil" size='small' color="black" />
                 </Button>
               }
               closeOnDimmerClick={false}

@@ -8,6 +8,7 @@ import {
   Label
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
+import { redirectUser } from "../../utils/auth";
 
 function CartItemList({
   products,
@@ -15,35 +16,38 @@ function CartItemList({
   handleRemoveFromCart,
   success,
   currency
-}) {
+}, ctx) {
   const router = useRouter();
 
-  function mapCartProductsToItems(products) {
-    return products.map(p => ({
-      childKey: p.product._id,
-      header: (
-        <Item.Header
-          as="a"
-          onClick={() => router.push(`/product?_id=${p.product._id}`)}
-        >
-          {p.product.name}
-        </Item.Header>
-      ),
-      image: p.product.mediaUrl,
-      meta:
-        currency === "" || currency === "usd"
-          ? `${p.quantity} x $${p.product.price}`
-          : `${p.quantity} x €${p.product.priceEuro}`,
-      fluid: "true",
-      extra: (
-        <Button
-          basic
-          icon="remove"
-          floated="right"
-          onClick={() => handleRemoveFromCart(p.product._id)}
-        />
-      )
-    }));
+  function calculatedIndependentPriceText(cartDocument) {
+    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
+    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
+    return (
+      <span style={{ textDecoration: cartDocument.discountApplied ? "line-through" : "none" }}>
+        {`${cartDocument.quantity} x ${curr}${price}`}
+      </span>
+    );
+  }
+
+  function calculatedDiscountedText(cartDocument) {
+    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
+    const amount = cartDocument.discount.multipleUnits ? 1 : cartDocument.discount.amountRequired;
+    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
+    const totalDiscountedPrice = curr === '$' ? cartDocument.discountAmount : cartDocument.discountAmountEuro;
+    const perItemDiscountedPrice = price - (cartDocument.discount.multipleUnits ? totalDiscountedPrice : totalDiscountedPrice / cartDocument.discount.amountRequired);
+    return (
+      <Label color="green">
+        {amount}<span> x </span>{`${curr}${(perItemDiscountedPrice).toFixed(2)}`}
+      </Label >
+    )
+  }
+
+  function calculatedNonDiscountedText(cartDocument) {
+    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
+    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
+    const amount = cartDocument.discount.multipleUnits ? (cartDocument.quantity - 1) : (cartDocument.quantity - cartDocument.discount.amountRequired);
+    if (amount <= 0) return;
+    return <Label>{amount} x {curr}{price}</Label>;
   }
 
   if (success) {
@@ -66,11 +70,11 @@ function CartItemList({
         </Header>
         <div>
           {user ? (
-            <Button color="orange" onClick={() => router.push("/")}>
+            <Button color="orange" onClick={() => redirectUser(ctx, '/')}>
               View Products
             </Button>
           ) : (
-              <Button color="blue" onClick={() => router.push("/login")}>
+              <Button color="blue" onClick={() => redirectUser(ctx, '/login')}>
                 Login to Add Products
             </Button>
             )}
@@ -87,24 +91,19 @@ function CartItemList({
           <Item.Content>
             <Item.Header
               as="a"
-              onClick={() => router.push(`/product?_id=${p.product._id}`)}
+              onClick={() => redirectUser(ctx, `/product?_id=${p.product._id}`)}
             >
               {p.product.name}
             </Item.Header>
             <Item.Meta>
-              {`${p.quantity} x`}
-              <span
-                style={{
-                  textDecoration: p.discountApplied ? "line-through" : "none"
-                }}
-              >{`$${p.product.price}`}</span>
+              {calculatedIndependentPriceText(p)}
             </Item.Meta>
-            {p.discountApplied && (
-              <Label color="green">
-                {`$${p.product.price - p.discountAmount}`}
-              </Label>
-            )}
-
+            <Item.Meta>
+              {p.discountApplied && calculatedDiscountedText(p)}
+            </Item.Meta>
+            <Item.Meta>
+              {p.discountApplied && calculatedNonDiscountedText(p)}
+            </Item.Meta>
             <Item.Extra>
               <Button
                 basic

@@ -5,6 +5,8 @@ import {
   Rating,
   Dropdown,
   Icon,
+  Segment,
+  Image,
   Label,
   Button,
   Modal,
@@ -18,8 +20,10 @@ import catchErrors from "../../utils/catchErrors";
 import baseUrl from "../../utils/baseUrl";
 import cookie from "js-cookie";
 import axios from "axios";
+import { isDiscountExpired, isDiscountStarted } from '../../utils/discount';
+import { redirectUser } from "../../utils/auth";
 
-function ProductList({ products, selectCategory, user, currency }) {
+function ProductList({ products, selectCategory, user, currency }, ctx) {
   const [isOpen, setIsOpen] = React.useState();
   const [success, setSuccess] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -74,15 +78,20 @@ function ProductList({ products, selectCategory, user, currency }) {
 
       return {
         header: product.name,
-        image: product.mediaUrl,
-        meta: currency === "" || currency === "usd"
-        ? `$${product.price}`
-        : `€${product.priceEuro}`,
-        description: product.discount ? (
-          <Button color="red">{"Discount!"}</Button>
-        ) : (
-          ""
+        image: (
+          <Segment basic>
+            {
+              (product.discount && product.discount.isActive &&
+                isDiscountStarted(product.discount) && !isDiscountExpired(product.discount)) ?
+                <Label ribbon icon='gift' color='red' content={`%${product.discount.discountPercentage}`} />
+                : <Label basic style={{ border: 'none' }} attached='top left' content="   " />
+            }
+            <Image src={product.mediaUrl} />
+          </Segment>
         ),
+        meta: currency === "" || currency === "usd"
+          ? `$${product.price}`
+          : `€${product.priceEuro}`,
         color: "teal",
         fluid: true,
         childKey: product._id,
@@ -160,12 +169,12 @@ function ProductList({ products, selectCategory, user, currency }) {
             color="red"
             style={{ margin: "15px" }}
             content="Login"
-            onClick={() => router.push("/login")}
+            onClick={() => redirectUser(ctx, "/login")}
           />
           <Button
             color="blue"
             style={{ margin: "15px " }}
-            onClick={() => router.push("/signup")}
+            onClick={() => redirectUser(ctx, "/signup")}
           >
             Signup
           </Button>

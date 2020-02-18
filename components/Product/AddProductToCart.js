@@ -6,8 +6,9 @@ import axios from "axios";
 import baseUrl from "../../utils/baseUrl";
 import catchErrors from "../../utils/catchErrors";
 import cookie from "js-cookie";
+import { redirectUser } from "../../utils/auth";
 
-function AddProductToCart({ user, productId, name }) {
+function AddProductToCart({ user, productId, name }, ctx) {
   const [quantity, setQuantity] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -55,13 +56,13 @@ function AddProductToCart({ user, productId, name }) {
       action={
         user && success
           ? {
-              color: "blue",
-              content: "Item Added!",
-              icon: "plus cart",
-              disabled: true
-            }
+            color: "blue",
+            content: "Item Added!",
+            icon: "plus cart",
+            disabled: true
+          }
           : user
-          ? {
+            ? {
               color: "orange",
               content: "Add to Cart",
               icon: "plus cart",
@@ -69,11 +70,11 @@ function AddProductToCart({ user, productId, name }) {
               disabled: loading,
               onClick: handleAddProductToCart
             }
-          : {
+            : {
               color: "blue",
               content: "Sign Up To Purchase",
               icon: "signup",
-              onClick: () => router.push("/signup")
+              onClick: () => redirectUser(ctx, "/signup")
             }
       }
     />

@@ -52,8 +52,10 @@ const ProductSchema = new mongoose.Schema({
     required: true
   },
   priceEuro: {
-    type: Number
-    // required: true,
+    type: Number,
+    default: function () {
+      return this.price * 0.92;
+    }
   },
   sku: {
     type: String,

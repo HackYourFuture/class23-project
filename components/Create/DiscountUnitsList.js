@@ -5,8 +5,9 @@ import {
 } from "semantic-ui-react";
 import { useRouter } from "next/router";
 import { UNIT_TYPES } from '../../utils/discount';
+import { redirectUser } from "../../utils/auth";
 
-function DiscountUnitsList({ units, handleRemove, unitType, discountPercentage }) {
+function DiscountUnitsList({ units, handleRemove, unitType, discountPercentage }, ctx) {
   const router = useRouter();
 
   function mapUnitsToItems(units) {
@@ -18,7 +19,7 @@ function DiscountUnitsList({ units, handleRemove, unitType, discountPercentage }
             header: (
               <Item.Header
                 as="a"
-                onClick={() => router.push(`/product?_id=${unit._id}`)}
+                onClick={() => redirectUser(ctx, `/product?_id=${unit._id}`)}
               >
                 {unit.name}
               </Item.Header>

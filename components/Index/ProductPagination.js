@@ -1,7 +1,8 @@
 import { useRouter } from "next/router";
 import { Container, Pagination } from "semantic-ui-react";
+import { redirectUser } from "../../utils/auth";
 
-function ProductPagination({ totalPages, category }) {
+function ProductPagination({ totalPages, category }, ctx) {
   const router = useRouter();
 
   return (
@@ -12,12 +13,12 @@ function ProductPagination({ totalPages, category }) {
         onPageChange={(event, data) => {
           if (category) {
             data.activePage === 1
-              ? router.push(`/?category=${category}`)
-              : router.push(`/?page=${data.activePage}&category=${category}`);
+              ? redirectUser(ctx, `/?category=${category}`)
+              : redirectUser(ctx, `/?page=${data.activePage}&category=${category}`);
           } else {
             data.activePage === 1
-              ? router.push("/")
-              : router.push(`/?page=${data.activePage}`);
+              ? redirectUser(ctx, "/")
+              : redirectUser(ctx, `/?page=${data.activePage}`);
           }
         }}
       />
