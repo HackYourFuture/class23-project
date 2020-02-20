@@ -21,9 +21,7 @@ export const categoryOptions = [
   { key: "kit", text: "kitchen", value: "kitchen" },
   { key: "lig", text: "lighting", value: "lighting" },
   { key: "liv", text: "living room", value: "living_room" },
-  { key: "off", text: "office", value: "office" },
-  { key: "tec", text: "technology", value: "technology" },
-  { key: "oth", text: "other", value: "other" }
+  { key: "off", text: "office", value: "office" }
 ];
 
 const INITIAL_PRODUCT = {
