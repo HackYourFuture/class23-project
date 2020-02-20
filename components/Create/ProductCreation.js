@@ -66,9 +66,10 @@ function CreateProduct() {
   async function handleImageUpload() {
     const data = new FormData();
     data.append("file", product.media);
-    data.append("upload_preset", "reactreserve");
-    data.append("cloud_name", "reedbargercodes");
+    data.append("upload_preset", "tcrsfuau");
+    data.append("cloud_name", "dy7xzflbz");
     const response = await axios.post(process.env.CLOUDINARY_URL, data);
+    console.log({ imgResp: response });
     const mediaUrl = response.data.url;
     return mediaUrl;
   }
@@ -87,6 +88,7 @@ function CreateProduct() {
       setProduct(INITIAL_PRODUCT);
       setSuccess(true);
     } catch (error) {
+      console.log({ error })
       catchErrors(error, setError);
     } finally {
       setLoading(false);
