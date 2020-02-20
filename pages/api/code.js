@@ -37,7 +37,7 @@ async function handleGetRequest(req, res) {
     );
     const user = await User.findOne({ _id: userId });
     if (user) {
-      if (user.role === 'root') {
+      if (user.role === 'root' || user.role === 'admin') {
         const coupons = await Code.find({});
         return res.status(200).json({ coupons });
       } else {
@@ -69,7 +69,7 @@ async function handlePostRequest(req, res) {
     );
     const user = await User.findOne({ _id: userId });
     if (user) {
-      if (user.role !== 'root') {
+      if (user.role !== 'root' || user.role !== 'admin') {
         return res.status(403).send("You are not allowed to create coupon codes.");
       }
       const coupon = await Code.findOne({ code });

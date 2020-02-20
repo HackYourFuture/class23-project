@@ -95,11 +95,11 @@ function CartSummary({ products, handleCheckout, success, currency, code }) {
           discountedAmount ?
             <>
               <strong>Sub total:</strong>
-              <span style={{ textDecoration: 'line-through' }}>{!currency || currency == 'usd' ? '€' : '$'}{(Number(cartAmount) + Number(discountedAmount)).toFixed(2)}</span>
-              <Label color='green'>{!currency || currency == 'usd' ? '€' : '$'}{cartAmount}</Label>
+              <span style={{ textDecoration: 'line-through' }}>{!currency || currency == 'usd' ? '$' : '€'}{(Number(cartAmount) + Number(discountedAmount)).toFixed(2)}</span>
+              <Label color='green'>{!currency || currency == 'usd' ? '$' : '€'}{cartAmount}</Label>
             </>
             :
-            <><strong>Sub total:</strong> {!currency || currency == 'usd' ? '€' : '$'}{cartAmount}</>
+            <><strong>Sub total:</strong> {!currency || currency == 'usd' ? '$' : '€'}{cartAmount}</>
         }
         {
           cartAmount > 0 &&
@@ -125,11 +125,11 @@ function CartSummary({ products, handleCheckout, success, currency, code }) {
           name={title}
           amount={stripeAmount}
           image={products.length > 0 ? products[0].product.mediaUrl : ""}
-          currency={currency === "usd" ? "USD" : "EUR"}
+          currency={currency === "usd" ? "usd" : "eur"}
           shippingAddress={true}
           billingAddress={true}
           zipCode={true}
-          stripeKey={process.env.STRIPE_SECRET_KEY}
+          stripeKey="pk_test_CxNl8AOYSrEso5vij6ems2BK00HCvRY9YF"
           token={handleCheckout}
           triggerEvent="onClick"
         >

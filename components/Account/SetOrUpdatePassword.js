@@ -25,6 +25,7 @@ function SetOrUpdatePassword({ email, name }) {
   const [success, setSuccess] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
+  const [passwordErrors, setPasswordErrors] = React.useState([]);
   const [activeIndex, setActiveIndex] = React.useState(0);
 
   React.useEffect(() => {
@@ -55,10 +56,17 @@ function SetOrUpdatePassword({ email, name }) {
       const payload = { ...passwords };
       const url = `${baseUrl}/api/password`;
       const response = await axios.post(url, payload, headers);
+      console.log({ resp: response.data })
       setSuccess(response.data);
     } catch (error) {
       setSuccess('');
-      catchErrors(error, setError);
+      console.log({ error })
+      console.log({ type: typeof error.response.data })
+      if (error.response && typeof error.response.data === 'object') {
+        setPasswordErrors(error.response.data);
+      } else {
+        catchErrors(error, setError);
+      }
     } finally {
       setLoading(false);
     }
@@ -90,12 +98,15 @@ function SetOrUpdatePassword({ email, name }) {
         </Accordion.Title>
         <Accordion.Content active={activeIndex === 1}>
           <Form
-            error={Boolean(error)}
+            error={Boolean(error) || passwordErrors.length > 0}
             success={Boolean(success)}
             loading={loading}
             onSubmit={handleSubmit}
           >
-            <Message error header="Oops!" content={error} />
+            {error && <Message error header="Oops!" content={error} />}
+            {passwordErrors.length > 0 && (
+              <Message error header="Password should contain: " list={passwordErrors} />
+            )}
             <Message success header="Success!" content={success} />
             <Segment>
               <Form.Input

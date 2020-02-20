@@ -36,3 +36,10 @@
   - email: `yfhpujkxob_1581956055@tfbnw.net` password: `123456.asd`
   - email: `samantha_jooshzy_mcdonaldman@tfbnw.net` password: `123456.asd`
   - email: `mike_nbhcvny_mcdonaldman@tfbnw.net` password: `123456.asd`
+
+## Stripe:
+
+- email: `class23.hyf@gmail.com`
+- password: `hyf.class23.nl$`
+- publishable key (frontend) : `pk_test_CxNl8AOYSrEso5vij6ems2BK00HCvRY9YF`
+- secret ket (env variable) : `sk_test_dPiAzZ4STF4DIhGHO495RW6v00UMFwJjjk`
