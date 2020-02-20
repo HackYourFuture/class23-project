@@ -30,16 +30,26 @@ export default async (req, res) => {
 
     const user = await User.findOne({ email });
 
-    if (user) {
+    if (user && user.isActive) {
       return res.status(422).send(`User already exists with email ${email}`);
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const newUser = await new User({
-      name: name,
-      email: email,
-      password: hash,
-    }).save();
+
+    let newUser = {};
+    if (user && !user.isActive) {
+      newUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { name, password: hash, isActive: true } },
+        { new: true },
+      );
+    } else {
+      newUser = await new User({
+        name,
+        email,
+        password: hash,
+      }).save();
+    }
 
     await new Cart({ user: newUser._id }).save();
 

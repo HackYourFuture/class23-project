@@ -1,6 +1,7 @@
 import AccountHeader from '../components/Account/AccountHeader';
 import AccountOrders from '../components/Account/AccountOrders';
 import AccountPermissions from '../components/Account/AccountPermissions';
+import AccountDelete from '../components/Account/AccountDelete';
 import SetOrUpdatePassword from '../components/Account/SetOrUpdatePassword';
 import { parseCookies } from 'nookies';
 import baseUrl from '../utils/baseUrl';
@@ -13,6 +14,7 @@ function Account({ user, orders, ratings, currency }) {
       <SetOrUpdatePassword {...user} />
       <AccountOrders orders={orders} {...user} currency={currency} />
       {user.role === 'root' && <AccountPermissions />}
+      {!(user.role === 'root') && <AccountDelete {...user} />}
     </>
   );
 }
