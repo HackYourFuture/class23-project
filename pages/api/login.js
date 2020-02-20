@@ -12,7 +12,7 @@ export default async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     // 2) --if not, return error
-    if (!user) {
+    if (!user || !user.isActive) {
       return res.status(404).send('No user exists with the email');
     }
 

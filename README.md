@@ -2,6 +2,11 @@
 
 # Credentials
 
+## root user:
+
+- username: `class23.hyf@gmail.com`
+- password: `Password123`
+
 ## Gmail:
 
 - username: `class23.hyf@gmail.com`
@@ -36,3 +41,24 @@
   - email: `yfhpujkxob_1581956055@tfbnw.net` password: `123456.asd`
   - email: `samantha_jooshzy_mcdonaldman@tfbnw.net` password: `123456.asd`
   - email: `mike_nbhcvny_mcdonaldman@tfbnw.net` password: `123456.asd`
+
+## Stripe:
+
+- email: `class23.hyf@gmail.com`
+- password: `hyf.class23.nl$`
+- publishable key (frontend) : `pk_test_CxNl8AOYSrEso5vij6ems2BK00HCvRY9YF`
+- secret ket (env variable) : `sk_test_dPiAzZ4STF4DIhGHO495RW6v00UMFwJjjk`
+
+## next.config
+
+```module.exports = {
+  env: {
+    MONGO_SRV: "mongodb+srv://root-dbuser:7b6Deek3BMzX2gk@hackyourshop-iysqr.mongodb.net/test?retryWrites=true&w=majority",
+    JWT_SECRET: "~&8Q5gu;!29hsK`U$SJ:q__>ydNUl@K}kTRJ2[{OM-k4>sgoW*}&to.2Z]p#cb{N-;-2Ff&W//4#eqc[Z_:5k$4~}vN&NvX/1Qm!w)a/zG]Y}2J<M=I[131H/TH=<",
+    CLOUDINARY_URL: "https://api.cloudinary.com/v1_1/dy7xzflbz/image/upload",
+    STRIPE_SECRET_KEY: "sk_test_dPiAzZ4STF4DIhGHO495RW6v00UMFwJjjk",
+    SENDGRID_USERNAME: 'apikey',
+    SENDGRID_PASSWORD: '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',
+  }
+}
+```

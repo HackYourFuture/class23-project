@@ -21,9 +21,7 @@ export const categoryOptions = [
   { key: "kit", text: "kitchen", value: "kitchen" },
   { key: "lig", text: "lighting", value: "lighting" },
   { key: "liv", text: "living room", value: "living_room" },
-  { key: "off", text: "office", value: "office" },
-  { key: "tec", text: "technology", value: "technology" },
-  { key: "oth", text: "other", value: "other" }
+  { key: "off", text: "office", value: "office" }
 ];
 
 const INITIAL_PRODUCT = {
@@ -66,9 +64,10 @@ function CreateProduct() {
   async function handleImageUpload() {
     const data = new FormData();
     data.append("file", product.media);
-    data.append("upload_preset", "reactreserve");
-    data.append("cloud_name", "reedbargercodes");
+    data.append("upload_preset", "tcrsfuau");
+    data.append("cloud_name", "dy7xzflbz");
     const response = await axios.post(process.env.CLOUDINARY_URL, data);
+    console.log({ imgResp: response });
     const mediaUrl = response.data.url;
     return mediaUrl;
   }
@@ -87,6 +86,7 @@ function CreateProduct() {
       setProduct(INITIAL_PRODUCT);
       setSuccess(true);
     } catch (error) {
+      console.log({ error })
       catchErrors(error, setError);
     } finally {
       setLoading(false);

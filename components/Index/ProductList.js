@@ -38,9 +38,7 @@ function ProductList({ products, selectCategory, user, currency }, ctx) {
     { key: "kit", text: "Kitchen", value: "kitchen" },
     { key: "lig", text: "Lighting", value: "lighting" },
     { key: "liv", text: "Living Room", value: "living_room" },
-    { key: "off", text: "Office", value: "office" },
-    { key: "tec", text: "Technology", value: "technology" },
-    { key: "oth", text: "Other", value: "other" }
+    { key: "off", text: "Office", value: "office" }
   ];
 
   console.log(products);

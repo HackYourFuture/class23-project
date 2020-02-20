@@ -3,6 +3,7 @@ import User from "../../models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import isLength from 'validator/lib/isLength';
+import validatePassword from '../../utils/password';
 
 connectDb();
 
@@ -17,6 +18,7 @@ export default async (req, res) => {
   } else if (!isLength(requested, { min: 6 })) {
     return res.status(422).send('Password must be at least 6 characters');
   }
+
   try {
     // 1) check to see if a user exists with the provided token
     const { userId } = jwt.verify(
@@ -34,24 +36,28 @@ export default async (req, res) => {
       // hash the password
       const hash = await bcrypt.hash(requested, 10);
       await User.findOneAndUpdate({ _id: userId }, { password: hash });
-      res.status(203).send("Password updated");
+      return res.status(203).send("Password updated");
     } else if (current && isLength(current, { min: 6 })) { // If not first time set, current password is required
       // 3) check to see if users' password matches the one in db
       const passwordsMatch = await bcrypt.compare(current, user.password);
       // 4) --if so, update the password
       if (passwordsMatch) {
+        const validationErrors = validatePassword(requested);
+        if (validationErrors) {
+          return res.status(422).json(validationErrors);
+        }
         // hash the password
         const hash = await bcrypt.hash(requested, 10);
         await User.findOneAndUpdate({ _id: userId }, { password: hash });
-        res.status(203).send("Password updated");
+        return res.status(203).send("Password updated");
       } else {
-        res.status(401).send("Passwords do not match");
+        return res.status(401).send("Passwords do not match");
       }
     } else {
       return res.status(404).send("Current password is required to update the password.");
     }
   } catch (error) {
     console.error(error);
-    res.status(500).send("Error logging in user");
+    return res.status(500).send("Error logging in user");
   }
 };

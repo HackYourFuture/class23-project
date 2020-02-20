@@ -6,11 +6,13 @@ import uuid from "uuid";
 import baseUrl from "../utils/baseUrl";
 import Chart from "../components/Dashboard/Chart";
 import DiscountActivity from "../components/Dashboard/DiscountActivity";
+import CouponsList from "../components/Dashboard/CouponsList";
 
 function Dashboard({
   topViewedTenProducts,
   topProductsOfCategory,
-  totalDiscounts
+  totalDiscounts,
+  coupons
 }) {
   console.log(totalDiscounts);
   const data = {
@@ -88,6 +90,7 @@ function Dashboard({
     <>
       <Tab menu={{ color: "teal", inverted: true }} panes={panes} />
       <DiscountActivity totalDiscounts={totalDiscounts} />
+      <CouponsList coupons={coupons} />
     </>
   );
 }
@@ -102,7 +105,20 @@ Dashboard.getInitialProps = async ctx => {
     topProductsOfCategory,
     totalDiscounts
   } = response.data;
-  return { topViewedTenProducts, topProductsOfCategory, totalDiscounts };
+
+  if (!token) {
+    return {
+      coupons: [],
+      topViewedTenProducts,
+      topProductsOfCategory,
+      totalDiscounts
+    };
+  }
+  const urlCode = `${baseUrl}/api/code`;
+  const responseCode = await axios.get(urlCode, payload);
+  console.log({ resp: responseCode.data });
+
+  return { ...responseCode.data, topViewedTenProducts, topProductsOfCategory, totalDiscounts };
 };
 
 export default Dashboard;

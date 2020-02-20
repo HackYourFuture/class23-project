@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { logEvent } from '../utils/analytics';
-import { useRouter } from 'next/router';
 import { Segment, Modal, Image, Button, Header } from 'semantic-ui-react';
 import CartItemList from '../components/Cart/CartItemList';
 import CartSummary from '../components/Cart/CartSummary';
@@ -10,8 +9,7 @@ import baseUrl from '../utils/baseUrl';
 import cookie from 'js-cookie';
 import catchErrors from '../utils/catchErrors';
 
-function Cart({ products, user, currency }, ctx) {
-  const router = useRouter();
+function Cart({ products, user, currency, code }, ctx) {
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -84,6 +82,7 @@ function Cart({ products, user, currency }, ctx) {
           handleCheckout={handleCheckout}
           success={success}
           currency={currency}
+          code={code}
         />
       </Segment>
       {success && (
@@ -124,7 +123,7 @@ Cart.getInitialProps = async ctx => {
   const url = `${baseUrl}/api/cart`;
   const payload = { headers: { Authorization: token } };
   const response = await axios.get(url, payload);
-  return { products: response.data };
+  return { ...response.data };
 };
 
 export default Cart;

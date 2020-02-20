@@ -28,6 +28,10 @@ const OrderSchema = new mongoose.Schema(
         discountAmount: {
           type: Number,
           default: 0
+        },
+        discountAmountEuro: {
+          type: Number,
+          default: 0
         }
       },
     ],
@@ -39,6 +43,19 @@ const OrderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    code: {
+      type: ObjectId,
+      ref: 'Code'
+    },
+    currency: {
+      type: String,
+      enum: ['usd', 'eur'],
+      default: 'usd'
+    },
+    totalDiscount: {
+      type: Number,
+      default: 0
+    }
   },
   {
     timestamps: true,

@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 import Discount from "./Discount";
+import Code from './Code';
+import User from './User';
+import Product from './Product';
 
 const { ObjectId, Number, Boolean } = mongoose.Schema.Types;
 
 const CartSchema = new mongoose.Schema({
   user: {
     type: ObjectId,
-    ref: "User"
+    ref: 'User'
   },
   products: [
     {
@@ -16,11 +19,11 @@ const CartSchema = new mongoose.Schema({
       },
       product: {
         type: ObjectId,
-        ref: "Product"
+        ref: 'Product'
       },
       discount: {
         type: ObjectId,
-        ref: Discount
+        ref: 'Discount'
       },
       discountApplied: {
         type: Boolean,
@@ -35,7 +38,11 @@ const CartSchema = new mongoose.Schema({
         default: 0
       }
     }
-  ]
+  ],
+  code: {
+    type: ObjectId,
+    ref: 'Code'
+  }
 });
 
 export default mongoose.models.Cart || mongoose.model("Cart", CartSchema);

@@ -1,7 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import nodemailer from 'nodemailer';
-import passwordValidator from 'password-validator';
 import isEmail from 'validator/lib/isEmail';
 import isLength from 'validator/lib/isLength';
 import equals from 'validator/lib/equals';
@@ -9,6 +8,7 @@ import User from '../../models/User';
 import Cart from '../../models/Cart';
 import Token from '../../models/Token';
 import connectDb from '../../utils/connectDb';
+import validatePassword from '../../utils/password';
 
 connectDb();
 
@@ -23,55 +23,33 @@ export default async (req, res) => {
       return res.status(422).send('Email must be valid');
     }
 
-    const pwSchema = new passwordValidator();
-    pwSchema
-      .is()
-      .min(8)
-      .has()
-      .uppercase()
-      .has()
-      .lowercase()
-      .has()
-      .digits()
-      .has()
-      .symbols()
-      .has()
-      .not()
-      .spaces();
-
-    const pwErrors = {
-      min: 'at least 8 characters',
-      uppercase: 'at least 1 uppercase',
-      lowercase: 'at least 1 lowercase',
-      digits: 'at least 1 digit',
-      symbols: 'at least 1 symbol',
-      spaces: 'no spaces',
-    };
-
-    const errorList = pwSchema.validate(password, { list: true });
-
-    if (errorList.length) {
-      const errorMessages = Object.assign(
-        {},
-        ...Object.entries(pwErrors).map(
-          ([key, prop]) => errorList.includes(key) && { [key]: prop },
-        ),
-      );
-      return res.status(422).send(Object.values(errorMessages));
+    const validationErrors = validatePassword(password);
+    if (validationErrors) {
+      return res.status(422).send(validationErrors);
     }
 
     const user = await User.findOne({ email });
 
-    if (user) {
+    if (user && user.isActive) {
       return res.status(422).send(`User already exists with email ${email}`);
     }
 
     const hash = await bcrypt.hash(password, 10);
-    const newUser = await new User({
-      name: name,
-      email: email,
-      password: hash,
-    }).save();
+
+    let newUser = {};
+    if (user && !user.isActive) {
+      newUser = await User.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { name, password: hash, isActive: true } },
+        { new: true },
+      );
+    } else {
+      newUser = await new User({
+        name,
+        email,
+        password: hash,
+      }).save();
+    }
 
     await new Cart({ user: newUser._id }).save();
 

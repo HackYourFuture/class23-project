@@ -2,10 +2,10 @@ import mongoose from "mongoose";
 import Product from "./Product";
 const { ObjectId, String, Number, Boolean, Date } = mongoose.Schema.Types;
 const DiscountSchema = new mongoose.Schema({
-  products: [{ type: ObjectId, ref: Product }],
+  products: [{ type: ObjectId, ref: 'Product' }],
   product: {
     type: ObjectId,
-    ref: Product
+    ref: 'Product'
   },
   isActive: {
     type: Boolean,
