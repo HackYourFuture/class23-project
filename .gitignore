@@ -2,7 +2,7 @@ node_modules
 .next
 
 dist
-next.config.*
+# next.config.*
 now.json
 .vscode/
 .DS_Store
