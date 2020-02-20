@@ -11,7 +11,7 @@ import {
   UNIT_TYPES,
   isDiscountExpired
 } from "../../utils/discount";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 connectDb();
 
@@ -51,33 +51,49 @@ async function handleGetRequest(req, res) {
   try {
     if (productId) {
       // get the product category
-      const productCategory = await Product.findOne({ _id: productId }).distinct('category');
+      const productCategory = await Product.findOne({
+        _id: productId
+      }).distinct("category");
       // discounts for product
       if (isActive) {
         discounts = await Discount.find({
           $and: [
             {
-              $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
+              $or: [
+                { product: productId },
+                { products: productId },
+                { category: productCategory },
+                { categories: productCategory }
+              ]
             },
             { ...isActiveQuery }
           ]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       } else {
         discounts = await Discount.find({
-          $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+          $or: [
+            { product: productId },
+            { products: productId },
+            { category: productCategory },
+            { categories: productCategory }
+          ]
+        })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       }
     } else if (category) {
       // discounts for category
@@ -87,23 +103,27 @@ async function handleGetRequest(req, res) {
             { $or: [{ category: category }, { categories: category }] },
             { ...isActiveQuery }
           ]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       } else {
         discounts = await Discount.find({
           $or: [{ category: category }, { categories: category }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       }
     } else if (discountId) {
       console.log("single discount");
@@ -111,34 +131,40 @@ async function handleGetRequest(req, res) {
       if (isActive) {
         discounts = await Discount.find({
           $and: [{ _id: discountId }, { ...isActiveQuery }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       } else {
-        discounts = await Discount.find({ _id: discountId }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        discounts = await Discount.find({ _id: discountId })
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       }
     } else {
       // all
       if (isActive) {
         discounts = await Discount.find({ ...isActiveQuery });
       } else {
-        discounts = await Discount.find({}).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        discounts = await Discount.find({})
+          .populate({
+            path: "products",
+            model: "Product"
+          })
+          .populate({
+            path: "product",
+            model: "Product"
+          });
       }
     }
     return res.status(200).json({ discounts });
@@ -186,8 +212,10 @@ async function handlePostRequest(req, res) {
             let alreadyCategoryWideDiscountedProducts = [];
             const populatedProducts = await Product.find({
               $and: [{ _id: { $in: products } }, { discount: { $ne: null } }]
-            }).populate('discount');
-            alreadyCategoryWideDiscountedProducts = populatedProducts.filter(pr => pr.discount.unitType === UNIT_TYPES.category).map(pr => pr.name);
+            }).populate("discount");
+            alreadyCategoryWideDiscountedProducts = populatedProducts
+              .filter(pr => pr.discount.unitType === UNIT_TYPES.category)
+              .map(pr => pr.name);
             console.log({ products });
             console.log({ alreadyCategoryWideDiscountedProducts });
             if (alreadyCategoryWideDiscountedProducts.length > 0) {
@@ -195,10 +223,10 @@ async function handlePostRequest(req, res) {
                 .status(405)
                 .send(
                   "Discount could not be created! " +
-                  "Because there are products that have category wide discount related to them. " +
-                  "To set a new discount for these products, please delete the discount related to them. " +
-                  "These products are: " +
-                  alreadyCategoryWideDiscountedProducts.join(",")
+                    "Because there are products that have category wide discount related to them. " +
+                    "To set a new discount for these products, please delete the discount related to them. " +
+                    "These products are: " +
+                    alreadyCategoryWideDiscountedProducts.join(",")
                 );
             }
             // Save the discount
@@ -209,14 +237,16 @@ async function handlePostRequest(req, res) {
                 $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
               }
             ).distinct("discount");
-            console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts })
+            console.log({
+              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+            });
             if (
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
             ) {
               // Detach discounts from the products
               await Product.update(
                 {
-                  "discount": {
+                  discount: {
                     $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
                   }
                 },
@@ -224,17 +254,17 @@ async function handlePostRequest(req, res) {
                 { multi: true }
               );
               // Remove the discount from the carts
-              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
-                await removeDiscountFromCarts(discountId);
-              })
-              // remove the overridden discounts
-              await Discount.deleteMany(
-                {
-                  _id: {
-                    $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-                  }
+              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(
+                async discountId => {
+                  await removeDiscountFromCarts(discountId);
                 }
               );
+              // remove the overridden discounts
+              await Discount.deleteMany({
+                _id: {
+                  $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+                }
+              });
             }
             const resp = await Product.update(
               { _id: { $in: products } },
@@ -245,31 +275,34 @@ async function handlePostRequest(req, res) {
             const overriddenProductsMessage =
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
                 ? " Not: Some products had different discounts related to them. " +
-                "New discount override the older ones! " +
-                "Number of affected products: " +
-                products.length
+                  "New discount override the older ones! " +
+                  "Number of affected products: " +
+                  products.length
                 : "";
             return res
               .status(200)
               .send(
                 "Discount is created and products are updated successfully!" +
-                overriddenProductsMessage
+                  overriddenProductsMessage
               );
           } else {
-            console.log({ id: discountObj.product._id })
+            console.log({ id: discountObj.product._id });
             const product = await Product.findOne({
               _id: discountObj.product._id
-            }).populate({
-              path: "discount",
-              model: Discount
-            }).populate({
-              path: "discount.products",
-              model: Product
-            }).populate({
-              path: "discount.product",
-              model: Product
-            });
-            console.log('single unit product: ', product)
+            })
+              .populate({
+                path: "discount",
+                model: "Discount"
+              })
+              .populate({
+                path: "discount.products",
+                model: "Product"
+              })
+              .populate({
+                path: "discount.product",
+                model: "Product"
+              });
+            console.log("single unit product: ", product);
             if (
               product.discount &&
               product.discount.unitType === UNIT_TYPES.category
@@ -278,8 +311,8 @@ async function handlePostRequest(req, res) {
                 .status(405)
                 .send(
                   "Discount could not be created! " +
-                  "Because the product of this category has a category wide discount related to it. " +
-                  "To set a new discount for this product, please delete the discount related to it."
+                    "Because the product of this category has a category wide discount related to it. " +
+                    "To set a new discount for this product, please delete the discount related to it."
                 );
             }
             // Save the discount
@@ -291,7 +324,7 @@ async function handlePostRequest(req, res) {
                 {
                   $and: [
                     { discount: { $ne: null } },
-                    { "discount": product.discount._id },
+                    { discount: product.discount._id },
                     { _id: { $ne: discountObj.product._id } }
                   ]
                 }
@@ -307,7 +340,7 @@ async function handlePostRequest(req, res) {
                 // Detach discount from the products
                 await Product.update(
                   {
-                    "discount": {
+                    discount: {
                       $in: alreadyDiscountedProductsByTheOlderDiscount.map(
                         p => p._id
                       )
@@ -331,7 +364,7 @@ async function handlePostRequest(req, res) {
               .status(200)
               .send(
                 "Discount is created and product is updated successfully!" +
-                overriddenProductsMessage
+                  overriddenProductsMessage
               );
           }
         } else {
@@ -352,12 +385,14 @@ async function handlePostRequest(req, res) {
               $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
             }
           ).distinct("discount");
-          console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts });
+          console.log({
+            discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+          });
 
           // Detach discounts from the products
           await Product.update(
             {
-              "discount": {
+              discount: {
                 $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
               }
             },
@@ -365,17 +400,17 @@ async function handlePostRequest(req, res) {
             { multi: true }
           );
           // Remove the discounts from the carts
-          discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
-            await removeDiscountFromCarts(discountId);
-          });
-          // remove the overridden discounts
-          await Discount.deleteMany(
-            {
-              _id: {
-                $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-              }
+          discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(
+            async discountId => {
+              await removeDiscountFromCarts(discountId);
             }
           );
+          // remove the overridden discounts
+          await Discount.deleteMany({
+            _id: {
+              $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+            }
+          });
           const resp = await Product.update(
             { _id: { $in: products } },
             { discount },
@@ -387,15 +422,15 @@ async function handlePostRequest(req, res) {
           const overriddenProductsMessage =
             discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
               ? " Not: Some products had different discounts related to them. " +
-              "New discount override the older ones! " +
-              "Number of affected products: " +
-              products.length
+                "New discount override the older ones! " +
+                "Number of affected products: " +
+                products.length
               : "";
           return res
             .status(200)
             .send(
               "Discount is created and products are updated successfully!" +
-              overriddenProductsMessage
+                overriddenProductsMessage
             );
         }
       } else {
@@ -508,7 +543,7 @@ async function handleDeleteRequest(req, res) {
         await removeDiscountFromCarts(discountId);
         // Remove discount from products
         await Product.updateMany(
-          { "discount": discountId },
+          { discount: discountId },
           { $unset: { discount: 1 } },
           { multi: true }
         );
@@ -544,32 +579,45 @@ async function removeDiscountFromCarts(discountId) {
   await activateDeactivateRemoveDiscountFromCarts(discountId, false, true);
 }
 
-async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, remove = false) {
-  const carts = await Cart.find({ 'products.discount': discountId })
+async function activateDeactivateRemoveDiscountFromCarts(
+  discountId,
+  activate,
+  remove = false
+) {
+  const carts = await Cart.find({ "products.discount": discountId })
     .populate({
       path: "products.product",
       model: Product
-    }).populate({
+    })
+    .populate({
       path: "products.discount",
       model: Discount
-    }).populate({
+    })
+    .populate({
       path: "products.discount.products",
       model: Product
-    }).populate({
+    })
+    .populate({
       path: "products.discount.product",
       model: Product
     });
 
   carts.forEach(async cart => {
     cart.products.forEach(doc => {
-      if (doc.discount && mongoose.Types.ObjectId(doc.discount._id).equals(discountId)) {
+      if (
+        doc.discount &&
+        mongoose.Types.ObjectId(doc.discount._id).equals(discountId)
+      ) {
         doc.discountApplied = activate;
         if (!activate || remove) doc.discountAmount = 0;
         else if (activate) {
           if (doc.discount.multipleUnits) {
-            doc.discountAmount = (doc.discount.discountPercentage * doc.product.price) / 100;
+            doc.discountAmount =
+              (doc.discount.discountPercentage * doc.product.price) / 100;
           } else {
-            doc.discountAmount = ((doc.discount.discountPercentage * doc.product.price) / 100) * doc.discount.amountRequired;
+            doc.discountAmount =
+              ((doc.discount.discountPercentage * doc.product.price) / 100) *
+              doc.discount.amountRequired;
           }
         }
         if (remove) doc.discount = null;
