@@ -5,8 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "next",
+<<<<<<< HEAD
     "build": "next build",
     "start": "next start -p $PORT"
+=======
+    "start": "next start -p $PORT",
+    "build": "next build",
+    "heroku-postbuild": "npm run build"
+>>>>>>> 624c9903e72238a6a5463ea6725405fe2f723514
   },
   "keywords": [],
   "author": "",
