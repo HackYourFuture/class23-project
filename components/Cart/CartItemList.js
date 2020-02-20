@@ -5,10 +5,9 @@ import {
   Icon,
   Item,
   Message,
-  Label
 } from "semantic-ui-react";
-import { useRouter } from "next/router";
 import { redirectUser } from "../../utils/auth";
+import CartItem from './CartItem';
 
 function CartItemList({
   products,
@@ -17,38 +16,6 @@ function CartItemList({
   success,
   currency
 }, ctx) {
-  const router = useRouter();
-
-  function calculatedIndependentPriceText(cartDocument) {
-    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
-    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
-    return (
-      <span style={{ textDecoration: cartDocument.discountApplied ? "line-through" : "none" }}>
-        {`${cartDocument.quantity} x ${curr}${price.toFixed(2)}`}
-      </span>
-    );
-  }
-
-  function calculatedDiscountedText(cartDocument) {
-    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
-    const amount = cartDocument.discount.multipleUnits ? 1 : cartDocument.discount.amountRequired;
-    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
-    const totalDiscountedPrice = curr === '$' ? cartDocument.discountAmount : cartDocument.discountAmountEuro;
-    const perItemDiscountedPrice = price - (cartDocument.discount.multipleUnits ? totalDiscountedPrice : totalDiscountedPrice / cartDocument.discount.amountRequired);
-    return (
-      <Label color="green">
-        {amount}<span> x </span>{`${curr}${(perItemDiscountedPrice).toFixed(2)}`}
-      </Label >
-    )
-  }
-
-  function calculatedNonDiscountedText(cartDocument) {
-    const curr = (!currency || currency === "usd" || !cartDocument.product.priceEuro) ? "$" : '€';
-    const price = curr === '$' ? cartDocument.product.price : cartDocument.product.priceEuro;
-    const amount = cartDocument.discount.multipleUnits ? (cartDocument.quantity - 1) : (cartDocument.quantity - cartDocument.discount.amountRequired);
-    if (amount <= 0) return;
-    return <Label>{amount} x {curr}{price.toFixed(2)}</Label>;
-  }
 
   if (success) {
     return (
@@ -85,36 +52,7 @@ function CartItemList({
 
   return (
     <Item.Group divided>
-      {products.map(p => (
-        <Item key={p.product._id}>
-          <Item.Image src={p.product.mediaUrl} size="small" />
-          <Item.Content>
-            <Item.Header
-              as="a"
-              onClick={() => redirectUser(ctx, `/product?_id=${p.product._id}`)}
-            >
-              {p.product.name}
-            </Item.Header>
-            <Item.Meta>
-              {calculatedIndependentPriceText(p)}
-            </Item.Meta>
-            <Item.Meta>
-              {p.discountApplied && calculatedDiscountedText(p)}
-            </Item.Meta>
-            <Item.Meta>
-              {p.discountApplied && calculatedNonDiscountedText(p)}
-            </Item.Meta>
-            <Item.Extra>
-              <Button
-                basic
-                icon="remove"
-                floated="right"
-                onClick={() => handleRemoveFromCart(p.product._id)}
-              />
-            </Item.Extra>
-          </Item.Content>
-        </Item>
-      ))}
+      {products.map(p => <CartItem handleRemoveFromCart={handleRemoveFromCart} currency={currency} cartProduct={p} />)}
     </Item.Group>
   );
 }

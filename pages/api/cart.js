@@ -42,8 +42,11 @@ async function handleGetRequest(req, res) {
     }).populate({
       path: 'products.discount',
       model: 'Discount'
+    }).populate({
+      path: 'code',
+      model: 'Code'
     });
-    res.status(200).json(cart.products);
+    res.status(200).json(cart);
   } catch (error) {
     console.error(error);
     res.status(403).send("Please login again");

@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
 import Rating from "../../models/Rating";
 import Discount from "../../models/Discount";
+
 connectDb();
 
 const COMMENTS_PER_PAGE = 5;
@@ -93,9 +94,11 @@ async function handlePostRequest(req, res) {
     if (!name || !price || !description || !mediaUrl || !category) {
       return res.status(422).send("Product missing one or more fields");
     }
+    const discountedPrice = price * 0.8;
     const product = await new Product({
       name,
       price,
+      discountedPrice,
       description,
       mediaUrl,
       category

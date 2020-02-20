@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import shortid from "shortid";
 import User from './User';
 import Rating from './Rating';
+import Discount from './Discount';
 
 const { String, Number, ObjectId } = mongoose.Schema.Types;
 
@@ -88,8 +89,8 @@ const ProductSchema = new mongoose.Schema({
   ],
   discount: {
     type: ObjectId,
-    ref: "Discount"
-  }
+    ref: Discount
+  },
 });
 
 export default mongoose.models.Product ||

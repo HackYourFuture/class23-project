@@ -6,6 +6,7 @@ import uuid from "uuid";
 import baseUrl from "../utils/baseUrl";
 import Chart from "../components/Dashboard/Chart";
 import DiscountActivity from "../components/Dashboard/DiscountActivity";
+import CouponsList from "../components/Dashboard/CouponsList";
 
 function Dashboard({
   topViewedTenProducts,
@@ -88,6 +89,7 @@ function Dashboard({
     <>
       <Tab menu={{ color: "teal", inverted: true }} panes={panes} />
       <DiscountActivity totalDiscounts={totalDiscounts} />
+      <CouponsList />
     </>
   );
 }
