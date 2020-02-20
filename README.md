@@ -2,6 +2,11 @@
 
 # Credentials
 
+## root user:
+
+- username: `class23.hyf@gmail.com`
+- password: `Password123`
+
 ## Gmail:
 
 - username: `class23.hyf@gmail.com`
