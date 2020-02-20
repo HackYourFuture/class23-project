@@ -28,7 +28,7 @@
 
 ## Cloudinary:
 
-- CLOUDINARY_URL: `cloudinary://481818939869213:HLuX_Wcz2tDV20U83ndgPL06ZPg@dy7xzflbz`
+- CLOUDINARY_URL: `"https://api.cloudinary.com/v1_1/dy7xzflbz/image/upload"`
 - username: `class23.hyf@gmail.com`
 - password: `image.class23HYF\$`
 
