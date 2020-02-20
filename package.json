@@ -8,9 +8,6 @@
     "build": "next build",
     "start": "next start -p $PORT"
   },
-  "engines": {
-    "node": "12.11.1"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

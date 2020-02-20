@@ -1,6 +1,6 @@
 const baseUrl =
   process.env.NODE_ENV === "production"
     ? "https://intense-citadel-90085.herokuapp.com"
-    : "http://localhost:3000";
+    : "https://intense-citadel-90085.herokuapp.com";
 
 export default baseUrl;
