@@ -22,6 +22,7 @@ import cookie from "js-cookie";
 import axios from "axios";
 import { isDiscountExpired, isDiscountStarted } from '../../utils/discount';
 import { redirectUser } from "../../utils/auth";
+import { categoryOptions } from '../Create/ProductCreation';
 
 function ProductList({ products, selectCategory, user, currency }, ctx) {
   const [isOpen, setIsOpen] = React.useState();
@@ -30,16 +31,6 @@ function ProductList({ products, selectCategory, user, currency }, ctx) {
   const [showMessage, setShowMessage] = React.useState(false);
 
   const router = useRouter();
-  const categoryOptions = [
-    { key: "acc", text: "Accessories", value: "accessories" },
-    { key: "bath", text: "Bathroom", value: "bathroom" },
-    { key: "bed", text: "Bedroom", value: "bedroom" },
-    { key: "dec", text: "Decoration", value: "decoration" },
-    { key: "kit", text: "Kitchen", value: "kitchen" },
-    { key: "lig", text: "Lighting", value: "lighting" },
-    { key: "liv", text: "Living Room", value: "living_room" },
-    { key: "off", text: "Office", value: "office" }
-  ];
 
   console.log(products);
 

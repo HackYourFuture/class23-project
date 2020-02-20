@@ -84,8 +84,8 @@ function ProductSummary({
   async function handleImageUpload(imageFile) {
     const data = new FormData();
     data.append("file", imageFile);
-    data.append("upload_preset", "reactreserve");
-    data.append("cloud_name", "reedbargercodes");
+    data.append("upload_preset", process.env.CLOUDINARY_UPLOAD_PRESET);
+    data.append("cloud_name", process.env.CLOUDINARY_CLOUD_NAME);
     const response = await axios.post(process.env.CLOUDINARY_URL, data);
     const mediaUrl = response.data.url;
     return mediaUrl;
