@@ -1,6 +1,6 @@
 import React from "react";
 import StripeCheckout from "react-stripe-checkout";
-import { Button, Segment, Divider, Label } from "semantic-ui-react";
+import { Button, Segment, Divider, Label, Item, Form, Message } from "semantic-ui-react";
 import calculateCartTotal from "../../utils/calculateCartTotal";
 import title from '../../utils/title';
 import baseUrl from "../../utils/baseUrl";
@@ -34,7 +34,20 @@ function CartSummary({ products, handleCheckout, success, currency, code }) {
     setCartEmpty(products.length === 0);
   }, [products, voucher]);
 
-  function handleVoucherSubmit() {
+  React.useEffect(() => {
+    if (codeSuccess) {
+      setTimeout(() => {
+        setCodeSuccess('');
+      }, 1500);
+    }
+    if (error) {
+      setTimeout(() => {
+        setError('');
+      }, 2000);
+    }
+  }, [codeSuccess, error]);
+
+  async function handleVoucherSubmit() {
     try {
       setLoading(true);
       const url = `${baseUrl}/api/code`;
@@ -54,7 +67,7 @@ function CartSummary({ products, handleCheckout, success, currency, code }) {
     }
   }
 
-  function handleVoucherRemove() {
+  async function handleVoucherRemove() {
     try {
       setLoading(true);
       const url = `${baseUrl}/api/code`;
@@ -82,27 +95,32 @@ function CartSummary({ products, handleCheckout, success, currency, code }) {
           discountedAmount ?
             <>
               <strong>Sub total:</strong>
-              <span style={{ textDecoration: 'line-through' }}>{!currency || currency == 'usd' ? '€' : '$'}{cartAmount + discountedAmount}</span>
+              <span style={{ textDecoration: 'line-through' }}>{!currency || currency == 'usd' ? '€' : '$'}{(Number(cartAmount) + Number(discountedAmount)).toFixed(2)}</span>
               <Label color='green'>{!currency || currency == 'usd' ? '€' : '$'}{cartAmount}</Label>
             </>
             :
-            <><strong>Sub total:</strong> `€${cartAmount}`</>
+            <><strong>Sub total:</strong> {!currency || currency == 'usd' ? '€' : '$'}{cartAmount}</>
         }
-        <Item.Meta>
-          <Form loading={loading} error={!!error} success={!!codeSuccess} onSubmit={handleVoucherSubmit}>
+        {
+          cartAmount > 0 &&
+          <Form style={{ marginTop: '20px' }} loading={loading} error={!!error} success={!!codeSuccess} onSubmit={handleVoucherSubmit}>
             <Message success content={codeSuccess} />
             <Message error content={error} />
-            <Form.Input
-              placeholder='Coupon code'
-              name='code'
-              disabled={loading || codeApplied}
-              value={voucherCode}
-              onChange={(_event, data) => setVoucherCode(data)}
-            />
-            <Button disabled={loading || codeApplied} type='submit' icon='add' />
-            <Button disabled={loading || !codeApplied} icon='remove' onClick={handleVoucherRemove} />
+            <Form.Group>
+              <Form.Input
+                placeholder='Coupon code'
+                name='code'
+                disabled={loading || codeApplied}
+                value={voucherCode}
+                onChange={(_event, { value }) => setVoucherCode(value)}
+                width='13'
+              />
+              {!codeApplied && <Button disabled={loading || codeApplied} type='submit' icon='check' content='Apply' color='green' />}
+              {codeApplied && <Button disabled={loading || !codeApplied} icon='remove' content='Remove' color='orange' onClick={handleVoucherRemove} />}
+            </Form.Group>
           </Form>
-        </Item.Meta>
+        }
+
         <StripeCheckout
           name={title}
           amount={stripeAmount}

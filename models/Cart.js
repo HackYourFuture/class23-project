@@ -9,7 +9,7 @@ const { ObjectId, Number, Boolean } = mongoose.Schema.Types;
 const CartSchema = new mongoose.Schema({
   user: {
     type: ObjectId,
-    ref: User
+    ref: 'User'
   },
   products: [
     {
@@ -19,11 +19,11 @@ const CartSchema = new mongoose.Schema({
       },
       product: {
         type: ObjectId,
-        ref: Product
+        ref: 'Product'
       },
       discount: {
         type: ObjectId,
-        ref: Discount
+        ref: 'Discount'
       },
       discountApplied: {
         type: Boolean,
@@ -41,7 +41,7 @@ const CartSchema = new mongoose.Schema({
   ],
   code: {
     type: ObjectId,
-    ref: Code
+    ref: 'Code'
   }
 });
 

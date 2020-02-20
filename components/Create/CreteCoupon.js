@@ -3,6 +3,7 @@ import { Form, Input, Button, Message, Header, Icon } from "semantic-ui-react";
 import axios from "axios";
 import baseUrl from "../../utils/baseUrl";
 import cookie from "js-cookie";
+import catchErrors from '../../utils/catchErrors';
 
 const INITIAL_CODE = {
   code: '',
@@ -34,7 +35,7 @@ function CreateCoupon() {
       const url = `${baseUrl}/api/code`;
       const token = cookie.get("token");
       const headers = { headers: { Authorization: token } };
-      const payload = { code, amount };
+      const payload = { ...code };
       const response = await axios.post(url, payload, headers);
       setSuccess(response.data);
     } catch (error) {
@@ -71,8 +72,8 @@ function CreateCoupon() {
         <Form.Field
           control={Input}
           name="amount"
-          label="Coupon Discount Amount"
-          placeholder="Amount"
+          label="Coupon Discount Amount ($)"
+          placeholder="Amount ($)"
           min="1.00"
           step="1.00"
           type="number"

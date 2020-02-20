@@ -12,8 +12,7 @@ import axios from "axios";
 import cookie from "js-cookie";
 
 function CouponsList({ coupons }) {
-
-  if (coupons.length === 0) {
+  if (!coupons || coupons.length === 0) {
     return <Message header="Empty set!" content="There are no coupons yet!" />
   }
   return (
@@ -39,11 +38,11 @@ function CouponsList({ coupons }) {
           {coupons.map(
             (coupon, index) => (
               <Table.Row>
-                <Table.Cell>{(index + 1).toLocaleString('en', { minimumIntegerDigits: 4 })}</Table.Cell>
+                <Table.Cell>{(index + 1).toString().padStart(4, '0')}</Table.Cell>
                 <Table.Cell>{coupon.code}</Table.Cell>
-                <Table.Cell>{coupon.amount.toFixed(2)}</Table.Cell>
-                <Table.Cell>{coupon.isUsed}</Table.Cell>
-                <Table.Cell>{coupon.createdAt.toDateString()}</Table.Cell>
+                <Table.Cell>${coupon.amount.toFixed(2)}</Table.Cell>
+                <Table.Cell>{coupon.isUsed.toString()}</Table.Cell>
+                <Table.Cell>{new Date(coupon.createdAt).toDateString()}</Table.Cell>
               </Table.Row>
             )
           )}
@@ -52,16 +51,5 @@ function CouponsList({ coupons }) {
     </div>
   )
 }
-
-CouponsList.getInitialProps = async ctx => {
-  const token = cookie.get('token');
-  if (!token) {
-    return { coupons: [] };
-  }
-  const payload = { headers: { Authorization: token } };
-  const url = `${baseUrl}/api/code`;
-  const response = await axios.get(url, payload);
-  return response.data;
-};
 
 export default CouponsList;

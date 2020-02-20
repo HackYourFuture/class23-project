@@ -9,7 +9,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async (req, res) => {
   const { paymentData, currency } = req.body;
-
+  const curr = !currency || currency === "usd" ? "usd" : "eur";
   try {
     // 1) Verify and get user id from token
     const { userId } = jwt.verify(
@@ -21,10 +21,13 @@ export default async (req, res) => {
     const cart = await Cart.findOne({ user: userId }).populate({
       path: 'products.product',
       model: 'Product',
+    }).populate({
+      path: 'code',
+      model: 'Code',
     });
 
     // 3) Calculate cart totals again from cart products
-    const { cartTotal, stripeTotal } = calculateCartTotal(cart.products);
+    const { cartTotal, stripeTotal, cartTotalEuro, stripeTotalEuro, discountAmount, discountAmountEuro } = calculateCartTotal(cart.products);
 
     // 4) Get email from payment data, see if email linked with existing Stripe customer
     const prevCustomer = await stripe.customers.list({
@@ -47,8 +50,8 @@ export default async (req, res) => {
     // 6) Create charge with total, send receipt email
     const charge = await stripe.charges.create(
       {
-        currency: 'usd',
-        amount: stripeTotal,
+        currency: curr,
+        amount: curr === 'usd' ? stripeTotal : stripeTotalEuro,
         receipt_email: paymentData.email,
         customer,
         description: `Checkout | ${paymentData.email} | ${paymentData.id}`,
@@ -62,12 +65,15 @@ export default async (req, res) => {
     await new Order({
       user: userId,
       email: paymentData.email,
-      total: cartTotal,
+      total: curr === 'usd' ? cartTotal : cartTotalEuro,
       products: cart.products,
+      code: cart.code ? cart.code : null,
+      currency: curr,
+      totalDiscount: curr === 'usd' ? discountAmount : discountAmountEuro
     }).save();
 
     // 8) Clear products in cart
-    await Cart.findOneAndUpdate({ _id: cart._id }, { $set: { products: [] } });
+    await Cart.findOneAndUpdate({ _id: cart._id }, { $set: { products: [], code: null } });
 
     // 9) Send back success (200) response
     res.status(200).json(cart);

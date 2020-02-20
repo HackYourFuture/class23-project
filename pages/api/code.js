@@ -38,8 +38,8 @@ async function handleGetRequest(req, res) {
     const user = await User.findOne({ _id: userId });
     if (user) {
       if (user.role === 'root') {
-        const codes = await Code.find({});
-        return res.status(200).json(codes);
+        const coupons = await Code.find({});
+        return res.status(200).json({ coupons });
       } else {
         return res.status(403).send("You are not allowed to fetch coupon codes.");
       }
@@ -58,6 +58,7 @@ async function handlePostRequest(req, res) {
     return res.status(401).send("No authorization token.");
   }
   const { code, amount } = req.body;
+  console.log({ code, amount });
   if (!code || !amount) {
     return res.status(401).send("Missing arguments: code, amount (amount must be > 0)");
   }
