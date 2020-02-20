@@ -4,6 +4,7 @@ import Cart from "../../models/Cart";
 import connectDb from "../../utils/connectDb";
 import Discount from "../../models/Discount";
 import Product from "../../models/Product";
+import Code from "../../models/Code";
 import { isDiscountExpired, isDiscountStarted, UNIT_TYPES } from '../../utils/discount';
 
 connectDb();
@@ -38,13 +39,13 @@ async function handleGetRequest(req, res) {
     );
     const cart = await Cart.findOne({ user: userId }).populate({
       path: "products.product",
-      model: "Product"
+      model: Product
     }).populate({
       path: 'products.discount',
-      model: 'Discount'
+      model: Discount
     }).populate({
       path: 'code',
-      model: 'Code'
+      model: Code
     });
     res.status(200).json(cart);
   } catch (error) {
@@ -65,8 +66,8 @@ async function handlePutRequest(req, res) {
     );
     // Get user cart based on userId
     const cart = await Cart.findOne({ user: userId })
-      .populate({ path: 'products.discount', model: 'Discount' })
-      .populate({ path: 'products.product', model: 'Product' });
+      .populate({ path: 'products.discount', model: Discount })
+      .populate({ path: 'products.product', model: Product });
     const productExists = cart.products.some(doc =>
       ObjectId(productId).equals(doc.product._id)
     );
@@ -81,8 +82,8 @@ async function handlePutRequest(req, res) {
         { _id: cart._id, "products.product": productId },
         { $inc: { "products.$.quantity": quantity } },
         { new: true }
-      ).populate({ path: 'products.product', model: 'Product' })
-        .populate({ path: 'products.discount', model: 'Discount' });
+      ).populate({ path: 'products.product', model: Product })
+        .populate({ path: 'products.discount', model: Discount });
     } else {
       // If not, add new product with given quantity
       const newProduct = { quantity, product: productId };
@@ -90,8 +91,8 @@ async function handlePutRequest(req, res) {
         { _id: cart._id },
         { $addToSet: { products: newProduct } },
         { new: true }
-      ).populate({ path: 'products.product', model: 'Product' })
-        .populate({ path: 'products.discount', model: 'Discount' });
+      ).populate({ path: 'products.product', model: Product })
+        .populate({ path: 'products.discount', model: Discount });
     }
 
     const discount = discountInfo.product.discount;
@@ -121,16 +122,16 @@ async function handleDeleteRequest(req, res) {
     // get the cart
     const oldCart = await Cart.findOne({ user: userId }).populate({
       path: "products.product",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount",
-      model: "Discount"
+      model: Discount
     }).populate({
       path: "products.discount.products",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount.product",
-      model: "Product"
+      model: Product
     });
 
     // get the product element from cart
@@ -155,16 +156,16 @@ async function handleDeleteRequest(req, res) {
         { new: true }
       ).populate({
         path: "products.product",
-        model: "Product"
+        model: Product
       }).populate({
         path: "products.discount",
-        model: "Discount"
+        model: Discount
       }).populate({
         path: "products.discount.products",
-        model: "Product"
+        model: Product
       }).populate({
         path: "products.discount.product",
-        model: "Product"
+        model: Product
       });
 
       // Check the applicability of the discount for the cart
@@ -183,16 +184,16 @@ async function handleDeleteRequest(req, res) {
         { new: true }
       ).populate({
         path: "products.product",
-        model: "Product"
+        model: Product
       }).populate({
         path: "products.discount",
-        model: "Discount"
+        model: Discount
       }).populate({
         path: "products.discount.products",
-        model: "Product"
+        model: Product
       }).populate({
         path: "products.discount.product",
-        model: "Product"
+        model: Product
       });
     }
 
@@ -243,7 +244,6 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
         if (ObjectId(prod).equals(productId)) return;
         if (!cart.products.some(doc => ObjectId(prod._id).equals(doc.product._id))) {
           isCartProvidesRequirementsForDiscount = false;
-          console.log('bug here')
         }
       });
     } else { // check for the product amount
@@ -365,16 +365,16 @@ async function addDiscountToCartInDeactivatedMode(discount, cart) {
     { _id: cart._id },
   ).populate({
     path: "products.product",
-    model: "Product"
+    model: Product
   }).populate({
     path: "products.discount",
-    model: "Discount"
+    model: Discount
   }).populate({
     path: "products.discount.products",
-    model: "Product"
+    model: Product
   }).populate({
     path: "products.discount.product",
-    model: "Product"
+    model: Product
   });
 }
 
@@ -383,16 +383,16 @@ async function activateDiscountForCart(discount, userId) {
   const carts = await Cart.find({ 'products.discount': discount._id })
     .populate({
       path: "products.product",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount",
-      model: "Discount"
+      model: Discount
     }).populate({
       path: "products.discount.products",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount.product",
-      model: "Product"
+      model: Product
     });
 
   carts.forEach(async cart => {
@@ -413,15 +413,15 @@ async function activateDiscountForCart(discount, userId) {
     { user: userId }
   ).populate({
     path: "products.product",
-    model: "Product"
+    model: Product
   }).populate({
     path: "products.discount",
-    model: "Discount"
+    model: Discount
   }).populate({
     path: "products.discount.products",
-    model: "Product"
+    model: Product
   }).populate({
     path: "products.discount.product",
-    model: "Product"
+    model: Product
   });
 }

@@ -110,7 +110,7 @@ async function handlePutRequest(req, res) {
       const cart = await Cart.findOne({ user: userId })
         .populate({
           path: 'code',
-          model: 'Code'
+          model: Code
         });
       if (cart) {
         if (!cart.code) {
@@ -159,7 +159,7 @@ async function handleDeleteRequest(req, res) {
     const cart = await Cart.findOne({ user: userId, code: coupon._id })
       .populate({
         path: 'code',
-        model: 'Code'
+        model: Code
       });
     if (cart && cart.code) {
       cart.code = null;

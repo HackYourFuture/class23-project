@@ -261,13 +261,13 @@ async function handlePostRequest(req, res) {
               _id: discountObj.product._id
             }).populate({
               path: "discount",
-              model: "Discount"
+              model: Discount
             }).populate({
               path: "discount.products",
-              model: "Product"
+              model: Product
             }).populate({
               path: "discount.product",
-              model: "Product"
+              model: Product
             });
             console.log('single unit product: ', product)
             if (
@@ -548,16 +548,16 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
   const carts = await Cart.find({ 'products.discount': discountId })
     .populate({
       path: "products.product",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount",
-      model: "Discount"
+      model: Discount
     }).populate({
       path: "products.discount.products",
-      model: "Product"
+      model: Product
     }).populate({
       path: "products.discount.product",
-      model: "Product"
+      model: Product
     });
 
   carts.forEach(async cart => {
@@ -577,7 +577,4 @@ async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, r
     });
     await cart.save();
   });
-  // carts.forEach(async (cart) => {
-  //   await cart.save();
-  // })
 }
