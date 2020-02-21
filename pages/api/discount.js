@@ -71,11 +71,11 @@ async function handleGetRequest(req, res) {
         })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       } else {
         discounts = await Discount.find({
@@ -88,11 +88,11 @@ async function handleGetRequest(req, res) {
         })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       }
     } else if (category) {
@@ -106,11 +106,11 @@ async function handleGetRequest(req, res) {
         })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       } else {
         discounts = await Discount.find({
@@ -118,11 +118,11 @@ async function handleGetRequest(req, res) {
         })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       }
     } else if (discountId) {
@@ -134,21 +134,21 @@ async function handleGetRequest(req, res) {
         })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       } else {
         discounts = await Discount.find({ _id: discountId })
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       }
     } else {
@@ -159,11 +159,11 @@ async function handleGetRequest(req, res) {
         discounts = await Discount.find({})
           .populate({
             path: "products",
-            model: "Product"
+            model: Product
           })
           .populate({
             path: "product",
-            model: "Product"
+            model: Product
           });
       }
     }
@@ -292,15 +292,15 @@ async function handlePostRequest(req, res) {
             })
               .populate({
                 path: "discount",
-                model: "Discount"
+                model: Discount
               })
               .populate({
                 path: "discount.products",
-                model: "Product"
+                model: Product
               })
               .populate({
                 path: "discount.product",
-                model: "Product"
+                model: Product
               });
             console.log("single unit product: ", product);
             if (
