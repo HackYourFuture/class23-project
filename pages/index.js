@@ -12,7 +12,7 @@ import {
   Button,
   Icon
 } from "semantic-ui-react";
-import { redirectUser } from '../utils/auth';
+import { redirectUser } from "../utils/auth";
 
 function Home({ products, totalPages, currency, user }, ctx) {
   const [newCurrency, setNewCurrency] = useState(false);
@@ -66,7 +66,7 @@ function Home({ products, totalPages, currency, user }, ctx) {
 }
 
 Home.getInitialProps = async ctx => {
-  const page = ctx.query.page ? ctx.query.page : '1';
+  const page = ctx.query.page ? ctx.query.page : "1";
   const category = ctx.query.category;
   const size = 6;
   const url = `${baseUrl}/api/products`;

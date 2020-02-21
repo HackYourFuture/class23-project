@@ -3,7 +3,7 @@ import Link from "next/link";
 import Router, { useRouter } from "next/router";
 import NProgress from "nprogress";
 import { handleLogout } from "../../utils/auth";
-import title from '../../utils/title';
+import title from "../../utils/title";
 
 Router.onRouteChangeStart = () => NProgress.start();
 Router.onRouteChangeComplete = () => NProgress.done();
@@ -78,22 +78,22 @@ function Header({ user }) {
             </Menu.Item>
           </>
         ) : (
-            <>
-              <Link href="/login">
-                <Menu.Item header active={isActive("/login")}>
-                  <Icon name="sign in" size="large" />
-                  Login
+          <>
+            <Link href="/login">
+              <Menu.Item header active={isActive("/login")}>
+                <Icon name="sign in" size="large" />
+                Login
               </Menu.Item>
-              </Link>
+            </Link>
 
-              <Link href="/signup">
-                <Menu.Item header active={isActive("/signup")}>
-                  <Icon name="signup" size="large" />
-                  Signup
+            <Link href="/signup">
+              <Menu.Item header active={isActive("/signup")}>
+                <Icon name="signup" size="large" />
+                Signup
               </Menu.Item>
-              </Link>
-            </>
-          )}
+            </Link>
+          </>
+        )}
       </Container>
     </Menu>
   );
