@@ -18,6 +18,15 @@ export function redirectUser(ctx, location) {
 
 export async function handleLogout() {
   cookie.remove("token");
+  if (firebase.apps.length > 0) {
+    try {
+      firebase.apps.forEach(async app => {
+        await app.auth().signOut();
+      });
+    } catch (error) {
+      console.warn('Firebase sign out error: ', error);
+    }
+  }
   window.localStorage.setItem("logout", Date.now());
   Router.push("/login");
 }
