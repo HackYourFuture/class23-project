@@ -8,10 +8,9 @@ import axios from "axios";
 import baseUrl from "../utils/baseUrl";
 import cookie from "js-cookie";
 import catchErrors from "../utils/catchErrors";
-import Router, { useRouter } from "next/router";
+import { redirectUser } from "../utils/auth";
 
 function Cart({ products, user, currency, code }, ctx) {
-  const router = useRouter();
   const [cartProducts, setCartProducts] = React.useState(products);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -104,7 +103,7 @@ function Cart({ products, user, currency, code }, ctx) {
             <Image floated="left" src="../static/click-to-rate.png" />
           </Modal.Content>
           <Modal.Actions>
-            <Button color="green" onClick={() => router.push("/account")}>
+            <Button color="green" onClick={() => redirectUser(ctx, "/account")}>
               I'd love to!
             </Button>
             <Button color="red" onClick={() => setIsOpen(false)}>

@@ -72,7 +72,7 @@ async function handlePostRequest(req, res) {
         `<header style="width: 90%;margin: 10px auto;">
         <img
         style="width: 100%;margin: 10px auto;"
-        src="https://res.cloudinary.com/dy7xzflbz/image/upload/v1582319531/menubar_iaqzwa.png"
+        src="https://res.cloudinary.com/mekinci/image/upload/v1582370315/Ekran_Resmi_2020-02-22_12.17.45_h9nouw.png"
         alt="header image"
         />
         </header>

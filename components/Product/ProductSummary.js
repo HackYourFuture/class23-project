@@ -16,9 +16,9 @@ import AddProductToCart from "./AddProductToCart";
 import axios from "axios";
 import cookie from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
-import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
 import { isDiscountStarted, isDiscountExpired } from "../../utils/discount";
+import { redirectUser } from "../../utils/auth";
 
 function ProductSummary(
   {
@@ -35,8 +35,6 @@ function ProductSummary(
   },
   ctx
 ) {
-  console.log(currency);
-  const router = useRouter();
   const [ratingAmount, setRatingAmount] = React.useState(0);
   const [productName, setProductName] = React.useState(name);
   const [productPrice, setProductPrice] = React.useState(price);
@@ -101,8 +99,6 @@ function ProductSummary(
     setNewMediaUrl({ mediaUrl });
     setMediaPreview(window.URL.createObjectURL(files[0]));
   }
-
-  console.log({ discount });
 
   return (
     <>
@@ -311,7 +307,7 @@ function ProductSummary(
                     color="red"
                     size="mini"
                     onClick={() =>
-                      router.push(`/offer?discountId=${discount._id}`)
+                      redirectUser(ctx, `/offer?discountId=${discount._id}`)
                     }
                   >
                     See Offer Details!
