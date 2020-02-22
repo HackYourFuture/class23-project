@@ -191,7 +191,7 @@ async function handlePutRequest(req, res) {
 async function handleDeleteRequest(req, res) {
   const { _id, commentId } = req.query;
   try {
-    if (_id & !commentId) { // Delete product
+    if (_id && !commentId) { // Delete product
       // 1) Delete product by id
       await Product.findOneAndDelete({ _id });
 
