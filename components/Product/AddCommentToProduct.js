@@ -46,7 +46,7 @@ export default function AddCommentToProduct({
       const params = { _id: product._id, commentId: id };
       const response = await axios.delete(url, { params, headers });
       setSuccess(response.data);
-      console.log(response.data);
+      // console.log(response.data);
     } catch (error) {
       catchErrors(error, setError);
       setSuccess('');

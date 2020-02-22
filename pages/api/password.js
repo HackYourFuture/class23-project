@@ -9,7 +9,7 @@ connectDb();
 
 export default async (req, res) => {
   const { current, requested } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   // 1) Validate token & password
   if (!("authorization" in req.headers)) {
     return res.status(401).send("No authorization token");
@@ -57,7 +57,7 @@ export default async (req, res) => {
       return res.status(404).send("Current password is required to update the password.");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(500).send("Error logging in user");
   }
 };

@@ -39,7 +39,7 @@ export default async (req, res) => {
 // And also if active parameter is provided as true, returns just the active ones
 async function handleGetRequest(req, res) {
   const { productId, category, isActive, discountId } = req.query;
-  console.log({ query: req.query });
+  // console.log({ query: req.query });
   let discounts;
   const isActiveQuery = {
     $and: [
@@ -106,7 +106,7 @@ async function handleGetRequest(req, res) {
         });
       }
     } else if (discountId) {
-      console.log("single discount");
+      // console.log("single discount");
       // discount for discountId
       if (isActive) {
         discounts = await Discount.find({
@@ -188,8 +188,8 @@ async function handlePostRequest(req, res) {
               $and: [{ _id: { $in: products } }, { discount: { $ne: null } }]
             }).populate('discount');
             alreadyCategoryWideDiscountedProducts = populatedProducts.filter(pr => pr.discount.unitType === UNIT_TYPES.category).map(pr => pr.name);
-            console.log({ products });
-            console.log({ alreadyCategoryWideDiscountedProducts });
+            // console.log({ products });
+            // console.log({ alreadyCategoryWideDiscountedProducts });
             if (alreadyCategoryWideDiscountedProducts.length > 0) {
               return res
                 .status(405)
@@ -209,7 +209,7 @@ async function handlePostRequest(req, res) {
                 $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
               }
             ).distinct("discount");
-            console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts })
+            // console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts })
             if (
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
             ) {
@@ -241,7 +241,7 @@ async function handlePostRequest(req, res) {
               { discount },
               { multi: true }
             );
-            console.log(`Multiple products updated with response: ${resp}`);
+            // console.log(`Multiple products updated with response: ${resp}`);
             const overriddenProductsMessage =
               discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
                 ? " Not: Some products had different discounts related to them. " +
@@ -256,7 +256,7 @@ async function handlePostRequest(req, res) {
                 overriddenProductsMessage
               );
           } else {
-            console.log({ id: discountObj.product._id })
+            // console.log({ id: discountObj.product._id })
             const product = await Product.findOne({
               _id: discountObj.product._id
             }).populate({
@@ -269,7 +269,7 @@ async function handlePostRequest(req, res) {
               path: "discount.product",
               model: Product
             });
-            console.log('single unit product: ', product)
+            // console.log('single unit product: ', product)
             if (
               product.discount &&
               product.discount.unitType === UNIT_TYPES.category
@@ -326,7 +326,7 @@ async function handlePostRequest(req, res) {
               { _id: discountObj.product._id },
               { discount }
             );
-            console.log(`A product updated with response: ${resp}`);
+            // console.log(`A product updated with response: ${resp}`);
             return res
               .status(200)
               .send(
@@ -352,7 +352,7 @@ async function handlePostRequest(req, res) {
               $and: [{ discount: { $ne: null } }, { _id: { $in: products } }]
             }
           ).distinct("discount");
-          console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts });
+          // console.log({ discountIdsOfAlreadyDiscountedProductsByOtherDiscounts });
 
           // Detach discounts from the products
           await Product.update(
@@ -381,8 +381,8 @@ async function handlePostRequest(req, res) {
             { discount },
             { multi: true }
           );
-          console.log(
-            `Multiple products updated according to categories with response: ${resp}`
+          // console.log(
+          `Multiple products updated according to categories with response: ${resp}`
           );
           const overriddenProductsMessage =
             discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
@@ -420,7 +420,7 @@ async function handlePutRequest(req, res) {
   }
   // Get the required fields & check if they exist
   const { isActive, discountId } = req.body;
-  console.log({ body: req.body });
+  // console.log({ body: req.body });
 
   if (!discountId && isActive === undefined && typeof isActive !== "boolean") {
     return res
@@ -474,7 +474,7 @@ async function handlePutRequest(req, res) {
       return res.status(404).send("User not found");
     }
   } catch (error) {
-    console.log(error.message);
+    // console.log(error.message);
     return res.status(403).send(error.message);
   }
 }

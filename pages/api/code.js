@@ -47,7 +47,7 @@ async function handleGetRequest(req, res) {
       return res.status(404).send("User not found");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     return res.status(403).send("Please login again");
   }
 }
@@ -58,7 +58,7 @@ async function handlePostRequest(req, res) {
     return res.status(401).send("No authorization token.");
   }
   const { code, amount } = req.body;
-  console.log({ code, amount });
+  // console.log({ code, amount });
   if (!code || !amount) {
     return res.status(401).send("Missing arguments: code, amount (amount must be > 0)");
   }
@@ -84,7 +84,7 @@ async function handlePostRequest(req, res) {
       return res.status(404).send("User not found");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(404).send("Please login again");
   }
 };
@@ -130,7 +130,7 @@ async function handlePutRequest(req, res) {
       return res.status(404).send("Invalid coupon code");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(404).send("Please login again");
   }
 };
@@ -172,7 +172,7 @@ async function handleDeleteRequest(req, res) {
       return res.status(404).send("Invalid coupon code or userId");
     }
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(404).send("Please login again");
   }
 };

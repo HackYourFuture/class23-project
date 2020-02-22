@@ -22,8 +22,8 @@ function Offers({ discounts }, ctx) {
   const categoryDiscounts = discounts.filter(
     p => p.unitType === "category" && p.isActive
   );
-  console.log(productDiscounts);
-  console.log(categoryDiscounts);
+  // console.log(productDiscounts);
+  // console.log(categoryDiscounts);
 
   return (
     <>

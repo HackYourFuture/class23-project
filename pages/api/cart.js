@@ -49,7 +49,7 @@ async function handleGetRequest(req, res) {
     });
     res.status(200).json(cart);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(403).send("Please login again");
   }
 }
@@ -73,7 +73,7 @@ async function handlePutRequest(req, res) {
     );
 
     const discountInfo = await isProductsDiscountApplicableForCart(cart, productId, productExists);
-    console.log({ discountInfo })
+    // console.log({ discountInfo })
     // If product exists, increment quantity (by number provided to request)
     let newCart = {};
     if (productExists) {
@@ -104,7 +104,7 @@ async function handlePutRequest(req, res) {
     }
     res.status(200).send("Cart updated");
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(403).send("Please login again");
   }
 }
@@ -136,7 +136,7 @@ async function handleDeleteRequest(req, res) {
 
     // get the product element from cart
     const cartProduct = oldCart.products.find(doc => ObjectId(productId).equals(doc.product._id));
-    console.log({ cartProduct })
+    // console.log({ cartProduct })
     let cart = {};
     // check if a discount set to the product
     if (cartProduct.discount) {
@@ -199,7 +199,7 @@ async function handleDeleteRequest(req, res) {
 
     res.status(200).json(cart.products);
   } catch (error) {
-    console.error(error);
+    // console.error(error);
     res.status(403).send("Please login again");
   }
 }
@@ -216,26 +216,26 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
     .populate({ path: 'discount.products', model: Product });
   // Get the discount
   const discount = product.discount;
-  console.log({ availability: discount });
+  // console.log({ availability: discount });
   if (!discount) {
     return { product, isApplicable: false, isSuitable: false };
   }
   // Check if the discount is not expired
   isDiscountOnline = !isDiscountExpired(discount) && isDiscountStarted(discount);
-  console.log({ isDiscountOnline })
+  // console.log({ isDiscountOnline })
   if (!isDiscountOnline) {
     return { product, isApplicable: false, isSuitable: false };
   }
   // Check if the discount is applied before
-  console.log({ productsOfCart: cart.products });
+  // console.log({ productsOfCart: cart.products });
   isDiscountAppliedBefore = cart.products.some(doc => doc.discount && ObjectId(doc.discount._id).equals(discount._id));
-  console.log({ isDiscountAppliedBefore });
+  // console.log({ isDiscountAppliedBefore });
 
   if (isDiscountAppliedBefore) {
     return { product, isApplicable: false, isSuitable: false };
   }
   const cartProduct = productExists ? cart.products.find(doc => ObjectId(productId).equals(doc.product._id)) : null;
-  console.log({ cartProduct });
+  // console.log({ cartProduct });
 
   // Check if the card has everything for discount
   if (discount.unitType === UNIT_TYPES.product) { // product
@@ -264,16 +264,16 @@ async function isProductsDiscountApplicableForCart(cart, productId, productExist
         if (doc.product.category === discount.category) return total + 1;
         else return total;
       }, 0);
-      console.log({ isCartProvidesRequirementsForDiscount })
-      console.log({ total })
-      console.log({ amountRequired: discount.amountRequired })
+      // console.log({ isCartProvidesRequirementsForDiscount })
+      // console.log({ total })
+      // console.log({ amountRequired: discount.amountRequired })
       total = productExists ? total : total + 1
       if (total < discount.amountRequired) {
         isCartProvidesRequirementsForDiscount = false;
       }
     }
   }
-  console.log({ isCartProvidesRequirementsForDiscount });
+  // console.log({ isCartProvidesRequirementsForDiscount });
 
   if (!isCartProvidesRequirementsForDiscount) {
     return { product, isApplicable: false, isSuitable: false };

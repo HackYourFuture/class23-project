@@ -31,8 +31,8 @@ function DiscountActivity({ totalDiscounts }) {
       activeSetter(discount.isActive);
       setDiscounts(discounts);
     } catch (error) {
-      console.warn(error);
-      console.log(error.message);
+      // console.warn(error);
+      // console.log(error.message);
       activeSetter(discount.isActive);
     } finally {
       activityIndicator(false);
@@ -51,7 +51,7 @@ function DiscountActivity({ totalDiscounts }) {
       await axios.delete(url, payload);
       setDiscounts(discounts.filter(disc => !mongoose.Types.ObjectId(disc._id).equals(discount._id)));
     } catch (error) {
-      console.warn(error);
+      // console.warn(error);
     } finally {
       //activityIndicator(false);
     }
@@ -132,40 +132,40 @@ function DiscountActivity({ totalDiscounts }) {
     const [active, setActive] = React.useState(discount.isActive);
     const [toggling, setToggling] = useState(false);
     const [removing, setRemoving] = useState(false);
-    if (discount.product) console.log({ product: discount.product.name });
-    return (
-      <Table.Row>
-        <Table.Cell collapsing>
-          <Checkbox
-            checked={active}
-            toggle
-            disabled={toggling}
-            onChange={() => handleToggleChange(discount, setActive, setToggling)}
-          />
-          <Loader size='small' active={toggling} disabled={!toggling} inline='centered' />
-        </Table.Cell>
-        <Table.Cell>
-          {discount.multipleUnits ? discount.products.map(p => (
-            <Header key={`table_header_discount_product_${p._id}`} as="h4" image>
-              <Image src={p.mediaUrl} rounded size="mini" />
-              <Header.Content>{p.name}</Header.Content>
-            </Header>
-          )) :
-            <Header as="h4" image>
-              <Image src={discount.product.mediaUrl} rounded size="mini" />
-              <Header.Content>{discount.product.name}</Header.Content>
-            </Header>
-          }
-        </Table.Cell>
-        <Table.Cell>{`%${discount.discountPercentage}`}</Table.Cell>
-        <Table.Cell>{formateDate(discount.startDate)}</Table.Cell>
-        <Table.Cell>{formateDate(discount.endDate)}</Table.Cell>
-        <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
-        <Table.Cell>
-          <Icon name="delete" disabled={removing} onClick={() => handleDelete(discount, setRemoving)} />
-        </Table.Cell>
-      </Table.Row>
-    );
+    if (discount.product) // console.log({ product: discount.product.name });
+      return (
+        <Table.Row>
+          <Table.Cell collapsing>
+            <Checkbox
+              checked={active}
+              toggle
+              disabled={toggling}
+              onChange={() => handleToggleChange(discount, setActive, setToggling)}
+            />
+            <Loader size='small' active={toggling} disabled={!toggling} inline='centered' />
+          </Table.Cell>
+          <Table.Cell>
+            {discount.multipleUnits ? discount.products.map(p => (
+              <Header key={`table_header_discount_product_${p._id}`} as="h4" image>
+                <Image src={p.mediaUrl} rounded size="mini" />
+                <Header.Content>{p.name}</Header.Content>
+              </Header>
+            )) :
+              <Header as="h4" image>
+                <Image src={discount.product.mediaUrl} rounded size="mini" />
+                <Header.Content>{discount.product.name}</Header.Content>
+              </Header>
+            }
+          </Table.Cell>
+          <Table.Cell>{`%${discount.discountPercentage}`}</Table.Cell>
+          <Table.Cell>{formateDate(discount.startDate)}</Table.Cell>
+          <Table.Cell>{formateDate(discount.endDate)}</Table.Cell>
+          <Table.Cell>{active ? "Yes" : "No"}</Table.Cell>
+          <Table.Cell>
+            <Icon name="delete" disabled={removing} onClick={() => handleDelete(discount, setRemoving)} />
+          </Table.Cell>
+        </Table.Row>
+      );
   }
 
   function CategoryDiscountDetails({ discount, handleDelete, handleToggleChange }) {

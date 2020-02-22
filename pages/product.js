@@ -31,7 +31,7 @@ function Product({ product, user, totalComments, topSuggestedProducts, currency 
     setDisplayedTotalComments(totalComments);
   }, [product, totalComments]);
 
-  console.log({ currency });
+  // console.log({ currency });
 
   return (
     <>
