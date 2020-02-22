@@ -53,6 +53,6 @@ async function handlePostRequest(req, res) {
     });
     return res.status(200).json(ratings);
   } catch (error) {
-    // console.error(error);
+    console.error(error);
   }
 }

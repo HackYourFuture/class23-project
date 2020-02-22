@@ -33,7 +33,6 @@ function ProductSummary({
   currency,
   discount
 }, ctx) {
-  // console.log(currency);
   const [ratingAmount, setRatingAmount] = React.useState(0);
   const [productName, setProductName] = React.useState(name);
   const [productPrice, setProductPrice] = React.useState(price);
@@ -99,7 +98,6 @@ function ProductSummary({
     setMediaPreview(window.URL.createObjectURL(files[0]));
   }
 
-  // console.log({ discount });
 
   return (
     <>
@@ -233,8 +231,8 @@ function ProductSummary({
                 {!currency || currency === "usd" ? (
                   <p>${price.toFixed(2)}</p>
                 ) : (
-                  <p>&euro;{priceEuro.toFixed(2)}</p>
-                )}
+                    <p>&euro;{priceEuro.toFixed(2)}</p>
+                  )}
                 {user && (user.role === "admin" || user.role === "root") && (
                   <Modal
                     size="tiny"

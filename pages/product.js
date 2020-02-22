@@ -39,7 +39,6 @@ function Product({
     setDisplayedTotalComments(totalComments);
   }, [product, totalComments]);
 
-  // console.log({ currency });
 
   return (
     <>

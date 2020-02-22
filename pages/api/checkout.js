@@ -80,7 +80,7 @@ export default async (req, res) => {
     // 9) Send back success (200) response
     res.status(200).json(cart);
   } catch (error) {
-    // console.error(error);
+    console.error(error);
     res.status(500).send('Error processing charge');
   }
 };

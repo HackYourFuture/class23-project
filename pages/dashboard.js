@@ -15,7 +15,6 @@ function Dashboard({
   coupons,
   user
 }) {
-  // console.log(totalDiscounts);
   const data = {
     labels: topViewedTenProducts.map(product => product.name),
     datasets: [
@@ -117,7 +116,6 @@ Dashboard.getInitialProps = async ctx => {
   }
   const urlCode = `${baseUrl}/api/code`;
   const responseCode = await axios.get(urlCode, payload);
-  // console.log({ resp: responseCode.data });
 
   return { ...responseCode.data, topViewedTenProducts, topProductsOfCategory, totalDiscounts };
 };

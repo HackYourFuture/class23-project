@@ -4,7 +4,6 @@ import calculateRatingMedian from "../../utils/calculateRatingMedian";
 function AddProductSuggestions({ topSuggestedProducts, currency }) {
   function mapProductsToItems(products) {
     return products.map(product => {
-      // console.log({ product })
       return {
         header: product.name,
         image: product.mediaUrl,

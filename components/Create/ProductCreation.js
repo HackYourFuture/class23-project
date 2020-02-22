@@ -67,7 +67,6 @@ function CreateProduct() {
     data.append("upload_preset", process.env.CLOUDINARY_UPLOAD_PRESET);
     data.append("cloud_name", process.env.CLOUDINARY_CLOUD_NAME);
     const response = await axios.post(process.env.CLOUDINARY_URL, data);
-    // console.log({ imgResp: response });
     const mediaUrl = response.data.url;
     return mediaUrl;
   }
@@ -86,7 +85,6 @@ function CreateProduct() {
       setProduct(INITIAL_PRODUCT);
       setSuccess(true);
     } catch (error) {
-      // console.log({ error })
       catchErrors(error, setError);
     } finally {
       setLoading(false);

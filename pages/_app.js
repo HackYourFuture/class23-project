@@ -36,7 +36,6 @@ class MyApp extends App {
         }
         pageProps.user = user;
       } catch (error) {
-        // console.error("Error getting current user", error);
         // 1) Throw out invalid token
         destroyCookie(ctx, "token");
         // 2) Redirect to login

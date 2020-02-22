@@ -17,7 +17,6 @@ function Cart({ products, user, currency, code }, ctx) {
   const [isOpen, setIsOpen] = useState(true);
   const [lastOrder, setLastOrder] = React.useState({});
 
-  // console.log(products);
   async function handleRemoveFromCart(productId) {
     const url = `${baseUrl}/api/cart`;
     const token = cookie.get("token");
@@ -26,7 +25,6 @@ function Cart({ products, user, currency, code }, ctx) {
       headers: { Authorization: token }
     };
     const response = await axios.delete(url, payload);
-    // console.log(response.data);
     setCartProducts(response.data);
     logEvent("User", `User ${user.name} removed product from their cart`);
   }

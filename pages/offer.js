@@ -14,8 +14,6 @@ import {
 } from "semantic-ui-react";
 const Offer = ({ discounts, productId }) => {
   let [products, setProducts] = React.useState([]);
-  // console.log(productId);
-  // console.log(discounts);
 
   React.useEffect(() => {
     async function fetchProducts() {
@@ -24,14 +22,11 @@ const Offer = ({ discounts, productId }) => {
         const response = await axios.get(url);
         setProducts(response.data);
       } catch (error) {
-        // console.log(error);
+        console.log(error);
       }
     }
     fetchProducts();
   }, []);
-  const totalProducts = products;
-  // console.log(totalProducts.products);
-  // console.log("all", products);
   return (
     <>
       {discounts.map(d =>
@@ -153,7 +148,6 @@ const Offer = ({ discounts, productId }) => {
 
 Offer.getInitialProps = async ({ query: { discountId, productId } }) => {
   const url = `${baseUrl}/api/discount`;
-  // console.log(discountId);
   const payload = { params: { discountId, productId } };
   const response = await axios.get(url, payload);
   return response.data;

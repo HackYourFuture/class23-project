@@ -32,7 +32,6 @@ function ProductList({ products, selectCategory, user, currency }, ctx) {
 
   const router = useRouter();
 
-  // console.log(products);
 
   function mapProductsToItems(products) {
     return products.map(product => {
@@ -104,7 +103,6 @@ function ProductList({ products, selectCategory, user, currency }, ctx) {
                 setSuccess(true);
                 setShowMessage(true);
                 handleAddProductToCart();
-                // console.log(user);
                 return;
               }
               setSuccess(true);

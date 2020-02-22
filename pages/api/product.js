@@ -105,7 +105,7 @@ async function handlePostRequest(req, res) {
     }).save();
     res.status(201).json(product);
   } catch (error) {
-    // console.error(error);
+    console.error(error);
     res.status(500).send("Server error in creating product");
   }
 }
@@ -139,7 +139,7 @@ async function handlePutRequest(req, res) {
         res.status(401).send('Unauthorized users can not update product');
       }
     } catch (error) {
-      // console.error(error);
+      console.error(error);
       return res.status(500).send('Error updating product');
     }
   } else {
@@ -211,7 +211,7 @@ async function handleDeleteRequest(req, res) {
       return res.status(405).send('Operation not allowed or could not be understood!');
     }
   } catch (error) {
-    // console.error(error);
+    console.error(error);
     return res.status(500).send("Error deleting product or comment!");
   }
 }

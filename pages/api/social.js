@@ -55,7 +55,7 @@ export default async (req, res) => {
       res.status(200).json(token);
     }
   } catch (error) {
-    // console.error(error);
+    console.error(error);
     res.status(500).send('Error signing in user');
   }
 };

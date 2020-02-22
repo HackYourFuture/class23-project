@@ -6,7 +6,6 @@ import axios from "axios";
 import CreateCoupon from "../components/Create/CreteCoupon";
 
 function CreateProduct({ products }) {
-  // console.log(products);
   return (
     <>
       <ProductCreation />

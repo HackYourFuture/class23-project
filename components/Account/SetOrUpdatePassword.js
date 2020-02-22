@@ -39,8 +39,6 @@ function SetOrUpdatePassword({ email, name }) {
 
   function handleChange(event) {
     const { name, value } = event.target;
-    // console.log(name);
-    // console.log(value);
     setPasswords(prevState => ({ ...prevState, [name]: value }));
   }
 
@@ -56,12 +54,9 @@ function SetOrUpdatePassword({ email, name }) {
       const payload = { ...passwords };
       const url = `${baseUrl}/api/password`;
       const response = await axios.post(url, payload, headers);
-      // console.log({ resp: response.data })
       setSuccess(response.data);
     } catch (error) {
       setSuccess('');
-      // console.log({ error })
-      // console.log({ type: typeof error.response.data })
       if (error.response && typeof error.response.data === 'object') {
         setPasswordErrors(error.response.data);
       } else {
