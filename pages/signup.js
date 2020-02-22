@@ -4,7 +4,6 @@ import Link from 'next/link';
 import axios from 'axios';
 import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
-import { handleLogin } from '../utils/auth';
 import handleSocialSignIn from '../utils/socialSignIn';
 import { logEvent } from '../utils/analytics';
 
@@ -49,7 +48,6 @@ function Signup() {
       const payload = { ...user };
       const response = await axios.post(url, payload);
       setEmailSent(response.data);
-      handleLogin(response.data);
       logEvent("User", "Created an Account");
     } catch (error) {
       if (error.response && typeof error.response.data === 'object') {
