@@ -68,8 +68,9 @@ async function handlePostRequest(req, res) {
       process.env.JWT_SECRET
     );
     const user = await User.findOne({ _id: userId });
+    const isUserOrAdmin = user.role === 'root' || user.role === 'admin'
     if (user) {
-      if (user.role !== 'root' || user.role !== 'admin') {
+      if (!isUserOrAdmin) {
         return res.status(403).send("You are not allowed to create coupon codes.");
       }
       const coupon = await Code.findOne({ code });
