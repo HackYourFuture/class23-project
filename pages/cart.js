@@ -8,6 +8,7 @@ import axios from 'axios';
 import baseUrl from '../utils/baseUrl';
 import cookie from 'js-cookie';
 import catchErrors from '../utils/catchErrors';
+import { redirectUser } from '../utils/auth';
 
 function Cart({ products, user, currency, code }, ctx) {
   const [cartProducts, setCartProducts] = React.useState(products);

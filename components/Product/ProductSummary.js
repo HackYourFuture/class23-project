@@ -19,6 +19,8 @@ import baseUrl from "../../utils/baseUrl";
 import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
 import { isDiscountStarted, isDiscountExpired } from "../../utils/discount";
+import { redirectUser } from '../../utils/auth';
+
 
 function ProductSummary({
   name,
