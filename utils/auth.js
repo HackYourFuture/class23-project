@@ -2,9 +2,9 @@ import cookie from "js-cookie";
 import Router from "next/router";
 import firebase from 'firebase';
 
-export function handleLogin(token) {
+export function handleLogin(token, ctx) {
   cookie.set("token", token);
-  Router.push("/account");
+  redirectUser(ctx, '/account');
 }
 
 export function redirectUser(ctx, location) {

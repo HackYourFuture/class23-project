@@ -15,6 +15,7 @@ export default async function handleSocialLogin(
   event,
   errorHandler,
   loadingHandler,
+  ctx
 ) {
   if (firebase.auth().currentUser) {
     return catchErrors(new Error('You are already signed in!'), errorHandler);
@@ -38,7 +39,7 @@ export default async function handleSocialLogin(
     };
     const url = `${baseUrl}/api/social`;
     const response = await axios.post(url, payload);
-    handleLogin(response.data);
+    handleLogin(response.data, ctx);
   } catch (error) {
     catchErrors(error, errorHandler);
   } finally {

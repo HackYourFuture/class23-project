@@ -14,7 +14,7 @@ const INITIAL_USER = {
   rePassword: '',
 };
 
-function Signup() {
+function Signup(pageProps, ctx) {
   const [user, setUser] = React.useState(INITIAL_USER);
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
@@ -142,7 +142,7 @@ function Signup() {
                   padding: '11px 40px',
                 }}
                 color="google plus"
-                onClick={(event) => handleSocialSignIn(event, setError, setLoading)}
+                onClick={(event) => handleSocialSignIn(event, setError, setLoading, ctx)}
               >
                 <Icon name="google" />
                 Sign In with Google
@@ -155,7 +155,7 @@ function Signup() {
                   padding: '12px 32px',
                 }}
                 color="facebook"
-                onClick={(event) => handleSocialSignIn(event, setError, setLoading)}
+                onClick={(event) => handleSocialSignIn(event, setError, setLoading, ctx)}
               >
                 <Icon name="facebook" />
                 Sign In with Facebook

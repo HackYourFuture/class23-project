@@ -25,8 +25,7 @@ const INITIAL_EMAIL = {
   confirmEmail: '',
 };
 
-function Login() {
-  const router = useRouter();
+function Login(pageProps, ctx) {
 
   const [user, setUser] = React.useState(INITIAL_USER);
   const [confirmEmail, setConfirmEmail] = React.useState(INITIAL_EMAIL);
@@ -60,7 +59,7 @@ function Login() {
       const url = `${baseUrl}/api/login`;
       const payload = { ...user };
       const response = await axios.post(url, payload);
-      handleLogin(response.data);
+      handleLogin(response.data, ctx);
     } catch (error) {
       if (typeof error.response.data === 'object') {
         setVerificationError(error.response.data.msg);
@@ -161,7 +160,7 @@ function Login() {
             padding: '11px 40px',
           }}
           color="google plus"
-          onClick={event => handleSocialSignIn(event, setError, setLoading)}
+          onClick={event => handleSocialSignIn(event, setError, setLoading, ctx)}
         >
           <Icon name="google" />
           Sign In with Google
@@ -174,7 +173,7 @@ function Login() {
             padding: '12px 32px',
           }}
           color="facebook"
-          onClick={event => handleSocialSignIn(event, setError, setLoading)}
+          onClick={event => handleSocialSignIn(event, setError, setLoading, ctx)}
         >
           <Icon name="facebook" />
           Sign In with Facebook
