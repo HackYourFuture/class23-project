@@ -1,14 +1,14 @@
-import { useState } from 'react';
-import { logEvent } from '../utils/analytics';
-import { Segment, Modal, Image, Button, Header } from 'semantic-ui-react';
-import CartItemList from '../components/Cart/CartItemList';
-import CartSummary from '../components/Cart/CartSummary';
-import { parseCookies } from 'nookies';
-import axios from 'axios';
-import baseUrl from '../utils/baseUrl';
-import cookie from 'js-cookie';
-import catchErrors from '../utils/catchErrors';
-import { redirectUser } from '../utils/auth';
+import { useState } from "react";
+import { logEvent } from "../utils/analytics";
+import { Segment, Modal, Image, Button, Header } from "semantic-ui-react";
+import CartItemList from "../components/Cart/CartItemList";
+import CartSummary from "../components/Cart/CartSummary";
+import { parseCookies } from "nookies";
+import axios from "axios";
+import baseUrl from "../utils/baseUrl";
+import cookie from "js-cookie";
+import catchErrors from "../utils/catchErrors";
+import { redirectUser } from "../utils/auth";
 
 function Cart({ products, user, currency, code }, ctx) {
   const [cartProducts, setCartProducts] = React.useState(products);
@@ -20,15 +20,15 @@ function Cart({ products, user, currency, code }, ctx) {
   // console.log(products);
   async function handleRemoveFromCart(productId) {
     const url = `${baseUrl}/api/cart`;
-    const token = cookie.get('token');
+    const token = cookie.get("token");
     const payload = {
       params: { productId },
-      headers: { Authorization: token },
+      headers: { Authorization: token }
     };
     const response = await axios.delete(url, payload);
     // console.log(response.data);
     setCartProducts(response.data);
-    logEvent('User', `User ${user.name} removed product from their cart`);
+    logEvent("User", `User ${user.name} removed product from their cart`);
   }
 
   async function handleCheckout(paymentData) {
@@ -41,7 +41,7 @@ function Cart({ products, user, currency, code }, ctx) {
       const response = await axios.post(url, payload, headers);
       setLastOrder(response.data);
       setSuccess(true);
-      logEvent('User', `User ${user.name} made a payment! `);
+      logEvent("User", `User ${user.name} made a payment! `);
     } catch (error) {
       catchErrors(error, window.alert);
     } finally {
@@ -58,7 +58,7 @@ function Cart({ products, user, currency, code }, ctx) {
     async function handleInfoMail() {
       try {
         const url = `${baseUrl}/api/info-mail`;
-        const token = cookie.get('token');
+        const token = cookie.get("token");
         const payload = { lastOrder, email: user.email };
         const headers = { headers: { Authorization: token } };
         await axios.put(url, payload, headers);
@@ -88,14 +88,14 @@ function Cart({ products, user, currency, code }, ctx) {
       </Segment>
       {success && (
         <Modal
-          centered={false}
+          centered={true}
           closeIcon
           open={isOpen}
           size="large"
           style={{
-            marginTop: '0px !important',
-            position: 'relative',
-            top: '20px',
+            display: "block !important",
+            position: "absolute",
+            top: "200px"
           }}
         >
           <Header content="You can rate your products from your order list now!" />
@@ -103,7 +103,7 @@ function Cart({ products, user, currency, code }, ctx) {
             <Image floated="left" src="../static/click-to-rate.png" />
           </Modal.Content>
           <Modal.Actions>
-            <Button color="green" onClick={() => redirectUser(ctx, '/account')}>
+            <Button color="green" onClick={() => redirectUser(ctx, "/account")}>
               I'd love to!
             </Button>
             <Button color="red" onClick={() => setIsOpen(false)}>

@@ -1,5 +1,6 @@
 function calculateCartTotal(products, voucherCode) {
-  let discountAmount = 0, discountAmountEuro = 0;
+  let discountAmount = 0,
+    discountAmountEuro = 0;
   let total = products.reduce((acc, el) => {
     acc += el.product.price * el.quantity;
     if (el.discount && el.discountApplied) {
@@ -11,7 +12,8 @@ function calculateCartTotal(products, voucherCode) {
   let totalEuro = products.reduce((acc, el) => {
     acc += el.product.priceEuro * el.quantity;
     if (el.discount && el.discountApplied) {
-      const discount = (el.product.priceEuro * el.discount.discountPercentage) / 100
+      const discount =
+        (el.product.priceEuro * el.discount.discountPercentage) / 100;
       acc -= discount;
       discountAmountEuro += discount;
     }
@@ -35,14 +37,25 @@ function calculateCartTotal(products, voucherCode) {
   }
 
   const cartTotal = ((total * 100) / 100).toFixed(2);
+  console.log("cartTotal", cartTotal);
   const cartTotalEuro = ((totalEuro * 100) / 100).toFixed(2);
 
-  const stripeTotal = Number((total * 100).toFixed(2));
-  const stripeTotalEuro = Number((totalEuro * 100).toFixed(2));
+  const stripeTotal = Math.round(Number((total * 100).toFixed(2)));
+  console.log("stripeTotal", stripeTotal);
+  const stripeTotalEuro = Math.round(Number((totalEuro * 100).toFixed(2)));
 
   discountAmount = discountAmount > 0 ? discountAmount.toFixed(2) : null;
-  discountAmountEuro = discountAmountEuro > 0 ? discountAmountEuro.toFixed(2) : null;
-  return { cartTotal, stripeTotal, cartTotalEuro, stripeTotalEuro, discountAmount, discountAmountEuro };
+  console.log("discountAMount", typeof discountAmount);
+  discountAmountEuro =
+    discountAmountEuro > 0 ? discountAmountEuro.toFixed(2) : null;
+  return {
+    cartTotal,
+    stripeTotal,
+    cartTotalEuro,
+    stripeTotalEuro,
+    discountAmount,
+    discountAmountEuro
+  };
 }
 
 export default calculateCartTotal;

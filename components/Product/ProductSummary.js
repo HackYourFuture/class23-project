@@ -16,10 +16,9 @@ import AddProductToCart from "./AddProductToCart";
 import axios from "axios";
 import cookie from "js-cookie";
 import baseUrl from "../../utils/baseUrl";
-import { useRouter } from "next/router";
 import catchErrors from "../../utils/catchErrors";
 import { isDiscountStarted, isDiscountExpired } from "../../utils/discount";
-import { redirectUser } from '../../utils/auth';
+import { redirectUser } from "../../utils/auth";
 
 
 function ProductSummary({
@@ -45,7 +44,6 @@ function ProductSummary({
   const [mediaPreview, setMediaPreview] = React.useState("");
   const [error, setError] = React.useState("");
   const [success, setSuccess] = React.useState(false);
-  const router = useRouter();
 
   React.useEffect(() => {
     const avrRating = calculateRatingMedian(ratings);
@@ -235,8 +233,8 @@ function ProductSummary({
                 {!currency || currency === "usd" ? (
                   <p>${price.toFixed(2)}</p>
                 ) : (
-                    <p>&euro;{priceEuro.toFixed(2)}</p>
-                  )}
+                  <p>&euro;{priceEuro.toFixed(2)}</p>
+                )}
                 {user && (user.role === "admin" || user.role === "root") && (
                   <Modal
                     size="tiny"
@@ -295,21 +293,28 @@ function ProductSummary({
             <Item.Extra>
               <AddProductToCart user={user} productId={_id} name={name} />
             </Item.Extra>
-            {(discount && discount.isActive &&
-              isDiscountStarted(discount) && !isDiscountExpired(discount)) &&
-              (
+            {discount &&
+              discount.isActive &&
+              isDiscountStarted(discount) &&
+              !isDiscountExpired(discount) && (
                 <>
-                  <Label tag icon='gift' color='red' content={`%${discount.discountPercentage}`} />
+                  <Label
+                    tag
+                    icon="gift"
+                    color="red"
+                    content={`%${discount.discountPercentage}`}
+                  />
                   <Button
                     color="red"
-                    size='mini'
-                    onClick={() => redirectUser(ctx, `/offer?discountId=${discount._id}`)}
+                    size="mini"
+                    onClick={() =>
+                      redirectUser(ctx, `/offer?discountId=${discount._id}`)
+                    }
                   >
                     See Offer Details!
-                </Button>
+                  </Button>
                 </>
-              )
-            }
+              )}
           </Item.Content>
         </Item>
       </Item.Group>

@@ -1,14 +1,14 @@
 // import Token from '../../models/Token';
-import User from '../../models/User';
-import connectDb from '../../utils/connectDb';
-import isEmail from 'validator/lib/isEmail';
-import nodemailer from 'nodemailer';
+import User from "../../models/User";
+import connectDb from "../../utils/connectDb";
+import isEmail from "validator/lib/isEmail";
+import nodemailer from "nodemailer";
 
 connectDb();
 
 export default async function(req, res) {
   switch (req.method) {
-    case 'PUT':
+    case "PUT":
       await handlePostRequest(req, res);
       break;
     default:
@@ -27,15 +27,15 @@ async function handlePostRequest(req, res) {
     // Check if there is a user with that email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).send('User not found with that email address!');
+      return res.status(404).send("User not found with that email address!");
     }
 
     const transporter = nodemailer.createTransport({
-      service: 'Sendgrid',
+      service: "Sendgrid",
       auth: {
         user: process.env.SENDGRID_USERNAME,
-        pass: process.env.SENDGRID_PASSWORD,
-      },
+        pass: process.env.SENDGRID_PASSWORD
+      }
     });
 
     var generalTotal = lastOrder.products
@@ -49,7 +49,7 @@ async function handlePostRequest(req, res) {
       let totalPrice = (b.quantity * b.product.price).toFixed(2);
       return (
         a +
-        '<tr><td>' +
+        "<tr><td>" +
         `<img style="width: 150px;" 
         src='${b.product.mediaUrl}' alt='product image'/>` +
         '</td><td style="padding: 0 30px;">' +
@@ -62,17 +62,17 @@ async function handlePostRequest(req, res) {
         totalPrice +
         '</td></tr style="padding: 0 30px;">'
       );
-    }, '');
+    }, "");
 
     var mailOptions = {
-      from: 'no-reply@hackyourshop.com',
+      from: "no-reply@hackyourshop.com",
       to: email,
-      subject: 'Purchase information',
+      subject: "Purchase information",
       html:
         `<header style="width: 90%;margin: 10px auto;">
         <img
         style="width: 100%;margin: 10px auto;"
-        src="https://res.cloudinary.com/mekinci/image/upload/v1581636170/Ekran_Resmi_2020-02-14_00.19.59_u4vznu.png"
+        src="https://res.cloudinary.com/mekinci/image/upload/v1582370315/Ekran_Resmi_2020-02-22_12.17.45_h9nouw.png"
         alt="header image"
         />
         </header>
@@ -95,7 +95,7 @@ async function handlePostRequest(req, res) {
         alt="footer img"
         />
         </footer>
-        `,
+        `
     };
 
     transporter.sendMail(mailOptions, err => {

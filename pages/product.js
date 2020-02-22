@@ -7,9 +7,17 @@ import CommentPagination from "../components/Product/CommentPagination";
 import baseUrl from "../utils/baseUrl";
 import AddProductSuggestions from "../components/Product/AddProductSuggestions";
 
-function Product({ product, user, totalComments, topSuggestedProducts, currency }) {
+function Product({
+  product,
+  user,
+  totalComments,
+  topSuggestedProducts,
+  currency
+}) {
   const [displayedProduct, setDisplayedProduct] = useState(product);
-  const [displayedTotalComments, setDisplayedTotalComments] = useState(totalComments);
+  const [displayedTotalComments, setDisplayedTotalComments] = useState(
+    totalComments
+  );
 
   function handleNewComment({
     totalComments: newTotalComments,

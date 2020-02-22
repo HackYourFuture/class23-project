@@ -11,7 +11,7 @@ import {
   UNIT_TYPES,
   isDiscountExpired
 } from "../../utils/discount";
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 connectDb();
 
@@ -51,33 +51,49 @@ async function handleGetRequest(req, res) {
   try {
     if (productId) {
       // get the product category
-      const productCategory = await Product.findOne({ _id: productId }).distinct('category');
+      const productCategory = await Product.findOne({
+        _id: productId
+      }).distinct("category");
       // discounts for product
       if (isActive) {
         discounts = await Discount.find({
           $and: [
             {
-              $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
+              $or: [
+                { product: productId },
+                { products: productId },
+                { category: productCategory },
+                { categories: productCategory }
+              ]
             },
             { ...isActiveQuery }
           ]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       } else {
         discounts = await Discount.find({
-          $or: [{ "product": productId }, { "products": productId }, { category: productCategory }, { categories: productCategory }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+          $or: [
+            { product: productId },
+            { products: productId },
+            { category: productCategory },
+            { categories: productCategory }
+          ]
+        })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       }
     } else if (category) {
       // discounts for category
@@ -87,23 +103,27 @@ async function handleGetRequest(req, res) {
             { $or: [{ category: category }, { categories: category }] },
             { ...isActiveQuery }
           ]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       } else {
         discounts = await Discount.find({
           $or: [{ category: category }, { categories: category }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       }
     } else if (discountId) {
       // console.log("single discount");
@@ -111,34 +131,40 @@ async function handleGetRequest(req, res) {
       if (isActive) {
         discounts = await Discount.find({
           $and: [{ _id: discountId }, { ...isActiveQuery }]
-        }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       } else {
-        discounts = await Discount.find({ _id: discountId }).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        discounts = await Discount.find({ _id: discountId })
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       }
     } else {
       // all
       if (isActive) {
         discounts = await Discount.find({ ...isActiveQuery });
       } else {
-        discounts = await Discount.find({}).populate({
-          path: "products",
-          model: Product
-        }).populate({
-          path: "product",
-          model: Product
-        });
+        discounts = await Discount.find({})
+          .populate({
+            path: "products",
+            model: Product
+          })
+          .populate({
+            path: "product",
+            model: Product
+          });
       }
     }
     return res.status(200).json({ discounts });
@@ -216,7 +242,7 @@ async function handlePostRequest(req, res) {
               // Detach discounts from the products
               await Product.update(
                 {
-                  "discount": {
+                  discount: {
                     $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
                   }
                 },
@@ -224,17 +250,17 @@ async function handlePostRequest(req, res) {
                 { multi: true }
               );
               // Remove the discount from the carts
-              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
-                await removeDiscountFromCarts(discountId);
-              })
-              // remove the overridden discounts
-              await Discount.deleteMany(
-                {
-                  _id: {
-                    $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-                  }
+              discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(
+                async discountId => {
+                  await removeDiscountFromCarts(discountId);
                 }
               );
+              // remove the overridden discounts
+              await Discount.deleteMany({
+                _id: {
+                  $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+                }
+              });
             }
             const resp = await Product.update(
               { _id: { $in: products } },
@@ -291,7 +317,7 @@ async function handlePostRequest(req, res) {
                 {
                   $and: [
                     { discount: { $ne: null } },
-                    { "discount": product.discount._id },
+                    { discount: product.discount._id },
                     { _id: { $ne: discountObj.product._id } }
                   ]
                 }
@@ -307,7 +333,7 @@ async function handlePostRequest(req, res) {
                 // Detach discount from the products
                 await Product.update(
                   {
-                    "discount": {
+                    discount: {
                       $in: alreadyDiscountedProductsByTheOlderDiscount.map(
                         p => p._id
                       )
@@ -357,7 +383,7 @@ async function handlePostRequest(req, res) {
           // Detach discounts from the products
           await Product.update(
             {
-              "discount": {
+              discount: {
                 $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
               }
             },
@@ -365,25 +391,25 @@ async function handlePostRequest(req, res) {
             { multi: true }
           );
           // Remove the discounts from the carts
-          discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(async (discountId) => {
-            await removeDiscountFromCarts(discountId);
-          });
-          // remove the overridden discounts
-          await Discount.deleteMany(
-            {
-              _id: {
-                $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
-              }
+          discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.forEach(
+            async discountId => {
+              await removeDiscountFromCarts(discountId);
             }
           );
+          // remove the overridden discounts
+          await Discount.deleteMany({
+            _id: {
+              $in: discountIdsOfAlreadyDiscountedProductsByOtherDiscounts
+            }
+          });
           const resp = await Product.update(
             { _id: { $in: products } },
             { discount },
             { multi: true }
           );
           // console.log(
-          `Multiple products updated according to categories with response: ${resp}`
-          );
+          // `Multiple products updated according to categories with response: ${resp}`
+          // );
           const overriddenProductsMessage =
             discountIdsOfAlreadyDiscountedProductsByOtherDiscounts.length > 0
               ? " Not: Some products had different discounts related to them. " +
@@ -508,7 +534,7 @@ async function handleDeleteRequest(req, res) {
         await removeDiscountFromCarts(discountId);
         // Remove discount from products
         await Product.updateMany(
-          { "discount": discountId },
+          { discount: discountId },
           { $unset: { discount: 1 } },
           { multi: true }
         );
@@ -544,32 +570,45 @@ async function removeDiscountFromCarts(discountId) {
   await activateDeactivateRemoveDiscountFromCarts(discountId, false, true);
 }
 
-async function activateDeactivateRemoveDiscountFromCarts(discountId, activate, remove = false) {
-  const carts = await Cart.find({ 'products.discount': discountId })
+async function activateDeactivateRemoveDiscountFromCarts(
+  discountId,
+  activate,
+  remove = false
+) {
+  const carts = await Cart.find({ "products.discount": discountId })
     .populate({
       path: "products.product",
       model: Product
-    }).populate({
+    })
+    .populate({
       path: "products.discount",
       model: Discount
-    }).populate({
+    })
+    .populate({
       path: "products.discount.products",
       model: Product
-    }).populate({
+    })
+    .populate({
       path: "products.discount.product",
       model: Product
     });
 
   carts.forEach(async cart => {
     cart.products.forEach(doc => {
-      if (doc.discount && mongoose.Types.ObjectId(doc.discount._id).equals(discountId)) {
+      if (
+        doc.discount &&
+        mongoose.Types.ObjectId(doc.discount._id).equals(discountId)
+      ) {
         doc.discountApplied = activate;
         if (!activate || remove) doc.discountAmount = 0;
         else if (activate) {
           if (doc.discount.multipleUnits) {
-            doc.discountAmount = (doc.discount.discountPercentage * doc.product.price) / 100;
+            doc.discountAmount =
+              (doc.discount.discountPercentage * doc.product.price) / 100;
           } else {
-            doc.discountAmount = ((doc.discount.discountPercentage * doc.product.price) / 100) * doc.discount.amountRequired;
+            doc.discountAmount =
+              ((doc.discount.discountPercentage * doc.product.price) / 100) *
+              doc.discount.amountRequired;
           }
         }
         if (remove) doc.discount = null;
