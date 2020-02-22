@@ -12,7 +12,8 @@ function Dashboard({
   topViewedTenProducts,
   topProductsOfCategory,
   totalDiscounts,
-  coupons
+  coupons,
+  user
 }) {
   // console.log(totalDiscounts);
   const data = {
@@ -90,7 +91,7 @@ function Dashboard({
     <>
       <Tab menu={{ color: "teal", inverted: true }} panes={panes} />
       <DiscountActivity totalDiscounts={totalDiscounts} />
-      <CouponsList coupons={coupons} />
+      {user && (user.role === 'root' || user.role === 'admin') && < CouponsList coupons={coupons} />}
     </>
   );
 }
