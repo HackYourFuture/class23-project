@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { logEvent } from "../utils/analytics";
-import { Segment, Modal, Image, Button, Header } from "semantic-ui-react";
+import { Segment, Modal, Image, Button, Header, Message } from "semantic-ui-react";
 import CartItemList from "../components/Cart/CartItemList";
 import CartSummary from "../components/Cart/CartSummary";
 import { parseCookies } from "nookies";
@@ -96,6 +96,7 @@ function Cart({ products, user, currency, code }, ctx) {
             top: "200px"
           }}
         >
+          <Message content="Check your email for to see purchase information!" />
           <Header content="You can rate your products from your order list now!" />
           <Modal.Content image>
             <Image floated="left" src="../static/click-to-rate.png" />
